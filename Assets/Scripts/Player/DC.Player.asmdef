@@ -1,0 +1,29 @@
+{
+    "name": "DC.Player",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b6b76cd572968ae4fb1922eaf814f8cb",
+        "GUID:57c32fc907df0f54e8e6e8f0d2488336",
+        "GUID:9e24947de15b9834991c9d8411ea37cf",
+        "GUID:0da6d172d18a54e4389d0dce1e1ffdf2",
+        "GUID:b59fae9c7ebc1574e8690f2570b29d6f",
+        "GUID:84651a3751eca9349aac36a66bba901b",
+        "GUID:15e5fce649ac65044b6b96383fa6e20b",
+        "GUID:b6621340500ec4f46bc1b515235aad95",
+        "GUID:831409e8f9d13b5479a3baef9822ad34",
+        "GUID:b7e6fd867a25f7c43b601be4d7772245",
+        "GUID:e40ba710768534012815d3193fa296cb",
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:30817c1a0e6d646d99c048fc403f5979",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

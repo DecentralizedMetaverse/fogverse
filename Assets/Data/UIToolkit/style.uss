@@ -1,0 +1,14 @@
+.button {
+    height: 60px;
+    background-color: rgba(0, 96, 85, 0.53);
+    border-left-color: rgba(215, 247, 255, 255);
+    border-right-color: rgba(215, 247, 255, 255);
+    border-top-color: rgba(215, 247, 255, 255);
+    border-bottom-color: rgba(215, 247, 255, 255);
+    border-left-width: 4px;
+    border-right-width: 4px;
+    border-top-width: 4px;
+    border-bottom-width: 4px;
+    font-size: 16px;
+    -unity-font-style: bold;
+}

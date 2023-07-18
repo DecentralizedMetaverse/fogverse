@@ -1,0 +1,18 @@
+{
+    "name": "Tencent.XLua.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:cc8f1cf3a1d1a2148a5816cb0415309c"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

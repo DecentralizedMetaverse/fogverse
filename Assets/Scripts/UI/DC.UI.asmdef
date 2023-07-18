@@ -1,0 +1,23 @@
+{
+    "name": "DC.UI",
+    "rootNamespace": "",
+    "references": [
+        "GUID:9e24947de15b9834991c9d8411ea37cf",
+        "GUID:b7e6fd867a25f7c43b601be4d7772245",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:f48a88687021943959a850c81ac6e5b5",
+        "GUID:91592b2dd82cc8042be3f446c02397a1",
+        "GUID:029c1c1b674aaae47a6841a0b89ad80e",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

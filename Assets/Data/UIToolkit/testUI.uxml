@@ -1,0 +1,5 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <Style src="project://database/Assets/Data/UIToolkit/style.uss?fileID=7433441132597879392&amp;guid=f77dd07501d5d524b9be51fd82da3b78&amp;type=3#style" />
+    <ui:Button text="Button" display-tooltip-when-elided="true" class="button" />
+    <ui:VisualElement />
+</ui:UXML>

@@ -1,0 +1,16 @@
+{
+  "name": "dev.kyubuns.ankuchen",
+  "displayName": "AnKuchen",
+  "version": "1.9.2",
+  "unity": "2019.4",
+  "description": "Control UI Prefab from Script",
+  "documentationUrl": "https://github.com/kyubuns/AnKuchen",
+  "dependencies": {
+  },
+  "author": {
+    "name": "kyubuns",
+    "email": "kyubuns@gmail.com",
+    "url": "https://kyubuns.dev/"
+  },
+  "type": "library"
+}

@@ -1,0 +1,23 @@
+{
+    "name": "DC.RTC",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b7e6fd867a25f7c43b601be4d7772245",
+        "GUID:dc47925d1a5fa2946bdd37746b2b5d48",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:f12aafacab75a87499e7e45c873ffab8",
+        "GUID:9e24947de15b9834991c9d8411ea37cf",
+        "GUID:593a5b492d29ac6448b1ebf7f035ef33",
+        "GUID:84651a3751eca9349aac36a66bba901b"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

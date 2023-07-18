@@ -1,0 +1,7 @@
+# editor
+ip: 
+  - 127.0.0.1
+port: 7777
+max-users: 100
+server-mode: true
+vr-mode: false

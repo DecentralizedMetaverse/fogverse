@@ -1,0 +1,15 @@
+﻿
+
+<linker>
+
+	<assembly fullname="Tencent.XLua">
+	    <type fullname="Coroutine_Runner" preserve="all"/>
+		
+	</assembly>
+
+	<assembly fullname="UnityEngine.CoreModule">
+	    <type fullname="UnityEngine.WaitForSeconds" preserve="all"/>
+		
+	</assembly>
+
+</linker>

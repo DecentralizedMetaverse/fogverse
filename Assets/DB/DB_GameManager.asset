@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73eb6d90767d3b54aae01be2719859e1, type: 3}
+  m_Name: DB_GameManager
+  m_EditorClassIdentifier: 
+  visiblePerformance: 1
+  visibleLog: 1
+  startWorldPosition: 1
+  bgmOff: 1
+  userName: 
+  password: 
+  skipSignInScreen: 1
+  chunkSize: 256
+  metaPath: StreamingAssets/meta
+  contentPath: StreamingAssets/content
+  firstScene: 2
+  data:
+  - groupName: Manager
+    scene:
+    - {fileID: 102900000, guid: 73f9ae8b912d15e43b526530b1995cb8, type: 3}
+    - {fileID: 102900000, guid: 4539e8104ed1dd64a969f9b562c38490, type: 3}
+    - {fileID: 102900000, guid: 457cfb6c16ba7784ebf48c8466b1b1fd, type: 3}
+    sceneName:
+    - Manager
+    - UI
+  - groupName: Test
+    scene:
+    - {fileID: 102900000, guid: 2451d0cf9a5206b4bad1416df800e051, type: 3}
+    sceneName:
+    - Test
+  - groupName: WebRTC
+    scene:
+    - {fileID: 102900000, guid: b450f1665b901054fb5fdf8955439b91, type: 3}
+    sceneName:
+    - RTCUI
