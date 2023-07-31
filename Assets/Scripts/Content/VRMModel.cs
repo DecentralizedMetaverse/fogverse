@@ -11,6 +11,7 @@ public class VRMModel : MonoBehaviour
     void Start()
     {
         GM.Add<string, GameObject>("VRMModelLoad", (path) => { return Load(path, null); });
+        GM.Add<byte[], GameObject>("VRMModelLoadFromData", (data) => { return Load(null, data); });
     }
 
     public GameObject Load(string path, byte[] bytes = null)

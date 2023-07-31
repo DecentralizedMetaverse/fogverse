@@ -2,6 +2,9 @@ using DC;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// àÍêlèÃCamera
+/// </summary>
 public class PlayerCameraController : MonoBehaviour
 {
     [SerializeField] public float moveSpeed = 1.0f;
@@ -36,6 +39,7 @@ public class PlayerCameraController : MonoBehaviour
 
     private void OnCancel(InputAction.CallbackContext obj)
     {
+        Debug.Log("OnCancel");
         GM.pause = GM.pause == ePause.mode.none?
             ePause.mode.GameStop:
             ePause.mode.none;

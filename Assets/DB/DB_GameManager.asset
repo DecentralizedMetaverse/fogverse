@@ -22,13 +22,13 @@ MonoBehaviour:
   chunkSize: 256
   metaPath: StreamingAssets/meta
   contentPath: StreamingAssets/content
+  avatarPath: StreamingAssets/avatar
   firstScene: 2
   data:
   - groupName: Manager
     scene:
     - {fileID: 102900000, guid: 73f9ae8b912d15e43b526530b1995cb8, type: 3}
     - {fileID: 102900000, guid: 4539e8104ed1dd64a969f9b562c38490, type: 3}
-    - {fileID: 102900000, guid: 457cfb6c16ba7784ebf48c8466b1b1fd, type: 3}
     sceneName:
     - Manager
     - UI
@@ -40,5 +40,7 @@ MonoBehaviour:
   - groupName: WebRTC
     scene:
     - {fileID: 102900000, guid: b450f1665b901054fb5fdf8955439b91, type: 3}
+    - {fileID: 102900000, guid: 457cfb6c16ba7784ebf48c8466b1b1fd, type: 3}
     sceneName:
     - RTCUI
+    - World

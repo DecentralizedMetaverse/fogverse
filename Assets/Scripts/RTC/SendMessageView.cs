@@ -12,6 +12,7 @@ public class SendMessageView : MonoBehaviour
     public TMP_InputField input;
     public TMP_Text output;
     public TMP_InputField inputSyncInterval;
+    public TMP_InputField inputAnimSyncInterval;
     string log;
 
     private void Start()
@@ -33,6 +34,7 @@ public class SendMessageView : MonoBehaviour
         });
 
         inputSyncInterval.text = GM.db.rtc.syncIntervalTimeSecond.ToString();
+        inputAnimSyncInterval.text = GM.db.rtc.syncAnimIntervalTimeSecond.ToString();
     }
 
     public void OnChangedSyncInterval()
@@ -44,5 +46,16 @@ public class SendMessageView : MonoBehaviour
         }
 
         GM.db.rtc.syncIntervalTimeSecond = value;
+    }
+
+    public void OnChangedAnimSyncInterval()
+    {
+        if(!float.TryParse(inputAnimSyncInterval.text, out var value))
+        {
+            inputAnimSyncInterval.text = GM.db.rtc.syncAnimIntervalTimeSecond.ToString();
+            return;
+        }
+
+        GM.db.rtc.syncAnimIntervalTimeSecond = value;
     }
 }

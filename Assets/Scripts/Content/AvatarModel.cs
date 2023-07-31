@@ -59,15 +59,8 @@ public class AvatarModel : MonoBehaviour
         }
 
         // Decrypt Avatar
-        if (!GM.Msg<bool>("DecryptFileWithPassword", encryptAvatarPath, avatarPassword))
-        {
-            Debug.LogError("[Error] Avatar Downloading");
-            return null;
-        }
-
-        var avatar = GM.Msg<GameObject>("VRMModelLoad", avatarPath);
-
-        File.Delete(encryptAvatarPath);
+        var data = await GM.Msg<UniTask<byte[]>>("GetDecryptDataWithPassword", encryptAvatarPath, avatarPassword);
+        var avatar = GM.Msg<GameObject>("VRMModelLoadFromData", data);
 
         return avatar;
     }

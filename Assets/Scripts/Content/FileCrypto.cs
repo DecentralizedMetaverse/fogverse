@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography;
 using System.Text;
+using Cysharp.Threading.Tasks;
 using DC;
 using UnityEngine;
 
@@ -23,6 +25,7 @@ public class FileCrypto : MonoBehaviour
         GM.Add<string, bool>("DecryptFile", DecryptFile);
         GM.Add<string, string, bool>("EncryptFileWithPassword", EncryptFileWithPassword);
         GM.Add<string, string, bool>("DecryptFileWithPassword", DecryptFileWithPassword);
+        GM.Add<string, string, UniTask<byte[]>>("GetDecryptDataWithPassword", GetDecryptDataWithPassword);
         GM.Add<byte[], string, byte[], byte[]>("Encrypt", Encrypt);
         GM.Add<byte[], string, byte[], byte[]>("Decrypt", Decrypt);
     }
@@ -33,10 +36,10 @@ public class FileCrypto : MonoBehaviour
     /// <param name="path"></param>
     /// <returns></returns>
     bool EncryptFile(string path)
-    {       
+    {
         return EncryptFileWithPassword(path, GM.password);
     }
-    
+
     bool EncryptFileWithPassword(string path, string password)
     {
         // Fileの内容をバイト配列として読み込む
@@ -60,7 +63,7 @@ public class FileCrypto : MonoBehaviour
     {
         return DecryptFileWithPassword(path, GM.password);
     }
-    
+
     bool DecryptFileWithPassword(string path, string password)
     {
         // 出力するFile名
@@ -75,6 +78,44 @@ public class FileCrypto : MonoBehaviour
         File.WriteAllBytes(outputFileName, decryptedData);
 
         return true;
+    }
+
+    async UniTask<byte[]> GetDecryptDataWithPassword(string path, string password)
+    {
+        if (!File.Exists(path)) { return null; }
+
+        while (IsFileLocked(path))
+        {
+            // Fileが使用中
+            await UniTask.Yield();
+        }
+        
+        // 暗号化されたFileからDataを読み込む
+        var encryptedData = File.ReadAllBytes(path);
+
+        return Decrypt(encryptedData, password, salt);
+    }
+
+    bool IsFileLocked(string path)
+    {
+        FileStream stream = null;
+        try
+        {
+            stream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+        }
+        catch
+        {
+            return true;
+        }
+        finally
+        {
+            if (stream != null)
+            {
+                stream.Close();
+            }
+        }
+
+        return false;
     }
 
     private byte[] Encrypt(byte[] inputBytes, string password, byte[] salt)
@@ -138,7 +179,7 @@ public class FileCrypto : MonoBehaviour
                 decryptedData = ms.ToArray(); // 復号化されたデータを取得する
             }
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             GM.LogWarning(e.Message);
             GM.Msg("ShortMessage", "Password is incorrect.");

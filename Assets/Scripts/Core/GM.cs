@@ -313,11 +313,13 @@ namespace DC
                 _pause = value;
                 if (value == ePause.mode.GameStop)
                 {
+                    Debug.Log("GameStop");
                     Cursor.visible = true;
                     Cursor.lockState = CursorLockMode.None;
                 }
                 else if (value == ePause.mode.none)
                 {
+                    Debug.Log("none");
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
                 }

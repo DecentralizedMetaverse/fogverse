@@ -24,7 +24,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Camera",
+                    "name": "Look",
                     "type": "Value",
                     "id": "3da9a486-4612-401b-a262-9bfe901e2799",
                     "expectedControlType": "Vector2",
@@ -60,7 +60,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Dash",
+                    "name": "Sprint",
                     "type": "Button",
                     "id": "c02dd73a-758e-40a1-abe6-2a9ef1914c55",
                     "expectedControlType": "Button",
@@ -81,6 +81,15 @@
                     "name": "Menu",
                     "type": "Button",
                     "id": "bda1228f-de76-4d53-b1a6-f7fb039e6704",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Chat",
+                    "type": "Button",
+                    "id": "a4efda6d-6395-400a-92e5-21f095274275",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -172,7 +181,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Camera",
+                    "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -181,9 +190,9 @@
                     "id": "adda4113-0d2e-4b15-a6fe-dfa9ce881022",
                     "path": "<Mouse>/delta",
                     "interactions": "",
-                    "processors": "",
+                    "processors": "InvertVector2(invertX=false),ScaleVector2(x=10,y=10)",
                     "groups": "",
-                    "action": "Camera",
+                    "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -194,7 +203,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Camera",
+                    "action": "Look",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
@@ -205,7 +214,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Camera",
+                    "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -216,7 +225,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Camera",
+                    "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -227,7 +236,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Camera",
+                    "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -238,7 +247,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Camera",
+                    "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -337,7 +346,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Dash",
+                    "action": "Sprint",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -382,6 +391,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c86cbe6b-358a-418d-900a-9bf131899466",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Chat",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

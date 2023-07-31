@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: DB_RTC
   m_EditorClassIdentifier: 
   url: ws://localhost:8080/ws
-  id: 1637cd779cd941e79cec1dd3f5decaaa
-  syncIntervalTimeSecond: 0.1
+  id: f8ecc9ec567e4f2bb6cc1465148d8a0d
+  syncIntervalTimeSecond: 1
+  syncAnimIntervalTimeSecond: 5

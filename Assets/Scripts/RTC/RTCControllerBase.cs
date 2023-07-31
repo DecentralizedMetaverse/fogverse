@@ -43,7 +43,7 @@ public abstract class RTCControllerBase : MonoBehaviour
     protected void OnMessage(byte[] data, string sourceId)
     {
         var output = $"{System.Text.Encoding.UTF8.GetString(data)}";
-        Debug.Log(output);
+        // Debug.Log(output);
 
         GM.Msg("AddOutput", $"[Receive] {output}");
 
@@ -51,6 +51,11 @@ public abstract class RTCControllerBase : MonoBehaviour
         var dataDict = output.GetDict<string, object>();
         if (dataDict.TryGetValue("type", out object value) && value.ToString() != "message")
         {
+            // LogÇÃï\é¶
+            var typeStr = value.ToString();
+            if (typeStr != "location" && typeStr != "anim") Debug.Log(output);
+
+            // Messageà»äOÇÃèàóù
             var targetId = dataDict["target_id"].ToString(); // TODO: KeyNotFound
             if (targetId != GM.db.rtc.id && targetId != "*")
             {

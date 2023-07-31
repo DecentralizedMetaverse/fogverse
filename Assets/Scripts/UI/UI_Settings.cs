@@ -9,33 +9,55 @@ using System.Security.Cryptography;
 using System.Text;
 using System.IO;
 using DC;
+using Cysharp.Threading.Tasks;
+
+/// <summary>
+/// 設定画面
+/// </summary>
 public class UI_Settings : MonoBehaviour
 {
     [SerializeField] DB_Settings db;
     [SerializeField] UICache root;
     private TMP_InputField inputPass;
-    private UI_ShowCloseFade ui;
+    private TMP_InputField inputNameTagField;
+    private UI_ToggleFade ui;
     private string path;
     const string password = "NIOQ#afe09q23j";
     const string saltStr = "fwa903Gdf";
 
     byte[] salt;
 
-    void Start()
+    async void Start()
     {
         var button = root.Get<Button>("SaveButton");
         button.onClick.AddListener(() => OnSavePassword());
         
         inputPass = root.Get<TMP_InputField>("PassInputField");
+        inputNameTagField = root.Get<TMP_InputField>("NameTagInputField");
         
-        ui = root.Get<UI_ShowCloseFade>();
+        ui = root.Get<UI_ToggleFade>();
 
+        // passwordのファイルを読み込む
         salt = System.Text.Encoding.UTF8.GetBytes(saltStr);
         path = $"{Application.persistentDataPath}/settings.dat";
         ReadPassword();
         inputPass.text = GM.password;
 
         GM.Add("ShowSettings", Show);
+
+        // nametag取得
+        var result = GM.Msg<object>("GetSaveData", "nametag");
+        if (result == null) return;
+        
+        // nametagが取得できるまで待つ
+        while(GM.db.rtc.mineObject == null)
+        {
+            await UniTask.Yield();
+        }
+
+        // nametagを設定
+        GM.db.rtc.mineObject.nametag = result.ToString();
+        inputNameTagField.text = result.ToString();
     }
 
     void Show()
@@ -43,34 +65,28 @@ public class UI_Settings : MonoBehaviour
         ui.active = ui.active ? false : true;
     }
 
-
+    /// <summary>
+    /// passwordを保存する
+    /// </summary>
     private void OnSavePassword()
     {
         GM.password = inputPass.text;
-        //var txt = Encoding.UTF8.GetBytes(inputPass.text);
-
-        //// 16進数文字列に変換
-        //var output = GM.Msg<byte[]>("Encrypt", txt, password, salt);
+        GM.db.rtc.mineObject.nametag = inputNameTagField.text;
+        GM.Msg("SetSaveData", "nametag", inputNameTagField.text);
         
-        //var passTxt = Encoding.UTF8.GetString(output);
-        //File.WriteAllText(path, passTxt);
         File.WriteAllText(path, GM.password);
-        
         ui.active = false;
     }
 
+    /// <summary>
+    /// passwordを読み込む
+    /// </summary>
     void ReadPassword()
     {
+        // ファイルがなければ何もしない
         if (!File.Exists(path)) return;
 
-        var txt = File.ReadAllText(path);
-        //var byteTxt = Encoding.UTF8.GetBytes(txt);
-
-        //// 16進数文字列に変換
-        //var output = GM.Msg<byte[]>("Decrypt", byteTxt, password, salt);
-
-        //GM.password = Encoding.UTF8.GetString(output);
-
+        var txt = File.ReadAllText(path);        
         GM.password = txt;
     }
 }

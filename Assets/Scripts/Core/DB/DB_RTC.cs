@@ -13,6 +13,7 @@ public class DB_RTC : ScriptableObject
     public string id = "";
     
     public float syncIntervalTimeSecond = 0.5f;
+    public float syncAnimIntervalTimeSecond = 0.5f;
     public Dictionary<string, RTCConnection> peers = new();
     public Dictionary<string, List<RTCConnection>> groupPeers = new();
     public Dictionary<string, object> errorData = new()
@@ -27,6 +28,16 @@ public class DB_RTC : ScriptableObject
     {
         peers.Clear();
         id = Guid.NewGuid().ToString("N");
+    }
+
+    public RTCObject mineObject
+    {
+        get
+        {
+            if(!syncObjectsByID.TryGetValue(id, out var list)) return null;
+            if (list.Count == 0) return null;
+            return syncObjects[list[0]];
+        }
     }
 }
 

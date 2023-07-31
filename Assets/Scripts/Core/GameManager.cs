@@ -41,13 +41,14 @@ public class GameManager : MonoBehaviour
         GM.mng.SetSceneName();
         Debug.unityLogger.logEnabled = true;
 #else
-        // Debug.unityLogger.logEnabled = false;
+        Debug.unityLogger.logEnabled = false;
 #endif
     }
 
     private void Start()
     {
         InputF.action.Debug.Quit.performed += OnQuit;
+        InputF.action.Game.Cancel.performed += OnCancel;
 
         debugObj.SetActive(GM.mng.visiblePerformance);
     }
@@ -55,6 +56,15 @@ public class GameManager : MonoBehaviour
     void OnQuit(InputAction.CallbackContext contex)
     {
         GM.GameQuit();
+    }
+
+    void OnCancel(InputAction.CallbackContext context)
+    {
+        Debug.Log("OnCancel");
+
+        GM.pause = GM.pause == ePause.mode.none ?
+            ePause.mode.GameStop :
+            ePause.mode.none;
     }
 
     [ContextMenu("Get Name")]
