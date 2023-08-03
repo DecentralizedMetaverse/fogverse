@@ -9,7 +9,7 @@ public class RTCConnection
 {
     public string id;
     string[] stunUrls = new string[] { "stun:stun.l.google.com:19302" };
-    private RTCPeerConnection pc;   // TODO: Peer‚²‚Æ‚É•K—v
+    public RTCPeerConnection pc;
     private RTCDataChannel dataChannel;
     public Action<byte[]> OnMessage;
     public Action<RTCIceCandidate> OnCandidate;
@@ -149,6 +149,11 @@ public class RTCConnection
         dataChannel.Send(data);
     }
 
+    public void Close()
+    {
+        pc.Close();
+    }
+
     private void SetDataChannel()
     {
         var config = new RTCDataChannelInit();
@@ -191,5 +196,5 @@ public class RTCConnection
     {
         Debug.Log($"[{id}][OnIceCandidate] {candidate.Candidate}");
         OnCandidate?.Invoke(candidate);
-    }
+    }    
 }

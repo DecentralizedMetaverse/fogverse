@@ -1,0 +1,17 @@
+{
+    "name": "UniSimpleProfiler",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b7e6fd867a25f7c43b601be4d7772245",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

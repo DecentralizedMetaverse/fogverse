@@ -50,13 +50,13 @@ public class UI_Settings : MonoBehaviour
         if (result == null) return;
         
         // nametag‚ªæ“¾‚Å‚«‚é‚Ü‚Å‘Ò‚Â
-        while(GM.db.rtc.mineObject == null)
+        while(GM.db.rtc.selfObject == null)
         {
             await UniTask.Yield();
         }
 
         // nametag‚ğİ’è
-        GM.db.rtc.mineObject.nametag = result.ToString();
+        GM.db.rtc.selfObject.nametag = result.ToString();
         inputNameTagField.text = result.ToString();
     }
 
@@ -71,7 +71,7 @@ public class UI_Settings : MonoBehaviour
     private void OnSavePassword()
     {
         GM.password = inputPass.text;
-        GM.db.rtc.mineObject.nametag = inputNameTagField.text;
+        GM.db.rtc.selfObject.nametag = inputNameTagField.text;
         GM.Msg("SetSaveData", "nametag", inputNameTagField.text);
         
         File.WriteAllText(path, GM.password);

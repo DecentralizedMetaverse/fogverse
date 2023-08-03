@@ -324,3 +324,7 @@ Assets/ThirdParty/StarterAssets/TutorialInfo/Scripts/Readme.cs
 Assets/ThirdParty/StarterAssets/TutorialInfo/Scripts/Readme.cs.meta
 Assets/ThirdParty/StarterAssets/TutorialInfo/Scripts/Editor/ReadmeEditor.cs
 Assets/ThirdParty/StarterAssets/TutorialInfo/Scripts/Editor/ReadmeEditor.cs.meta
+Assets/config.yaml
+*evaluation.csv
+config.json
+Assets/output.log

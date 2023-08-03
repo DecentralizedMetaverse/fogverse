@@ -2,7 +2,10 @@ using Cysharp.Threading.Tasks;
 using DC;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEngine;
+using UnityEngine.UIElements;
+using static UnityEngine.GraphicsBuffer;
 
 /// <summary>
 /// 全Objectの座標管理
@@ -14,6 +17,7 @@ public class RTCObjectManager : MonoBehaviour
     [SerializeField] GameObject playerPrefab;
     private Dictionary<string, List<string>> syncObjectsByID;
     private Dictionary<string, RTCObject> syncObjects;
+    HashSet<string> requestObjWaitingList = new();
 
     void Start()
     {
@@ -64,7 +68,7 @@ public class RTCObjectManager : MonoBehaviour
             }
             syncObjectsByID.Remove(id);
         });
-    }
+    }    
 
     /// <summary>
     /// 名前の変更
@@ -101,6 +105,9 @@ public class RTCObjectManager : MonoBehaviour
     /// <param name="objId"></param>
     void RequestObjectData(string targetId, string objId)
     {
+        if (requestObjWaitingList.Contains(objId)) return;
+        requestObjWaitingList.Add(objId);
+
         Dictionary<string, object> sendData = new()
         {
             { "objId", objId },
@@ -121,16 +128,24 @@ public class RTCObjectManager : MonoBehaviour
         var objId = data["objId"].ToString();
         if (string.IsNullOrEmpty(objId))
         {
-            if (syncObjectsByID.TryGetValue(GM.db.rtc.id, out List<string> objIds))
+            // 自分のObjectを取得
+            var self = GM.db.rtc.selfObject;
+            if(self != null)
             {
-                objId = objIds[0];
+                objId = self.objId;
             }
+            // TODO: 動作チェック
+            //if (syncObjectsByID.TryGetValue(GM.db.rtc.id, out List<string> objIds))
+            //{
+            //    objId = objIds[0];
+            //}
         }
 
         if (!syncObjects.TryGetValue(objId, out RTCObject obj))
         {
             // Error
             GM.Msg("RTCSendDirect", targetId, GM.db.rtc.errorData);
+            Debug.LogError("存在しないObjectへのアクセス");
             return;
         }
 
@@ -156,6 +171,8 @@ public class RTCObjectManager : MonoBehaviour
     {
         // 情報受け取り
         var objId = data["objId"].ToString();
+        requestObjWaitingList.Remove(objId);
+
         var position = data["position"].ToString().ToVector3();
         var rotation = data["rotation"].ToString().ToVector3();
         var cid = data["cid"].ToString();

@@ -7,6 +7,7 @@ using System.Linq;
 using System;
 using System.IO;
 using Newtonsoft.Json;
+using DC;
 
 //WinWin
 public static class fg
@@ -503,15 +504,37 @@ public static class fg
     /// <param name="pos"></param>
     /// <param name="divideSize"></param>
     /// <returns></returns>
-    public static (int, int) GetChunk2(Vector3 pos, float divideSize)
+    public static (int, int, int) GetChunk(Vector3 pos, float divideSize)
     {
         int x = (int)(pos.x * divideSize);
+        int y = (int)(pos.y * divideSize);
         int z = (int)(pos.z * divideSize);
 
         if (pos.x < 0) x--;
+        if (pos.y < 0) y--;
         if (pos.z < 0) z--;
 
-        return (x, z);
+        return (x,y, z);
+    }
+    
+    /// <summary>
+    /// 座標からChunk取得
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <param name="divideSize"></param>
+    /// <returns></returns>
+    public static (int, int, int) ToChunk(this Vector3 pos)
+    {
+        var divideSize = 1.0f/ GM.db.chunk.chunkSize;
+        int x = (int)(pos.x * divideSize);
+        int y = (int)(pos.y * divideSize);
+        int z = (int)(pos.z * divideSize);
+
+        if (pos.x < 0) x--;
+        if (pos.y < 0) y--;
+        if (pos.z < 0) z--;
+
+        return (x,y, z);
     }
 
     /// <summary>
@@ -541,9 +564,9 @@ public static class fg
     /// <typeparam name="T2"></typeparam>
     /// <param name="self"></param>
     /// <returns></returns>
-    public static string GetString<T1, T2>(this Dictionary<T1, T2> self)
+    public static string GetString<T1, T2>(this Dictionary<T1, T2> self, Formatting formatting = Formatting.None)
     {
-        return JsonConvert.SerializeObject(self);
+        return JsonConvert.SerializeObject(self, formatting);
     }
 
     public static Dictionary<T1, T2> GetDict<T1, T2>(this string self)
@@ -551,6 +574,67 @@ public static class fg
         if (string.IsNullOrEmpty(self)) return new Dictionary<T1, T2>();
 
         return JsonConvert.DeserializeObject<Dictionary<T1, T2>>(self);
+    }
+
+    /// <summary>
+    /// ListをCSV形式に変換する
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="self"></param>
+    /// <returns></returns>
+    public static string GetString<T>(this List<T> self)
+    {
+        var sb = new StringBuilder();
+        foreach (var item in self)
+        {
+            var properties = item.GetType().GetProperties();
+            foreach (var property in properties)
+            {
+                var value = property.GetValue(item)?.ToString() ?? "";
+                sb.Append(value);
+                sb.Append(",");
+            }
+            sb.AppendLine();
+        }
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// CSV形式をListに変換する
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="csvData"></param>
+    /// <returns></returns>
+    public static List<T> GetList<T>(this string csvData)
+    {
+        List<T> result = new List<T>();
+
+        // 行ごとに分割
+        string[] lines = csvData.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (string line in lines)
+        {
+            string[] values = line.Split(',');
+
+            T item = Activator.CreateInstance<T>();
+
+            var properties = typeof(T).GetProperties();
+            for (int i = 0; i < properties.Length && i < values.Length; i++)
+            {
+                string value = values[i];
+                var propertyType = properties[i].PropertyType;
+
+                // 値を目的の型に変換
+                object convertedValue = Convert.ChangeType(value, propertyType);
+
+                // 値を設定
+                properties[i].SetValue(item, convertedValue);
+            }
+
+            result.Add(item);
+        }
+
+        return result;
     }
 
     public static Dictionary<T1, T2> ToDictionary<T1, T2>(this object model)

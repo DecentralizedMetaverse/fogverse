@@ -24,7 +24,6 @@ public class DB_GameManager : ScriptableObject
     public bool skipSignInScreen = true;
 
     [Header("Other")]
-    public int chunkSize = 256;
     public string metaPath = "StreamingAssets/meta";
     public string contentPath = "StreamingAssets/content";
     public string avatarPath = "StreamingAssets/avatar";

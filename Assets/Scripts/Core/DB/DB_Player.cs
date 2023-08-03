@@ -8,6 +8,5 @@ public class DB_Player : ScriptableObject
 {
     public Transform worldRoot;
     public Transform user;
-    public int chunkX;
-    public int chunkY;
+    public (int, int, int) chunk;
 }

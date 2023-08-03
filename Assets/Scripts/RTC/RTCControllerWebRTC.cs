@@ -19,10 +19,7 @@ class RTCControllerWebRTC : RTCControllerBase
         responseFunctions.Add("offer", ResponseOffer);
         responseFunctions.Add("join", Connect);
         responseFunctions.Add("answer", ResponseAnswer);
-        responseFunctions.Add("candidateAdd", ResponseCandidate);
-        // responseFunctions.Add("location",(data, sourceId, _)=> { GM.Msg("RTCReceiveLocation", data, sourceId); });
-        // responseFunctions.Add("requestObj", (data, sourceId, _)=> { GM.Msg("RTCRequstObjectInfo", data, sourceId); });
-        // responseFunctions.Add("instantiate", (data, sourceId, _)=> { GM.Msg("RTCInstantiate", data, sourceId); });
+        responseFunctions.Add("candidateAdd", ResponseCandidate); // TODO: –¼‘O‚Ì•ÏX‚ğs‚¤        
 
         GM.Add<byte[], string>("WebRTCMessageHandler", OnMessageFromSignalingPeer);
     }    

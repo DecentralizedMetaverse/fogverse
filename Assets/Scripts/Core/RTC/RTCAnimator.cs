@@ -7,7 +7,8 @@ using UnityEngine;
 [RequireComponent(typeof(RTCObject))]
 public class RTCAnimator : MonoBehaviour
 {
-    [SerializeField] RTCAnimatorStateData[] states = new RTCAnimatorStateData[]{
+    [SerializeField]
+    RTCAnimatorStateData[] states = new RTCAnimatorStateData[]{
         new RTCAnimatorStateData(){ stateName = "Speed", type = Type.Float },
         new RTCAnimatorStateData(){ stateName = "Jump", type = Type.Bool },
         new RTCAnimatorStateData(){ stateName = "MotionSpeed", type = Type.Float },
@@ -36,18 +37,27 @@ public class RTCAnimator : MonoBehaviour
     }
 
     public void Init()
-    {        
+    {
         getAnimStateValue = new()
         {
             {Type.Int, (id) => { return rtc.animator.GetInteger(id); }},
             {Type.Float, (id) => { return rtc.animator.GetFloat(id); }},
             {Type.Bool, (id) => { return rtc.animator.GetBool(id); }},
         };
-        
+
         setAnimStateValue = new()
         {
             {Type.Int, (id, value) => { rtc.animator.SetInteger(id, int.Parse(value.ToString())); } },
-            {Type.Float, (id, value) => { rtc.animator.SetFloat(id, float.Parse( value.ToString())); }},
+            {Type.Float, (id, value) => {
+                try
+                {
+                    rtc.animator.SetFloat(id, float.Parse( value.ToString()));
+                }
+                catch(Exception e)
+                {
+                    Debug.Log(e);
+                }
+            }},
             {Type.Bool, (id, value) => { rtc.animator.SetBool(id, bool.Parse(value.ToString())); }},
         };
 
@@ -58,7 +68,7 @@ public class RTCAnimator : MonoBehaviour
         sendData.Add("objId", rtc.objId);
         sendData.Add("state", new Dictionary<string, object>());
 
-        for (var i  = 0; i < states.Length; i++)
+        for (var i = 0; i < states.Length; i++)
         {
             states[i].stateId = Animator.StringToHash(states[i].stateName);
             stateData.Add(states[i].stateId.ToString(), InitType(states[i].type));
@@ -75,8 +85,9 @@ public class RTCAnimator : MonoBehaviour
         else
         {
             // 受信データの反映
-            foreach(var state in states)
+            foreach (var state in states)
             {
+                if(state.value == null) continue;
                 setAnimStateValue[state.type].DynamicInvoke(state.stateId, state.value);
             }
         }
@@ -93,7 +104,7 @@ public class RTCAnimator : MonoBehaviour
         time = 0;
 
 
-        // Animatorの値を送信
+        // Animatorの値を取得
         for (var i = 0; i < states.Length; i++)
         {
             var stateId = states[i].stateId;
@@ -103,9 +114,10 @@ public class RTCAnimator : MonoBehaviour
             stateData[stateIdStr] = getAnimStateValue[stateType].DynamicInvoke(stateId);
         }
 
-        sendData["anim"] = stateData;
+        sendData["state"] = stateData;
 
-        GM.Msg("RTCSendAll", sendData);
+        // いつでも自分の情報を送れるように準備しておく
+        GM.Msg("SetSelfAnimationData", sendData);
     }
 
     /// <summary>
@@ -119,10 +131,10 @@ public class RTCAnimator : MonoBehaviour
             Debug.LogWarning("Not found rtc or animator");
             return;
         }
-        stateData = data["anim"].ToString().GetDict<string, object>();
+        stateData = data["state"].ToString().GetDict<string, object>();
 
         // Receive Animator State Value
-        foreach(var (stateId, stateValue) in stateData)
+        foreach (var (stateId, stateValue) in stateData)
         {
             var index = GetStateIndex(stateId);
             states[index].value = stateValue;
@@ -138,7 +150,7 @@ public class RTCAnimator : MonoBehaviour
     {
         switch (type)
         {
-            default: 
+            default:
                 return null;
             case Type.Int:
                 return 0;

@@ -51,6 +51,8 @@ public class GameManager : MonoBehaviour
         InputF.action.Game.Cancel.performed += OnCancel;
 
         debugObj.SetActive(GM.mng.visiblePerformance);
+
+        GM.db.Start();
     }
 
     void OnQuit(InputAction.CallbackContext contex)

@@ -15,3 +15,4 @@ MonoBehaviour:
   rtc: {fileID: 11400000, guid: 7af0174119521c440aef6b6ee02b5e23, type: 2}
   user: {fileID: 11400000, guid: cea9c93519aa25a47bd4a0dcbec1a843, type: 2}
   player: {fileID: 11400000, guid: 99fa93b0863661344a759118ada4436e, type: 2}
+  chunk: {fileID: 11400000, guid: ca4037e6a3304f847af2d03e67fc565b, type: 2}

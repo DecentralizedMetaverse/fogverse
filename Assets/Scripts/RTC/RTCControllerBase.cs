@@ -18,6 +18,7 @@ public abstract class RTCControllerBase : MonoBehaviour
     {    
         GM.Msg("AddOutput", $"[Connected] {connectedId}");
 
+        // 接続先の情報を全体に送信
         var sendData = CreateSendData();
         sendData.Add("type", "join");
         sendData.Add("join_id", connectedId);
@@ -32,7 +33,8 @@ public abstract class RTCControllerBase : MonoBehaviour
             peer.Send(sendDataTxt);  // TODO null
         }
 
-        GM.Msg("RequestObjectData", connectedId, "");
+        // 相手の情報を要求する
+        GM.Msg("RequestUserData", connectedId);
     }
 
     /// <summary>
@@ -45,7 +47,6 @@ public abstract class RTCControllerBase : MonoBehaviour
         var output = $"{System.Text.Encoding.UTF8.GetString(data)}";
         // Debug.Log(output);
 
-        GM.Msg("AddOutput", $"[Receive] {output}");
 
         // Message処理
         var dataDict = output.GetDict<string, object>();
@@ -53,7 +54,11 @@ public abstract class RTCControllerBase : MonoBehaviour
         {
             // Logの表示
             var typeStr = value.ToString();
-            if (typeStr != "location" && typeStr != "anim") Debug.Log(output);
+            if (typeStr != "location" && typeStr != "anim")
+            {
+                Debug.Log(output);
+                GM.Msg("AddOutput", $"[Receive] {output}");
+            }
 
             // Message以外の処理
             var targetId = dataDict["target_id"].ToString(); // TODO: KeyNotFound
@@ -104,7 +109,7 @@ public abstract class RTCControllerBase : MonoBehaviour
 
             var value = JsonUtility.FromJson<Ice>(candidate);
             candidateData.Add(candidate);
-            GM.db.rtc.peers[targetId].AddIceCandidate(value);
+            GM.db.rtc.peers[targetId].AddIceCandidate(value); // TODO: null
         }
     }
 

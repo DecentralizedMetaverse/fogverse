@@ -3,19 +3,26 @@ using System.Collections;
 using System.Collections.Generic;
 using DC;
 using UnityEngine;
+using System.Threading;
 
 /// <summary>
 /// プレイヤーのチャンクを常時調べる
 /// 変化時はWorldの読み込みを行う
 /// TODO: UniTaskのCancel処理を行う
 /// </summary>
+[RequireComponent(typeof(RTCObject))]
 public class PlayerChunk : MonoBehaviour
 {
     [SerializeField] DB_Player dbPlayer;
     float divideChunkSize;
+    private CancellationTokenSource cts;
+    RTCObject rtc;
 
     void Start()
     {
+        rtc = GetComponent<RTCObject>();
+        if (!rtc.isLocal) return;
+
         dbPlayer.user = transform;
         if(dbPlayer.worldRoot == null)
         {
@@ -23,29 +30,41 @@ public class PlayerChunk : MonoBehaviour
             dbPlayer.worldRoot = obj.transform;
         }
 
-        divideChunkSize = 1.0f / GM.mng.chunkSize;
-        // CheckChunk().Forget();
+        divideChunkSize = 1.0f / GM.db.chunk.chunkSize;
+        
+        cts = new CancellationTokenSource();
+        UpdateCheckChunk(cts.Token).Forget();
     }
 
-    async UniTask CheckChunk()
+    void OnDestroy()
+    {
+        if (cts != null) cts.Cancel();
+    }
+
+    async UniTask UpdateCheckChunk(CancellationToken cancellationToken = default)
     {
         while (true)
         {
-            var (x, y) = fg.GetChunk2(transform.position, divideChunkSize);
+            if (cancellationToken.IsCancellationRequested) return;
 
-            if (IsChangedChunk(x, y))
+            var chunk = fg.GetChunk(transform.position, divideChunkSize);
+
+            if (IsChangedChunk(chunk))
             {
-                dbPlayer.chunkX = x;
-                dbPlayer.chunkY = y;
-                await GM.MsgAsync("LoadWorldByChunk", x, y);
+                dbPlayer.chunk = chunk;
+                // Worldを読み込む
+                // await GM.MsgAsync("LoadWorldByChunk", x, y);
+
+                // Chunkの変更を送信
+                GM.Msg("ChangeChunk", chunk);
             }
 
             await UniTask.Yield();
         }
     }
 
-    bool IsChangedChunk(int x, int y)
+    bool IsChangedChunk((int, int, int) chunk)
     {
-        return !(dbPlayer.chunkX == x && dbPlayer.chunkY == y);
+        return dbPlayer.chunk != chunk;
     }
 }

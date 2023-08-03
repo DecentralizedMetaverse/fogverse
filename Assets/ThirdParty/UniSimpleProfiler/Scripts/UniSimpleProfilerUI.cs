@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DC;
+using System;
 using TMPro;
 using UniSimpleProfiler.Internal;
 using UnityEngine;
@@ -56,6 +57,7 @@ namespace UniSimpleProfiler
             var unityUsed = (Profiler.GetTotalAllocatedMemoryLong() >> 10) / 1024f;
             var unityTotal = (Profiler.GetTotalReservedMemoryLong() >> 10) / 1024f;
 
+            GM.Msg("SetFPS", m_fPSCounter.Fps);
             m_fpsTextUI.SetText(FpsColor((int)m_fPSCounter.Fps));
             m_gcTextUI.SetText("{0}", GC.CollectionCount(0));
             m_monoUsedTextUI.SetText("{0}", (int)monoUsed);

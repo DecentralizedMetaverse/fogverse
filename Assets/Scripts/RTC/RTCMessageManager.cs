@@ -14,8 +14,8 @@ public class RTCMessageManager : MonoBehaviour
         {
             foreach (var (id, peer) in GM.db.rtc.peers)
             {
-                data.TryAdd("target_id", "*");
-                data.TryAdd("id", GM.db.rtc.id);
+                data.ForceAdd("target_id", "*");
+                data.ForceAdd("id", GM.db.rtc.id);
 
                 var dataTxt = data.GetString();
                 peer.Send(dataTxt);
@@ -28,8 +28,8 @@ public class RTCMessageManager : MonoBehaviour
         {
             if(GM.db.rtc.peers.TryGetValue(target_id, out var peer))
             {
-                data.TryAdd("id", GM.db.rtc.id);
-                data.TryAdd("target_id", target_id);
+                data.ForceAdd("id", GM.db.rtc.id);
+                data.ForceAdd("target_id", target_id);
                 
                 var dataTxt = data.GetString();
                 peer.Send(dataTxt);
@@ -41,10 +41,9 @@ public class RTCMessageManager : MonoBehaviour
             }
         });
 
-        // TODO: Chunk‚ÆGroup‚ÅŽg—p‚·‚é
-        GM.Add<string, string>("RTCSendGroup", (id, data) =>
+        GM.Add<string>("RTCClose", (id) =>
         {
-
+            GM.db.rtc.peers[id].Close();
         });
     }
 }

@@ -16,6 +16,7 @@ public class RTCObject : MonoBehaviour
     public string ownerId = "";
     public string cid = "";
     public string objType = "human";    // TODO: 別の場所で設定すべき
+    public float syncIntervalTimeSecond = 0.1f; // 最小値を設定しておく
 
     public string nametag
     {
@@ -58,6 +59,9 @@ public class RTCObject : MonoBehaviour
     Vector3 currentPosition = Vector3.zero;
     Quaternion currentRotation = Quaternion.identity;
 
+    /// <summary>
+    /// 実際の時間？
+    /// </summary>
     float elapsedTime = 0;
     private Transform content;
 
@@ -75,7 +79,7 @@ public class RTCObject : MonoBehaviour
         {
             // 人型のObjectであれば、Geometryに設定する
             content = transform.Find("Geometry");
-            TryGetComponent(out animator);
+            // TryGetComponent(out animator);
             TryGetComponent(out nameTag);
             if(!TryGetComponent(out rtcAniamtor))
             {
@@ -156,13 +160,13 @@ public class RTCObject : MonoBehaviour
     }
 
     /// <summary>
-    /// 座標を送信する
+    /// Prepare Send Data
     /// </summary>
     void UpdataLocation()
     {
-        // 送信間隔を超えていない場合は、送信しない
+        // 送信間隔
         time += Time.deltaTime;
-        if (time < GM.db.rtc.syncIntervalTimeSecond) return; 
+        if (time < syncIntervalTimeSecond) return;
         time = 0;
 
         // 座標が変わっていない場合は、送信しない
@@ -176,7 +180,8 @@ public class RTCObject : MonoBehaviour
         locationData["position"] = transform.position.ToSplitString();
         locationData["rotation"] = transform.rotation.eulerAngles.ToSplitString();
 
-        GM.Msg("RTCSendAll", locationData);
+        // いつでも自分の情報を送れるように準備しておく
+        GM.Msg("SetSelfLocationData", locationData);
     }
 
     /// <summary>
@@ -198,13 +203,13 @@ public class RTCObject : MonoBehaviour
     /// </summary>
     void InterpolationLocation()
     {
-        var t = elapsedTime / GM.db.rtc.syncIntervalTimeSecond;
+        var t = elapsedTime / syncIntervalTimeSecond; // TODO: syncIntervalTimeSecondを外部から取得する必要がある
         elapsedTime += Time.deltaTime;
         transform.position = Vector3.LerpUnclamped(currentPosition, recievedPosition, t);
         transform.rotation = Quaternion.LerpUnclamped(currentRotation, recievedRotation, t);
 
-        if (objType != "human") return;
-        var speed = (currentPosition - transform.position).magnitude;
+        //if (objType != "human") return;
+        //var speed = (currentPosition - transform.position).magnitude;
     }
 
     /// <summary>
