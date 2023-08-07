@@ -11,23 +11,23 @@ public class DB_RTC : ScriptableObject
 {
     public string url = "ws://localhost:8080";
     public string id = "";
-    public int maxPeers = 10;
+    // ó\îıÇÃmaxPeers
+    public int maxReservedPeers = 5;
+    public int maxShowPeers = 5;
     public float syncIntervalTimeSecond = 0.5f;
     public float syncAnimIntervalTimeSecond = 0.5f;
     public Dictionary<string, RTCConnection> peers = new();
-    public Dictionary<string, List<RTCConnection>> groupPeers = new();
+    //public Dictionary<string, List<RTCConnection>> groupPeers = new();
     public Dictionary<string, object> errorData = new()
     {
-        { "type", "error" }
+        { "type", "error" },
+        { "reason", "" },
     };
 
     public Dictionary<string, List<string>> syncObjectsByID = new();
-    public Dictionary<string, RTCObject> syncObjects = new();
+    public Dictionary<string, RTCObject> syncObjects = new();    
 
-    public int[] classifiedDistances = new int[]
-    {
-        3,5,7,10,20,40,
-    };
+    public List<int> classifiedDistances = new List<int>();
     public Dictionary<int, float> classifiedTimes = new Dictionary<int, float>()
     {
         { 3, 0.1f },
@@ -45,6 +45,34 @@ public class DB_RTC : ScriptableObject
     {        
         peers.Clear();
         id = Guid.NewGuid().ToString("N");
+        // GM.db.user.AddUser(id).        
+    }
+
+    public void Start()
+    {
+        var url = GM.Msg<object>("GetConfig", "url");
+        this.url = url == null ? this.url : (string)url;
+        
+        var maxReservedPeers = GM.Msg<object>("GetConfig", "max-reserved-peers");
+        this.maxReservedPeers = maxReservedPeers == null ? this.maxReservedPeers : int.Parse(maxReservedPeers.ToString());
+
+        var maxShowPeers = GM.Msg<object>("GetConfig", "max-show-peers");
+        this.maxShowPeers = maxShowPeers == null ? this.maxShowPeers : int.Parse(maxShowPeers.ToString());
+
+
+        var distancesObj = GM.Msg<object>("GetConfig", "distances");
+        if (distancesObj != null)
+        {
+            var distances = distancesObj.ToString().GetDict<string, float>();
+            classifiedDistances.Clear();
+            classifiedTimes.Clear();
+            foreach (var (key, value) in distances)
+            {
+                var keyInt = int.Parse(key);
+                classifiedDistances.Add(keyInt);
+                classifiedTimes.Add(keyInt, value);
+            }
+        }
 
         // à íuèÓïÒÇÃï™óﬁÇÃèâä˙âª
         classifiedNodes.Clear();
@@ -52,17 +80,15 @@ public class DB_RTC : ScriptableObject
         {
             classifiedNodes.Add(key, new HashSet<string>());
         }
-    }
 
-    public void Start()
+    }    
+
+    public void End()
     {
-        var url = GM.Msg<object>("GetConfig", "url");
-        this.url = url == null ? this.url : (string)url;
-        var maxPeers = GM.Msg<object>("GetConfig", "max-peers");
-        this.maxPeers = maxPeers == null ? this.maxPeers : int.Parse(maxPeers.ToString());
-
         GM.Msg("SetConfig", "url", this.url);
-        GM.Msg("SetConfig", "max-peers", this.maxPeers);
+        GM.Msg("SetConfig", "max-reserved-peers", this.maxReservedPeers);
+        GM.Msg("SetConfig", "max-show-peers", this.maxShowPeers);
+        GM.Msg("SetConfig", "distances", classifiedTimes);
     }
 
     public RTCObject selfObject
@@ -73,6 +99,21 @@ public class DB_RTC : ScriptableObject
             if (list.Count == 0) return null;
             return syncObjects[list[0]];
         }
+    }
+
+    /// <summary>
+    /// IDÇ©ÇÁRTCObjectÇéÊìæ
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public RTCObject GetSyncObjectById(string id)
+    {
+        syncObjectsByID.TryGetValue(id, out var ids);
+        if (ids == null || ids.Count == 0)
+        {
+            return null;
+        }
+        return syncObjects[ids[0]];
     }
 }
 

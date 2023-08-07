@@ -1,10 +1,12 @@
 using DC;
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
 /// àÍêlèÃCamera
 /// </summary>
+[Obsolete]
 public class PlayerCameraController : MonoBehaviour
 {
     [SerializeField] public float moveSpeed = 1.0f;
@@ -18,9 +20,9 @@ public class PlayerCameraController : MonoBehaviour
         InputF.action.Game.Move.performed += OnMove;
         InputF.action.Game.Move.canceled += OnMove;
 
-        InputF.action.Game.Camera.started += OnCamera;
-        InputF.action.Game.Camera.performed += OnCamera;
-        InputF.action.Game.Camera.canceled += OnCamera;
+        //InputF.action.Game.Camera.started += OnCamera;
+        //InputF.action.Game.Camera.performed += OnCamera;
+        //InputF.action.Game.Camera.canceled += OnCamera;
 
         InputF.action.Game.Cancel.performed += OnCancel;
         
@@ -30,7 +32,7 @@ public class PlayerCameraController : MonoBehaviour
     {
         LimitAngle();
         var forward = moveVector * moveSpeed * Time.deltaTime;
-        if (InputF.action.Game.Dash.IsPressed())
+        //if (InputF.action.Game.Dash.IsPressed())
         {
             forward *= 2.0f;
         }

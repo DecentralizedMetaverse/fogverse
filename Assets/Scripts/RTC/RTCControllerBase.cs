@@ -12,29 +12,21 @@ public abstract class RTCControllerBase : MonoBehaviour
 
     /// <summary>
     /// 接続完了時
+    /// TODO: 全Clientを送信するように変更する
     /// </summary>
     /// <param name="connectedId"></param>
-    protected void OnConnected(string connectedId)
-    {    
+    protected async void OnConnected(string connectedId)
+    {
         GM.Msg("AddOutput", $"[Connected] {connectedId}");
 
-        // 接続先の情報を全体に送信
-        var sendData = CreateSendData();
-        sendData.Add("type", "join");
-        sendData.Add("join_id", connectedId);
-        sendData.Add("target_id", "");
+        await UniTask.Delay(1000); // TODO: 暫定的な措置
 
-        foreach (var (id, peer) in GM.db.rtc.peers)
+        // 接続先の情報を全体に送信        
+        Dictionary<string, object> sendData = new()
         {
-            if (id == connectedId) continue;
-            sendData["target_id"] = id;
-            var sendDataTxt = sendData.GetString();
-            GM.Msg("AddOutput", $"[Send] {sendDataTxt}");
-            peer.Send(sendDataTxt);  // TODO null
-        }
-
-        // 相手の情報を要求する
-        GM.Msg("RequestUserData", connectedId);
+            {"type", "get_user_list"},
+        };        
+        GM.Msg("RTCSendDirect", connectedId, sendData);
     }
 
     /// <summary>
@@ -50,25 +42,18 @@ public abstract class RTCControllerBase : MonoBehaviour
 
         // Message処理
         var dataDict = output.GetDict<string, object>();
-        if (dataDict.TryGetValue("type", out object value) && value.ToString() != "message")
+        if (dataDict.TryGetValue("type", out object value))
         {
             // Logの表示
-            var typeStr = value.ToString();
-            if (typeStr != "location" && typeStr != "anim")
-            {
-                Debug.Log(output);
-                GM.Msg("AddOutput", $"[Receive] {output}");
-            }
+            AddOutputLog(dataDict, "Receive");
 
             // Message以外の処理
             var targetId = dataDict["target_id"].ToString(); // TODO: KeyNotFound
             if (targetId != GM.db.rtc.id && targetId != "*")
             {
                 GM.Msg("AddOutput", $"[Relay]");
-                // 中継する
-                Debug.Log("[Relay] ------------------");
-                Send(targetId, output);
-                Debug.Log("------------------");
+                // 中継する                
+                Send(targetId, data);
                 return;
             }
 
@@ -80,7 +65,20 @@ public abstract class RTCControllerBase : MonoBehaviour
     protected void Send(string id, string data)
     {
         GM.Msg("AddOutput", $"[Send][WebRTC] {data}");
-        GM.db.rtc.peers[id].Send(data); // TODO: Key not found
+        GM.db.rtc.peers[id].Send(data);
+    }
+
+    protected void Send(string id, Dictionary<string, object> data)
+    {
+        GM.Msg("AddOutput", $"[Send][WebRTC] {data}");
+        AddOutputLog(data, "Send");
+        GM.db.rtc.peers[id].Send(data.GetString());
+    }
+
+    protected void Send(string id, byte[] data)
+    {
+        GM.Msg("AddOutput", $"[Send][WebRTC] {data}");
+        GM.db.rtc.peers[id].Send(data);
     }
 
     protected void OnDisconnected(string targetId)
@@ -89,6 +87,17 @@ public abstract class RTCControllerBase : MonoBehaviour
         GM.Msg("AddOutput", $"[Disconnected] {targetId}");
         GM.Msg("DestroySyncObject", targetId);
         GM.db.rtc.peers.Remove(targetId);
+    }
+
+    void AddOutputLog(Dictionary<string, object> data, string header = "Send")
+    {
+        var typeStr = data["type"].ToString();
+        if (typeStr != "location" && typeStr != "anim" && typeStr != "ping" && typeStr != "pong")
+        {
+            var dataStr = data.GetString();
+            Debug.Log(dataStr);
+            GM.Msg("AddOutput", $"[{header}] {dataStr}");
+        }
     }
 
     // -----------------------------------

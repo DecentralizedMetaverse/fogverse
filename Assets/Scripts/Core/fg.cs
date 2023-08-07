@@ -575,6 +575,11 @@ public static class fg
 
         return JsonConvert.DeserializeObject<Dictionary<T1, T2>>(self);
     }
+    
+    public static T Deserialize<T>(this string self)
+    {
+        return JsonConvert.DeserializeObject<T>(self);
+    }
 
     /// <summary>
     /// ListをCSV形式に変換する

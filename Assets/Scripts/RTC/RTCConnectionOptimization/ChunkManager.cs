@@ -55,7 +55,7 @@ public class ChunkManager : MonoBehaviour
     {
         var chunkData = data["chunk"].ToString().GetDict<string,int>();
         var chunk = (chunkData["Item1"], chunkData["Item2"], chunkData["Item3"]);
-        GM.Msg("AddChunk", sourceId, chunk);
+        GM.Msg("UpdateChunk", sourceId, chunk);
     }
 
     /// <summary>

@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using DC;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.WebRTC;
 using UnityEngine;
 
@@ -12,17 +13,43 @@ using UnityEngine;
 class RTCControllerWebRTC : RTCControllerBase
 {
     Dictionary<string, Action<Dictionary<string, object>, string, string>> responseFunctions = new();
+    private bool isBlocking;
 
     void Start()
     {
         responseFunctions.Add("error", (_, _, _)=> { GM.Msg("AddOutput", $"[Error][Receive][WebRTC]"); });
         responseFunctions.Add("offer", ResponseOffer);
-        responseFunctions.Add("join", Connect);
+        responseFunctions.Add("join", Connect);        
         responseFunctions.Add("answer", ResponseAnswer);
         responseFunctions.Add("candidateAdd", ResponseCandidate); // TODO: 名前の変更を行う        
 
         GM.Add<byte[], string>("WebRTCMessageHandler", OnMessageFromSignalingPeer);
-    }    
+    }
+
+    /// <summary>
+    /// 新規接続時にPeerに対してOfferを送信する
+    /// </summary>
+    /// <param name="targetId"></param>
+    /// <param name="signalingId">Signalingをお願いするPeerのID</param>
+    /// <param name="type"></param>
+    async void Connect(Dictionary<string, object> data, string sourceId, string signalingId)
+    {
+        var joinIds = data["join_ids"].ToString().Deserialize<List<string>>();
+
+        foreach (var joinId in joinIds)
+        {
+            if (GM.db.rtc.peers.ContainsKey(joinId)) { continue; }
+            if (joinId == signalingId) continue;
+
+            GM.Msg("AddOutput", $"[Connect] {joinId}");
+            // 新規Connection作成
+            AddConnection(joinId, signalingId);
+
+            // offer送信
+            await UniTask.WaitWhile(() => isBlocking);
+            OfferHandler(joinId, signalingId);
+        }
+    }
 
     /// <summary>
     /// 中継されてきたデータを処理する
@@ -63,7 +90,7 @@ class RTCControllerWebRTC : RTCControllerBase
         sendData.Add("type", "candidateAdd");
 
         // sdp送信
-        Send(signalingId, sendData.GetString());
+        Send(signalingId, sendData);
     }
 
     // -----------------------------------
@@ -75,13 +102,14 @@ class RTCControllerWebRTC : RTCControllerBase
     /// <param name="signalingId"></param>
     protected async void OfferHandler(string targetId, string signalingId)
     {
+        isBlocking = true;
         var desc = await GM.db.rtc.peers[targetId].CreateOffer();
         var sendData = CreateSendData();
         sendData.Add("type", "offer");
         sendData.Add("target_id", targetId);
         sendData.Add("sdp", desc);
 
-        Send(signalingId, sendData.GetString()); // TODO: Error
+        Send(signalingId, sendData); // TODO: Error
     }
 
     async void AnswerHandler(Dictionary<string, object> data, string sourceId, string signalingId)
@@ -96,27 +124,11 @@ class RTCControllerWebRTC : RTCControllerBase
         sendData.Add("target_id", sourceId);
         sendData.Add("type", "answer");
 
-        Send(signalingId, sendData.GetString());
+        Send(signalingId, sendData);
     }
 
     // -----------------------------------   
-    /// <summary>
-    /// </summary>
-    /// <param name="targetId"></param>
-    /// <param name="signalingId">Signalingをお願いするPeerのID</param>
-    /// <param name="type"></param>
-    void Connect(Dictionary<string, object> data, string sourceId, string signalingId)
-    {
-        var joinId = data["join_id"].ToString();
-        if (GM.db.rtc.peers.ContainsKey(joinId)) { return; }
-
-        GM.Msg("AddOutput", $"[Connect] {joinId}");
-        // 新規Connection作成
-        AddConnection(joinId, signalingId);
-
-        // offer送信
-        OfferHandler(joinId, signalingId);
-    }
+    
 
     /// <summary>
     /// Offerを受け取る
@@ -142,6 +154,8 @@ class RTCControllerWebRTC : RTCControllerBase
         // Remote Description 受け取る
         var remoteDesc = JsonUtility.FromJson<RTCSessionDescription>(response["sdp"].ToString());
         GM.db.rtc.peers[sourceId].SetRemoteDescription(remoteDesc); // TODO: Error
+
+        isBlocking = false;
     }
 
     void ResponseCandidate(Dictionary<string, object> response, string sourceId, string signalingId)

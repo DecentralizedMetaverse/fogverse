@@ -9,6 +9,7 @@ public class DB : ScriptableObject
     public DB_User user;
     public DB_Player player;
     public DB_Chunk chunk;
+    public DB_Chat chat;
 
     public void Init()
     {
@@ -18,5 +19,10 @@ public class DB : ScriptableObject
     public void Start()
     {
         rtc.Start();
+    }
+
+    public void End()
+    {
+        rtc.End();
     }
 }

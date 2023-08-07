@@ -22,7 +22,7 @@ public class InteractObject : MonoBehaviour
     {
         if (GM.pause != ePause.mode.GameStop) return;
 
-        if (!InputF.action.Game.Dash.IsPressed()) return;
+        if (!InputF.action.Game.Sprint.IsPressed()) return;
 
         var pos = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(pos, out hit, 5000))

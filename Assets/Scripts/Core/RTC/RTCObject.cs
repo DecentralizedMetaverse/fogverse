@@ -17,6 +17,7 @@ public class RTCObject : MonoBehaviour
     public string cid = "";
     public string objType = "human";    // TODO: ï ÇÃèÍèäÇ≈ê›íËÇ∑Ç◊Ç´
     public float syncIntervalTimeSecond = 0.1f; // ç≈è¨ílÇê›íËÇµÇƒÇ®Ç≠
+    public int syncDistance = 0;
 
     public string nametag
     {
@@ -124,8 +125,14 @@ public class RTCObject : MonoBehaviour
         PrepareSendLocationData();
         objId = Guid.NewGuid().ToString("N");
         locationData["objId"] = objId;
-
+        ownerId = GM.db.rtc.id;
         gameObject.name = $"{name}-{objId}";
+
+        var tag = GM.Msg<object>("GetSaveData", "nametag");
+        if (tag != null)
+        {
+            nametag = tag.ToString();
+        }
 
         GM.Msg("AddSyncObject", this);
     }
@@ -137,8 +144,9 @@ public class RTCObject : MonoBehaviour
     /// <param name="cid"></param>
     /// <param name="position"></param>
     /// <param name="rotation"></param>
-    public void SetData(string objId, string cid, string objType, Vector3 position, Vector3 rotation)
+    public void SetData(string id, string objId, string cid, string objType, Vector3 position, Vector3 rotation)
     {
+        this.ownerId = id;
         this.objId = objId;
         this.cid = cid;
         this.objType = objType;
@@ -192,7 +200,7 @@ public class RTCObject : MonoBehaviour
     {
         recievedPosition = data["position"].ToString().ToVector3();
         recievedRotation = Quaternion.Euler(data["rotation"].ToString().ToVector3());
-
+        syncIntervalTimeSecond = float.Parse(data["time"].ToString());
         currentPosition = transform.position;
         currentRotation = transform.rotation;
         elapsedTime = 0;
@@ -207,7 +215,7 @@ public class RTCObject : MonoBehaviour
         elapsedTime += Time.deltaTime;
         transform.position = Vector3.LerpUnclamped(currentPosition, recievedPosition, t);
         transform.rotation = Quaternion.LerpUnclamped(currentRotation, recievedRotation, t);
-
+        GM.Msg("UpdateDistance", ownerId, recievedPosition);
         //if (objType != "human") return;
         //var speed = (currentPosition - transform.position).magnitude;
     }

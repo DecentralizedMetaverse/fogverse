@@ -46,8 +46,8 @@ public class UI_Settings : MonoBehaviour
         GM.Add("ShowSettings", Show);
 
         // nametagæ“¾
-        var result = GM.Msg<object>("GetSaveData", "nametag");
-        if (result == null) return;
+        //var result = GM.Msg<object>("GetSaveData", "nametag");
+        //if (result == null) return;
         
         // nametag‚ªæ“¾‚Å‚«‚é‚Ü‚Å‘Ò‚Â
         while(GM.db.rtc.selfObject == null)
@@ -56,8 +56,7 @@ public class UI_Settings : MonoBehaviour
         }
 
         // nametag‚ğİ’è
-        GM.db.rtc.selfObject.nametag = result.ToString();
-        inputNameTagField.text = result.ToString();
+        inputNameTagField.text = GM.db.rtc.selfObject.nametag;
     }
 
     void Show()

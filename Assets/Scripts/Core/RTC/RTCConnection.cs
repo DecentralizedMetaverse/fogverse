@@ -1,7 +1,9 @@
 using Cysharp.Threading.Tasks;
+using DC;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using Unity.WebRTC;
 using UnityEngine;
 
@@ -148,6 +150,37 @@ public class RTCConnection
 
         dataChannel.Send(data);
     }
+    
+    public void Send(Dictionary<string, object> data)
+    {
+        var dataStr = data.GetString();
+        if (data["type"].ToString() != "location" &&
+            data["type"].ToString() != "anim" &&
+            data["type"].ToString() != "ping" &&
+            data["type"].ToString() != "pong" )
+
+        {
+            GM.Msg("AddOutput", $"[Send] ->{data["target_id"].ToString()} {dataStr}");
+        }
+        Send(dataStr);
+    }
+    
+    public void Send(byte[] data)
+    {
+        if (dataChannel == null)
+        {
+            // WebRTCŒğŠ·‚É‚¨‚¢‚ÄA‚Ü‚¾Ú‘±‚ªŠm—§‚µ‚Ä‚¢‚È‚¢‚Æ‚«‚ª‚ ‚é
+            Debug.LogWarning("dataChannel is null");
+            return;
+        }
+        else if (dataChannel.ReadyState != RTCDataChannelState.Open)
+        {
+            Debug.LogWarning("dataChannel is not open");
+            return;
+        }
+
+        dataChannel.Send(data);
+    }
 
     public void Close()
     {
@@ -185,6 +218,15 @@ public class RTCConnection
     void OnCloseDataChannel()
     {
         Debug.Log($"[{id}][DataChannel] Close");
+
+        if(string.IsNullOrEmpty(id))
+        {
+            return;
+        }
+        if(GM.db.rtc.peers.ContainsKey(id)) // TODO: Value is null
+        {
+            GM.db.rtc.peers.Remove(id);
+        }
     }
 
     void OnMessageDataChannel(byte[] data)

@@ -1,11 +1,7 @@
 using Cysharp.Threading.Tasks;
 using DC;
-using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEngine.GraphicsBuffer;
 
 /// <summary>
 /// 全Objectの座標管理
@@ -17,7 +13,7 @@ public class RTCObjectManager : MonoBehaviour
     [SerializeField] GameObject playerPrefab;
     private Dictionary<string, List<string>> syncObjectsByID;
     private Dictionary<string, RTCObject> syncObjects;
-    HashSet<string> requestObjWaitingList = new();
+    // HashSet<string> requestObjWaitingList = new();
 
     void Start()
     {
@@ -34,14 +30,13 @@ public class RTCObjectManager : MonoBehaviour
         {
             if (!syncObjects.ContainsKey(data["objId"].ToString()))
             {
-                Debug.LogWarning("存在しないObjectからのアクセス");
+                Debug.LogWarning("存在しないObjectへのアクセス");
                 return;
             }
 
-
             if (syncObjects[data["objId"].ToString()].rtcAniamtor == null)
             {
-                Debug.LogWarning("Not found rtc Animator");
+                Debug.LogWarning("Not found RTC Animator");
                 return;
             }
 
@@ -105,8 +100,8 @@ public class RTCObjectManager : MonoBehaviour
     /// <param name="objId"></param>
     void RequestObjectData(string targetId, string objId)
     {
-        if (requestObjWaitingList.Contains(objId)) return;
-        requestObjWaitingList.Add(objId);
+        //if (requestObjWaitingList.Contains(objId)) return;
+        //requestObjWaitingList.Add(objId);
 
         Dictionary<string, object> sendData = new()
         {
@@ -144,8 +139,9 @@ public class RTCObjectManager : MonoBehaviour
         if (!syncObjects.TryGetValue(objId, out RTCObject obj))
         {
             // Error
+            GM.db.rtc.errorData.ForceAdd("reason", "存在しないObjectへのAccess");
             GM.Msg("RTCSendDirect", targetId, GM.db.rtc.errorData);
-            Debug.LogError("存在しないObjectへのアクセス");
+            Debug.LogWarning("存在しないObjectへのアクセス");
             return;
         }
 
@@ -171,7 +167,14 @@ public class RTCObjectManager : MonoBehaviour
     {
         // 情報受け取り
         var objId = data["objId"].ToString();
-        requestObjWaitingList.Remove(objId);
+        if(syncObjects.ContainsKey(objId))
+        {
+            // 既に存在するObject
+            Debug.LogWarning("既に存在するObject");
+            return;
+        }
+
+        // requestObjWaitingList.Remove(objId);
 
         var position = data["position"].ToString().ToVector3();
         var rotation = data["rotation"].ToString().ToVector3();
@@ -193,7 +196,7 @@ public class RTCObjectManager : MonoBehaviour
 
         // Object設定
         var objectData = obj.AddComponent<RTCObject>();
-        objectData.SetData(objId, cid, objType, position, rotation);
+        objectData.SetData(sourceId, objId, cid, objType, position, rotation);
         Debug.Log(nameTag);
         objectData.nametag = nameTag;
 

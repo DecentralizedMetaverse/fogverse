@@ -24,9 +24,10 @@ public class DB_GameManager : ScriptableObject
     public bool skipSignInScreen = true;
 
     [Header("Other")]
-    public string metaPath = "StreamingAssets/meta";
-    public string contentPath = "StreamingAssets/content";
-    public string avatarPath = "StreamingAssets/avatar";
+    public string metaPath = "../meta";
+    public string contentPath = "../content";
+    public string avatarPath = "../avatar";
+    public string outputPath = "../output";
 
     //public eScene.Scene scene;
     [Header("Scene Group")]
@@ -55,7 +56,7 @@ public class DB_GameManager : ScriptableObject
         CreateDirectory($"{Application.dataPath}/{metaPath}");
         CreateDirectory($"{Application.dataPath}/{contentPath}");
         CreateDirectory($"{Application.dataPath}/{avatarPath}");
-
+        CreateDirectory($"{Application.dataPath}/{outputPath}");
     }
 
     void CreateDirectory(string path)

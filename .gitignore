@@ -328,3 +328,5 @@ Assets/config.yaml
 *evaluation.csv
 config.json
 Assets/output.log
+*output.log
+*eval.csv

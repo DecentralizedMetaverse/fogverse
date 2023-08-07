@@ -22,6 +22,7 @@ namespace DC
         public static DB db;
         public static DB_GameManager mng;
         static Dictionary<string, List<Delegate>> functions = new();
+        // static List<string> userFunctions = new();
 
         /// <summary>
         /// 初期化
@@ -30,7 +31,49 @@ namespace DC
         {
             functions.Clear();
             mng.Init();
-        }        
+        }
+
+        /// <summary>
+        /// [Lua呼び出し用] ユーザーメソッドの存在を確認する
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        //public static bool GetIsUserFunction(string key)
+        //{
+        //    return userFunctions.Contains(key);
+        //}
+
+        /// <summary>
+        /// [Lua呼び出し用] ユーザーメソッドを呼び出す
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        //public static string ExecuteUserCommand(string command)
+        //{
+        //    string[] splitString = command.Split(" ");
+        //    string functionName = splitString[0];
+        //    List<string> args = new();
+        //    string argsString = "";
+        //    if (splitString.Length > 1)
+        //    {
+
+        //        for (int i = 1; i < splitString.Length; i++)
+        //        {
+        //            args.Add(splitString[i]);
+        //        }
+
+        //        argsString = String.Join(",", args.ToArray());
+        //    }
+
+        //    Debug.Log($"{functionName}({argsString})");
+        //    if (GetIsUserFunction(functionName))
+        //    {
+        //        LuaManager.lua.DoString($"{functionName}({argsString})");
+        //        return $"Command Executed \"{command}\"";
+        //    }
+
+        //    return $"Command Not Found \"{functionName}\"";
+        //}
 
         /// <summary>
         /// 送信
@@ -323,6 +366,7 @@ namespace DC
                     Cursor.visible = false;
                     Cursor.lockState = CursorLockMode.Locked;
                 }
+                InputF.SetOperation(value);
             }
         }
 

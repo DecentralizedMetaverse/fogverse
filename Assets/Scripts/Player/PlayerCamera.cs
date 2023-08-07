@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +8,7 @@ using UnityEngine.XR;
 
 namespace DC.Player
 {
+    [Obsolete]
     public class PlayerCamera : MonoBehaviour
     {
         [SerializeField] float length = 3;
@@ -30,9 +32,9 @@ namespace DC.Player
 
         void Start()
         {
-            InputF.action.Game.Camera.started += OnCamera;
-            InputF.action.Game.Camera.performed += OnCamera;
-            InputF.action.Game.Camera.canceled += OnCamera;
+            //InputF.action.Game.Camera.started += OnCamera;
+            //InputF.action.Game.Camera.performed += OnCamera;
+            //InputF.action.Game.Camera.canceled += OnCamera;
 
             InputF.action.Game.Scroll.started += OnScroll;
             InputF.action.Game.Scroll.performed += OnScroll;

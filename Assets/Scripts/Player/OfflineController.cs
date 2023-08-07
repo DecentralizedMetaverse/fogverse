@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(BaseController))]
-
+[Obsolete]
 public class OfflineController : MonoBehaviour
 {
     BaseController controller;
@@ -22,8 +22,8 @@ public class OfflineController : MonoBehaviour
         InputF.action.Game.Move.performed += OnMove;
         InputF.action.Game.Move.canceled += OnMove;
         InputF.action.Game.Jump.performed += OnJump;
-        InputF.action.Game.Dash.started += OnStartDash;
-        InputF.action.Game.Dash.canceled += OnEndDash;
+        //InputF.action.Game.Dash.started += OnStartDash;
+        //InputF.action.Game.Dash.canceled += OnEndDash;
     }
 
 

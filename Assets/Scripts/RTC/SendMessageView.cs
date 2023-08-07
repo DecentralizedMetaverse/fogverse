@@ -1,6 +1,7 @@
 using DC;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using TMPro;
 using UnityEngine;
 
@@ -35,6 +36,25 @@ public class SendMessageView : MonoBehaviour
 
         inputSyncInterval.text = GM.db.rtc.syncIntervalTimeSecond.ToString();
         inputAnimSyncInterval.text = GM.db.rtc.syncAnimIntervalTimeSecond.ToString();
+
+        GM.Msg("AddOutput", $"Device Unique Identifier: {UnityEngine.SystemInfo.deviceUniqueIdentifier}");
+        GM.Msg("AddOutput", $"Processor Type: {UnityEngine.SystemInfo.processorType}");
+        GM.Msg("AddOutput", $"Graphics Device Name: {UnityEngine.SystemInfo.graphicsDeviceName}");
+        GM.Msg("AddOutput", $"Processor Frequency: {UnityEngine.SystemInfo.processorFrequency} MHz");
+        GM.Msg("AddOutput", $"Processor Count: {UnityEngine.SystemInfo.processorCount}");
+        GM.Msg("AddOutput", $"Graphics Device Type: {UnityEngine.SystemInfo.graphicsDeviceType}");
+        GM.Msg("AddOutput", $"Device Name: {UnityEngine.SystemInfo.deviceName}");
+        GM.Msg("AddOutput", $"Device Type: {UnityEngine.SystemInfo.deviceType}");
+        GM.Msg("AddOutput", $"Graphics Memory Size: {UnityEngine.SystemInfo.graphicsMemorySize} MB");
+        GM.Msg("AddOutput", $"Battery Level: {UnityEngine.SystemInfo.batteryLevel * 100}%"); // Battery level is a value between 0 and 1
+        GM.Msg("AddOutput", $"Battery Status: {UnityEngine.SystemInfo.batteryStatus}");
+
+        string hostname = Dns.GetHostName();
+        IPAddress[] ipAddresses = Dns.GetHostAddresses(hostname);
+        foreach (IPAddress ipAddress in ipAddresses)
+        {
+            GM.Msg("AddOutput", $"IP Address: {ipAddress.ToString()}");
+        }
     }
 
     public void OnChangedSyncInterval()

@@ -17,9 +17,9 @@ public class RTCMessageManager : MonoBehaviour
                 data.ForceAdd("target_id", "*");
                 data.ForceAdd("id", GM.db.rtc.id);
 
-                var dataTxt = data.GetString();
-                peer.Send(dataTxt);
-                GM.Msg("AddOutput", $"[Send] {dataTxt}");
+                peer.Send(data);
+
+                // GM.Msg("AddOutput", $"[Send] {dataTxt}");
             }
 
         });
@@ -31,13 +31,13 @@ public class RTCMessageManager : MonoBehaviour
                 data.ForceAdd("id", GM.db.rtc.id);
                 data.ForceAdd("target_id", target_id);
                 
-                var dataTxt = data.GetString();
-                peer.Send(dataTxt);
-                GM.Msg("AddOutput", $"[Send] ->{target_id} {dataTxt}");
+                // var dataTxt = data.GetString();
+                peer.Send(data);
+                // GM.Msg("AddOutput", $"[Send] ->{target_id} {dataTxt}");
             }
             else
             {
-                GM.Msg("AddOutput", $"[Ÿ“—L][Send] ->{target_id} {data.GetString()}");
+                // GM.Msg("AddOutput", $"[Ÿ“—L][Send] ->{target_id} {data.GetString()}");
             }
         });
 

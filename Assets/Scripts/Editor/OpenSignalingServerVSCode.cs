@@ -11,4 +11,10 @@ public class OpenSignalingServerVSCode
     {
         Process.Start("code", $"{Application.dataPath}/../SignalingServer");
     }
+    
+    [MenuItem("Tools/Run SignalingServer")]
+    static void RunServer()
+    {
+        Process.Start("go",$"run {Application.dataPath}/../SignalingServer/server.go");
+    }
 }

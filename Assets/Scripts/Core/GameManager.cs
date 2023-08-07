@@ -20,16 +20,17 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject debugObj;
     [SerializeField] DB_FunctionList dBFunctionList;
 
-#if UNITY_EDITOR
     void OnDestroy()
     {
+        GM.db.End();
+
+#if UNITY_EDITOR
         GM.SaveFunctionList(dBFunctionList);
-    }
 #endif
+    }
 
     private void Awake()
     {
-        GM.pause = ePause.mode.GameStop;
         GM.mng = _dbMng;
         GM.db = db;
         GM.db.Init();
@@ -39,21 +40,25 @@ public class GameManager : MonoBehaviour
 #if UNITY_EDITOR
 
         GM.mng.SetSceneName();
-        Debug.unityLogger.logEnabled = true;
+        Debug.unityLogger.logEnabled = true;        
 #else
-        Debug.unityLogger.logEnabled = false;
+        // Debug.unityLogger.logEnabled = false;
 #endif
     }
 
     private void Start()
     {
+        GM.pause = ePause.mode.GameStop;
+
         InputF.action.Debug.Quit.performed += OnQuit;
         InputF.action.Game.Cancel.performed += OnCancel;
+        InputF.action.UI.Cancel.performed += OnCancel;
 
         debugObj.SetActive(GM.mng.visiblePerformance);
 
         GM.db.Start();
     }
+
 
     void OnQuit(InputAction.CallbackContext contex)
     {

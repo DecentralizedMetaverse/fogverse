@@ -18,26 +18,27 @@ public class Evaluation : MonoBehaviour
     private float time;
     string fileName = "evaluation.csv";
     string path = "";
-    EvaluationData currentData;
+    EvaluationData currentData = new EvaluationData();
 
     Dictionary<string, object> sendPingData = new();
+    DateTime sendPingTime;
 
     private void Start()
     {
-        path = $"{Application.dataPath}/../{DateTime.UtcNow.ToString("yyyy-MM-dd-HH-mm-ss")}-{fileName}";
-
-        //if(!System.IO.File.Exists(path)) return;
-        //var txt = System.IO.File.ReadAllText(path);
-        //data = txt.GetList<EvaluationData>();
+        GM.Add<string>("GetEvaluationData", () =>
+        {
+            return data.GetString();
+        });
 
         GM.Add<Dictionary<string, object>, string>("RPC_ping", RPCPing);
+        GM.Add<Dictionary<string, object>, string>("RPC_pong", RPCPong);
         GM.Add<float>("SetFPS", (fps) => currentData.fps = fps);
         sendPingData.Add("type", "ping");
-    } 
+    }
 
     private void OnDestroy()
     {
-        path = $"{Application.dataPath}/../{GM.db.rtc.id}-{fileName}";
+        path = $"{Application.dataPath}/{GM.mng.outputPath}/{DateTime.Now.ToString("yyyy-MM-dd-HH-mm")}-{GM.db.rtc.id}-{fileName}";
         System.IO.File.WriteAllText(path, data.GetString());
     }
 
@@ -47,15 +48,15 @@ public class Evaluation : MonoBehaviour
         if (time < intervalTimeSec) return;
         time = 0;
 
-
-        currentData.staticObject = GM.db.player.worldRoot.childCount;
+        currentData.staticObject = GM.db.player.worldRoot != null ? GM.db.player.worldRoot.childCount : 0;
         currentData.dynamicObject = GM.db.rtc.peers.Count;
 
         data.Add(currentData);
         // currentData = new EvaluationData();
 
         // ping‚Ì‘—M
-        sendPingData.ForceAdd("time", DateTime.UtcNow);
+        if (GM.db.rtc.peers.Count == 0) return;
+        sendPingTime = DateTime.Now;
         GM.Msg("RTCSendAll", sendPingData);
         UpdateText();
     }
@@ -67,10 +68,20 @@ public class Evaluation : MonoBehaviour
     /// <param name="sourceId"></param>
     private void RPCPing(Dictionary<string, object> data, string sourceId)
     {
-        var time = (DateTime)data["time"];
-        var sub = DateTime.UtcNow - time;
+        data["type"] = "pong";
+        GM.Msg("RTCSendDirect", sourceId, data);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="data"></param>
+    /// <param name="sourceId"></param>
+    private void RPCPong(Dictionary<string, object> data, string sourceId)
+    {
+        var ping = DateTime.Now - sendPingTime;
         if (currentData.ping == null) currentData.ping = new Dictionary<string, object>();
-        currentData.ping.ForceAdd(sourceId, sub);
+        currentData.ping.ForceAdd(sourceId, ping);
     }
 
     void UpdateText()
@@ -95,6 +106,7 @@ public class Evaluation : MonoBehaviour
             pingTxt += $"[{item.Key}] {item.Value} ";
         }
         textPing.text = pingTxt;
+        currentData.pingTxt = pingTxt;
     }
 }
 
@@ -103,5 +115,6 @@ public struct EvaluationData
     public float fps { get; set; }
     public int staticObject { get; set; }
     public int dynamicObject { get; set; }
+    public string pingTxt { get; set; }
     public Dictionary<string, object> ping { get; set; }
 }

@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: DB_RTC
   m_EditorClassIdentifier: 
   url: ws://localhost:8080/ws
-  id: f8ecc9ec567e4f2bb6cc1465148d8a0d
+  id: 6351be60ea554386ba06eb322d61060f
+  maxPeers: 10
   syncIntervalTimeSecond: 1
   syncAnimIntervalTimeSecond: 5
+  classifiedDistances: 0300000005000000070000000a0000001400000028000000
