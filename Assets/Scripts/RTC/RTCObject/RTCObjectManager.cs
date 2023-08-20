@@ -207,6 +207,8 @@ public class RTCObjectManager : MonoBehaviour
             syncObjectsByID[sourceId].Add(objId);
         }
 
+        GM.db.rtc.activeObjects.Add(objId, obj);
+
         // Avatarê›íË
         GM.db.user.AddUser(sourceId, objId); // TODO: é¿çsèáî‘Ç…íçà”
         await SetAvatar(objId, cid);

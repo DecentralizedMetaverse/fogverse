@@ -142,7 +142,7 @@ func sendAnswer(data map[string]interface{}) {
 
 	client := clientsByID[offerId]
 	bytes := jsonToBytes(resultData)
-	sendMessage(client, bytes)	
+	sendMessage(client, bytes)
 }
 
 func sendCandidate(data map[string]interface{}) {
@@ -152,7 +152,7 @@ func sendCandidate(data map[string]interface{}) {
 	if _, ok := candidateData[id]; !ok {
 		return
 	}
-	
+
 	fmt.Println("保存されたcandidateを送信")
 	answerId := data["id"].(string)
 	client := clientsByID[answerId]

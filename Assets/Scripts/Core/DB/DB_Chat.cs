@@ -19,4 +19,6 @@ public struct ChatMessageContent
     public string userName;
     public Sprite userImage;
     public string content;
+    public string avatarUrl;
+    public string[] contentImageUrl;
 }
