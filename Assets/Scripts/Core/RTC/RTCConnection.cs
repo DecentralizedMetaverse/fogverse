@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using DC;
+using MemoryPack;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -163,7 +164,10 @@ public class RTCConnection
         {
             GM.Msg("AddOutput", $"[Send] ->{data["target_id"].ToString()} {dataStr}");
         }
-        Send(dataStr);
+
+        var bin = MemoryPackSerializer.Serialize(dataStr);
+        Send(bin);
+        // Send(dataStr);
     }
     
     public void Send(byte[] data)

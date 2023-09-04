@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using DC;
+using MemoryPack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,16 +13,25 @@ using UnityEngine;
 /// </summary>
 class RTCControllerWebRTC : RTCControllerBase
 {
-    Dictionary<string, Action<Dictionary<string, object>, string, string>> responseFunctions = new();
+    // Dictionary<string, Action<Dictionary<string, object>, string, string>> responseFunctions = new();
     private bool isBlocking;
 
     void Start()
     {
-        responseFunctions.Add("error", (_, _, _)=> { GM.Msg("AddOutput", $"[Error][Receive][WebRTC]"); });
-        responseFunctions.Add("offer", ResponseOffer);
-        responseFunctions.Add("join", Connect);        
-        responseFunctions.Add("answer", ResponseAnswer);
-        responseFunctions.Add("candidateAdd", ResponseCandidate); // TODO: 名前の変更を行う        
+        GM.Add<Dictionary<string, object>, string>("RPC_error", (data, sourceId) =>
+        {
+            GM.Msg("AddOutput", $"[Error][Receive][WebRTC]");
+        });
+
+        GM.Add<Dictionary<string, object>, string>("RPC_offer", ResponseOffer);
+        GM.Add<Dictionary<string, object>, string>("RPC_join", Connect);
+        GM.Add<Dictionary<string, object>, string>("RPC_answer", ResponseAnswer);
+        GM.Add<Dictionary<string, object>, string>("RPC_candidateAdd", ResponseCandidate);
+        //responseFunctions.Add("error", (_, _, _) => {  });
+        //responseFunctions.Add("offer", ResponseOffer);
+        //responseFunctions.Add("join", Connect);
+        //responseFunctions.Add("answer", ResponseAnswer);
+        //responseFunctions.Add("candidateAdd", ResponseCandidate); // TODO: 名前の変更を行う        
 
         GM.Add<byte[], string>("WebRTCMessageHandler", OnMessageFromSignalingPeer);
     }
@@ -32,9 +42,11 @@ class RTCControllerWebRTC : RTCControllerBase
     /// <param name="targetId"></param>
     /// <param name="signalingId">Signalingをお願いするPeerのID</param>
     /// <param name="type"></param>
-    async void Connect(Dictionary<string, object> data, string sourceId, string signalingId)
+    async void Connect(Dictionary<string, object> data, string sourceId)
     {
-        var joinIds = data["join_ids"].ToString().Deserialize<List<string>>();
+        var signalingId = data["relayId"].ToString();
+
+        var joinIds = data["joinIds"].ToString().Deserialize<List<string>>();
 
         foreach (var joinId in joinIds)
         {
@@ -42,6 +54,7 @@ class RTCControllerWebRTC : RTCControllerBase
             if (joinId == signalingId) continue;
 
             GM.Msg("AddOutput", $"[Connect] {joinId}");
+            
             // 新規Connection作成
             AddConnection(joinId, signalingId);
 
@@ -55,28 +68,30 @@ class RTCControllerWebRTC : RTCControllerBase
     /// 中継されてきたデータを処理する
     /// </summary>
     /// <param name="data"></param>
-    /// <param name="signalingId"></param>
-    void OnMessageFromSignalingPeer(byte[] data, string signalingId)
+    /// <param name="relayId"></param>
+    void OnMessageFromSignalingPeer(byte[] data, string relayId)
     {
-        var output = $"{System.Text.Encoding.UTF8.GetString(data)}";
+        var dataMessage = MemoryPackSerializer.Deserialize<RTCMessage>(data);
+        // var output = $"{System.Text.Encoding.UTF8.GetString(data)}";
 
         // GM.Msg("AddOutput", $"[Receive][WebRTC] {output}");
 
-        var dataDict = output.GetDict<string, object>();
-        if (dataDict.TryGetValue("type", out object value))
-        {
-            // receive
-            var typeText = value.ToString();
-            var sourceId = dataDict["id"].ToString();
-            if (responseFunctions.ContainsKey(typeText))
-            {
-                responseFunctions[typeText].DynamicInvoke(dataDict, sourceId, signalingId);
-            }
-            else
-            {
-                GM.Msg($"RPC_{typeText}", dataDict, sourceId);
-            }
-        }
+        // var dataDict = output.GetDict<string, object>();
+        // if (dataDict.TryGetValue("type", out object value))
+        // {
+        // receive
+        var typeText = dataMessage.type.ToString(); ;
+        var sourceId = dataMessage.id;
+        GM.Msg($"RECV_{typeText}", dataMessage, sourceId, relayId);
+
+        //if (responseFunctions.ContainsKey(typeText))
+        //{
+            //responseFunctions[typeText].DynamicInvoke(dataDict, sourceId, relayId);
+        //}
+        //else
+        //{
+        //}
+        // }
     }
 
     void OnCandiadte(RTCIceCandidate candidate, string targetId, string signalingId)
@@ -84,7 +99,7 @@ class RTCControllerWebRTC : RTCControllerBase
         var ice = new Ice(candidate);
         // sdp送信情報の準備
         var sendData = CreateSendData();
-        sendData.Add("target_id", targetId);
+        sendData.Add("targetId", targetId);
         sendData.Add("candidate", ice);
         sendData.Add("type", "candidateAdd");
 
@@ -105,7 +120,7 @@ class RTCControllerWebRTC : RTCControllerBase
         var desc = await GM.db.rtc.peers[targetId].CreateOffer();
         var sendData = CreateSendData();
         sendData.Add("type", "offer");
-        sendData.Add("target_id", targetId);
+        sendData.Add("targetId", targetId);
         sendData.Add("sdp", desc);
 
         Send(signalingId, sendData); // TODO: Error
@@ -120,14 +135,14 @@ class RTCControllerWebRTC : RTCControllerBase
         var desc = await GM.db.rtc.peers[sourceId].CreateAnswer(remoteDesc);
         var sendData = CreateSendData();
         sendData.Add("sdp", desc);
-        sendData.Add("target_id", sourceId);
+        sendData.Add("targetId", sourceId);
         sendData.Add("type", "answer");
 
         Send(signalingId, sendData);
     }
 
     // -----------------------------------   
-    
+
 
     /// <summary>
     /// Offerを受け取る
@@ -135,11 +150,12 @@ class RTCControllerWebRTC : RTCControllerBase
     /// <param name="response"></param>
     /// <param name="sourceId"></param>
     /// <param name="signalingId"></param>
-    void ResponseOffer(Dictionary<string, object> response, string sourceId, string signalingId)
+    void ResponseOffer(Dictionary<string, object> response, string sourceId)
     {
-        AddConnection(sourceId, signalingId);
+        var relayId = response["relayId"].ToString();
+        AddConnection(sourceId, relayId);
 
-        AnswerHandler(response, sourceId, signalingId);
+        AnswerHandler(response, sourceId, relayId);
     }
 
     /// <summary>
@@ -148,8 +164,10 @@ class RTCControllerWebRTC : RTCControllerBase
     /// <param name="response"></param>
     /// <param name="sourceId"></param>
     /// <param name="signalingId"></param>
-    void ResponseAnswer(Dictionary<string, object> response, string sourceId, string signalingId)
+    void ResponseAnswer(Dictionary<string, object> response, string sourceId)
     {
+        var signalingId = response["relayId"].ToString();
+
         // Remote Description 受け取る
         var remoteDesc = JsonUtility.FromJson<RTCSessionDescription>(response["sdp"].ToString());
         GM.db.rtc.peers[sourceId].SetRemoteDescription(remoteDesc); // TODO: Error
@@ -157,7 +175,7 @@ class RTCControllerWebRTC : RTCControllerBase
         isBlocking = false;
     }
 
-    void ResponseCandidate(Dictionary<string, object> response, string sourceId, string signalingId)
+    void ResponseCandidate(Dictionary<string, object> response, string sourceId)
     {
         AddCandidate(response, sourceId);
     }

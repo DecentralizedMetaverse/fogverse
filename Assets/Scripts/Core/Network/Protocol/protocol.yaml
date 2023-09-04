@@ -1,0 +1,129 @@
+version: 1
+
+messages:
+  - name: RPC
+    fields:
+      - name: method
+        type: string
+      - name: args
+        type: string
+  - name: Location
+    fields:
+      - name: objId
+        type: string
+      - name: position
+        type: Vector3
+      - name: rotation
+        type: Vector3
+
+  - name: Animation
+    fields:
+      - name: objId
+        type: string
+      - name: state
+        type: string      
+  
+  - name: ChangeNametag
+    fields:
+      - name: objId
+        type: string
+      - name: nametag
+        type: string
+
+  # - name: SpawnRequest
+  #   fields:
+  #     - name: location
+  #       type: Vector3
+
+  # - name: SpawnResponse
+  #   fields:
+  #     - name: success
+  #       type: boolean
+  #     - name: message
+  #       type: string
+
+  - name: Message
+    fields:
+      - name: content
+        type: string
+
+  - name: Log
+    fields:
+      - name: content
+        type: string
+  
+  - name: ObjectRequest
+    fields:
+      - name: objId
+        type: string
+
+  - name: ObjectResponse
+    fields:
+      - name: objId
+        type: string
+      - name: objName
+        type: string
+      - name: cid
+        type: string
+
+  - name: ObjectInfoRequest
+    fields:
+      - name: objId
+        type: string      
+
+  - name: ObjectChange
+    fields:
+      - name: objId
+        type: string
+      - name: cid
+        type: string
+  
+  - name: ObjectInstantiate
+    fields:
+      - name: objId
+        type: string
+      - name: objName
+        type: string
+      - name: cid
+        type: string
+      - name: position
+        type: Vector3
+      - name: rotation
+        type: Vector3
+      - name: objType
+        type: string
+      - name: nameTag
+        type: string
+    
+  - name: GetUserList
+  
+  - name: UserDataRequest
+
+  - name: UserDataResponse
+    fields:
+      - name: chunk
+        type: (int, int, int)
+
+  # - name: Offer
+  #   fields:
+  #     - name: target
+  #       type: string
+  #     - name: sdp
+  #       type: string
+  # - name: Answer
+  #   fields:      
+  #     - name: target
+  #       type: string
+  #     - name: sdp
+  #       type: string
+  # - name: Candidate
+  #   fields:
+  #     - name: target
+  #       type: string
+  #     - name: candidate
+  #       type: string
+
+  # - name: Join
+  #   fields:
+  #     - name: joinIds
+  #       type: List<string>

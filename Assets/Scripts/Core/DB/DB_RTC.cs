@@ -1,4 +1,5 @@
 using DC;
+using MemoryPack;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ public class DB_RTC : ScriptableObject
 {
     public string url = "ws://localhost:8080";
     public string id = "";
-    // —\”õ‚ÌmaxPeers
+    // ï¿½\ï¿½ï¿½ï¿½ï¿½maxPeers
     public int maxReservedPeers = 5;
     public int maxShowPeers = 5;
     public float syncIntervalTimeSecond = 0.5f;
@@ -25,7 +26,7 @@ public class DB_RTC : ScriptableObject
     };
 
     public Dictionary<string, List<string>> syncObjectsByID = new();
-    public Dictionary<string, RTCObject> syncObjects = new();    
+    public Dictionary<string, RTCObject> syncObjects = new();
 
     public List<int> classifiedDistances = new List<int>();
     public Dictionary<int, float> classifiedTimes = new Dictionary<int, float>()
@@ -38,11 +39,11 @@ public class DB_RTC : ScriptableObject
         { 40, 3.0f },
     };
 
-    // Node‚ğ‹——£‚É‰‚¶‚Ä•ª—Ş
+    // Nodeï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É‰ï¿½ï¿½ï¿½ï¿½Ä•ï¿½ï¿½ï¿½
     public Dictionary<int, HashSet<string>> classifiedNodes = new();
     public Dictionary<string, GameObject> activeObjects = new();
     public void Init()
-    {        
+    {
         peers.Clear();
         id = Guid.NewGuid().ToString("N");
         // GM.db.user.AddUser(id).        
@@ -52,7 +53,7 @@ public class DB_RTC : ScriptableObject
     {
         var url = GM.Msg<object>("GetConfig", "url");
         this.url = url == null ? this.url : (string)url;
-        
+
         var maxReservedPeers = GM.Msg<object>("GetConfig", "max-reserved-peers");
         this.maxReservedPeers = maxReservedPeers == null ? this.maxReservedPeers : int.Parse(maxReservedPeers.ToString());
 
@@ -74,14 +75,14 @@ public class DB_RTC : ScriptableObject
             }
         }
 
-        // ˆÊ’uî•ñ‚Ì•ª—Ş‚Ì‰Šú‰»
+        // ï¿½Ê’uï¿½ï¿½ï¿½Ì•ï¿½ï¿½Ş‚Ìï¿½ï¿½ï¿½ï¿½ï¿½
         classifiedNodes.Clear();
         foreach (var key in classifiedDistances)
         {
             classifiedNodes.Add(key, new HashSet<string>());
         }
 
-    }    
+    }
 
     public void End()
     {
@@ -102,7 +103,7 @@ public class DB_RTC : ScriptableObject
     }
 
     /// <summary>
-    /// ID‚©‚çRTCObject‚ğæ“¾
+    /// IDï¿½ï¿½ï¿½ï¿½RTCObjectï¿½ï¿½ï¿½æ“¾
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -141,4 +142,15 @@ public class Ice
         });
         return data;
     }
+
 }
+
+[MemoryPackable]
+public partial class RTCMessage
+{
+    public MessageType type;
+    public string targetId;
+    public string id;
+    public byte[] data;
+}
+

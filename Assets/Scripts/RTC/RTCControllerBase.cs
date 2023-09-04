@@ -1,65 +1,66 @@
 using Cysharp.Threading.Tasks;
 using DC;
+using MemoryPack;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.WebRTC;
 using UnityEngine;
 
-public abstract class RTCControllerBase : MonoBehaviour
+public class RTCControllerBase : MonoBehaviour
 {
     protected HashSet<string> candidateData = new();
+    HashSet<MessageType> logTargetExcludeTypes = new HashSet<MessageType>()
+    { 
+        MessageType.Location
+    };
 
     /// <summary>
-    /// Ú‘±Š®—¹
-    /// TODO: ‘SClient‚ğ‘—M‚·‚é‚æ‚¤‚É•ÏX‚·‚é
+    /// æ¥ç¶šå®Œäº†æ™‚
     /// </summary>
     /// <param name="connectedId"></param>
     protected async void OnConnected(string connectedId)
     {
         GM.Msg("AddOutput", $"[Connected] {connectedId}");
 
-        await UniTask.Delay(1000); // TODO: b’è“I‚È‘[’u
+        await UniTask.Delay(1000); // TODO: æš«å®šçš„ãªæªç½®
 
-        // Ú‘±æ‚Ìî•ñ‚ğ‘S‘Ì‚É‘—M        
-        Dictionary<string, object> sendData = new()
+        // æ¥ç¶šå…ˆã®æƒ…å ±ã‚’å…¨ä½“ã«é€ä¿¡        
+        RTCMessage rtcMessage = new()
         {
-            {"type", "get_user_list"},
-        };        
-        GM.Msg("RTCSendDirect", connectedId, sendData);
+            type = MessageType.GetUserList,
+        };
+
+        var bytes = MemoryPackSerializer.Serialize(rtcMessage);
+        GM.Msg("RTCSendDirect", connectedId, bytes);
     }
 
     /// <summary>
-    /// MessageóM‚Ìˆ—
+    /// Messageå—ä¿¡æ™‚ã®å‡¦ç†
     /// </summary>
     /// <param name="data"></param>
     /// <param name="sourceId"></param>
     protected void OnMessage(byte[] data, string sourceId)
     {
-        var output = $"{System.Text.Encoding.UTF8.GetString(data)}";
-        // Debug.Log(output);
+        // Messageå‡¦ç†
+        var dataMessage = MemoryPackSerializer.Deserialize<RTCMessage>(data);
 
+        // Logã®è¡¨ç¤º
+        // AddOutputLog(dataMessage, "Receive");
 
-        // Messageˆ—
-        var dataDict = output.GetDict<string, object>();
-        if (dataDict.TryGetValue("type", out object value))
+        // Messageä»¥å¤–ã®å‡¦ç†
+        var targetId = dataMessage.targetId;
+        // dataDict["target_id"].ToString(); // TODO: KeyNotFound
+        if (targetId != GM.db.rtc.id && targetId != "*")
         {
-            // Log‚Ì•\¦
-            AddOutputLog(dataDict, "Receive");
-
-            // MessageˆÈŠO‚Ìˆ—
-            var targetId = dataDict["target_id"].ToString(); // TODO: KeyNotFound
-            if (targetId != GM.db.rtc.id && targetId != "*")
-            {
-                GM.Msg("AddOutput", $"[Relay]");
-                // ’†Œp‚·‚é                
-                Send(targetId, data);
-                return;
-            }
-
-            // Message‚Ì‹ï‘Ì“I‚Èˆ—‚ğs‚¤
-            GM.Msg("WebRTCMessageHandler", data, sourceId);
+            GM.Msg("AddOutput", $"[Relay]");
+            // ä¸­ç¶™ã™ã‚‹                
+            Send(targetId, data);
+            return;
         }
+
+        // Messageã®å…·ä½“çš„ãªå‡¦ç†ã‚’è¡Œã†
+        GM.Msg("WebRTCMessageHandler", dataMessage, sourceId);
     }
 
     protected void Send(string id, string data)
@@ -71,7 +72,7 @@ public abstract class RTCControllerBase : MonoBehaviour
     protected void Send(string id, Dictionary<string, object> data)
     {
         GM.Msg("AddOutput", $"[Send][WebRTC] {data}");
-        AddOutputLog(data, "Send");
+        // AddOutputLog(data, "Send");
         GM.db.rtc.peers[id].Send(data.GetString());
     }
 
@@ -89,21 +90,21 @@ public abstract class RTCControllerBase : MonoBehaviour
         GM.db.rtc.peers.Remove(targetId);
     }
 
-    void AddOutputLog(Dictionary<string, object> data, string header = "Send")
-    {
-        var typeStr = data["type"].ToString();
-        if (typeStr != "location" && typeStr != "anim" && typeStr != "ping" && typeStr != "pong")
-        {
-            var dataStr = data.GetString();
-            Debug.Log(dataStr);
-            GM.Msg("AddOutput", $"[{header}] {dataStr}");
-        }
-    }
+    //void AddOutputLog(Dictionary<string, object> data, string header = "Send")
+    //{
+    //    var typeStr = data["type"].ToString();
+    //    if (typeStr != "location" && typeStr != "anim" && typeStr != "ping" && typeStr != "pong")
+    //    {
+    //        var dataStr = data.GetString();
+    //        Debug.Log(dataStr);
+    //        GM.Msg("AddOutput", $"[{header}] {dataStr}");
+    //    }
+    //}
 
     // -----------------------------------
 
     /// <summary>
-    /// Œo˜HŒó•â‚ğ“o˜^‚·‚é
+    /// çµŒè·¯å€™è£œã‚’ç™»éŒ²ã™ã‚‹
     /// </summary>
     /// <param name="data"></param>
     protected void AddCandidate(Dictionary<string, object> data, string targetId)
@@ -125,7 +126,7 @@ public abstract class RTCControllerBase : MonoBehaviour
     // -----------------------------------
 
     /// <summary>
-    /// ‘—M—pƒf[ƒ^‚ğì¬‚·‚é
+    /// é€ä¿¡ç”¨ãƒ‡ãƒ¼ã‚¿ã‚’ä½œæˆã™ã‚‹
     /// </summary>
     /// <returns></returns>
     protected Dictionary<string, object> CreateSendData()

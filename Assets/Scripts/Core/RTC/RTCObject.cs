@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// “®“IObject‚ÌÀ•WŠÇ—
+/// å‹•çš„Objectã®åº§æ¨™ç®¡ç†
 /// </summary>
 public class RTCObject : MonoBehaviour
 {
@@ -15,8 +15,8 @@ public class RTCObject : MonoBehaviour
     [System.NonSerialized] public string objId = "";
     public string ownerId = "";
     public string cid = "";
-    public string objType = "human";    // TODO: •Ê‚ÌêŠ‚Åİ’è‚·‚×‚«
-    public float syncIntervalTimeSecond = 0.1f; // Å¬’l‚ğİ’è‚µ‚Ä‚¨‚­
+    public string objType = "human";    // TODO: åˆ¥ã®å ´æ‰€ã§è¨­å®šã™ã¹ã
+    public float syncIntervalTimeSecond = 0.1f; // æœ€å°å€¤ã‚’è¨­å®šã—ã¦ãŠã
     public int syncDistance = 0;
 
     public string nametag
@@ -28,7 +28,7 @@ public class RTCObject : MonoBehaviour
             nameTag?.SetName(value);
             if (!isLocal) return;
 
-            // ©ƒLƒƒƒ‰‚Ìê‡‚ÍA‘Sˆõ‚É‘—M‚·‚é
+            // è‡ªã‚­ãƒ£ãƒ©ã®å ´åˆã¯ã€å…¨å“¡ã«é€ä¿¡ã™ã‚‹
             var sendData = new Dictionary<string, object>()
             {
                 { "type","changeNametag" },
@@ -43,7 +43,7 @@ public class RTCObject : MonoBehaviour
 
     // -----------------------------------
     // Sync Data
-    protected Dictionary<string, object> locationData = new();
+    protected P_Location locationData = new();
 
     // -----------------------------------
     // Send
@@ -61,7 +61,7 @@ public class RTCObject : MonoBehaviour
     Quaternion currentRotation = Quaternion.identity;
 
     /// <summary>
-    /// ÀÛ‚ÌŠÔH
+    /// å®Ÿéš›ã®æ™‚é–“ï¼Ÿ
     /// </summary>
     float elapsedTime = 0;
     private Transform content;
@@ -78,18 +78,18 @@ public class RTCObject : MonoBehaviour
     {
         if (objType == "human")
         {
-            // lŒ^‚ÌObject‚Å‚ ‚ê‚ÎAGeometry‚Éİ’è‚·‚é
+            // äººå‹ã®Objectã§ã‚ã‚Œã°ã€Geometryã«è¨­å®šã™ã‚‹
             content = transform.Find("Geometry");
             // TryGetComponent(out animator);
             TryGetComponent(out nameTag);
             if(!TryGetComponent(out rtcAniamtor))
             {
-                Debug.LogError("RTCAnimator‚ª‘¶İ‚µ‚È‚¢");
+                Debug.LogError("RTCAnimatorãŒå­˜åœ¨ã—ãªã„");
             }
         }
         else
         {
-            // qŠK‘w‚ÉObjectİ’u‚ÌêŠ‚ğì¬‚·‚é
+            // å­éšå±¤ã«Objectè¨­ç½®ã®å ´æ‰€ã‚’ä½œæˆã™ã‚‹
             GameObject content = new GameObject("content");
             content.transform.SetParent(transform);
             this.content = content.transform;
@@ -117,14 +117,14 @@ public class RTCObject : MonoBehaviour
     }
 
     /// <summary>
-    /// Local‚Ìê‡AData‚ğİ’è‚·‚é
+    /// Localã®å ´åˆã€Dataã‚’è¨­å®šã™ã‚‹
     /// </summary>
     public void SetData()
     {
         isLocal = true;
         PrepareSendLocationData();
         objId = Guid.NewGuid().ToString("N");
-        locationData["objId"] = objId;
+        locationData.objId = objId;
         ownerId = GM.db.rtc.id;
         gameObject.name = $"{name}-{objId}";
 
@@ -157,14 +157,13 @@ public class RTCObject : MonoBehaviour
     }
 
     /// <summary>
-    /// Data‚ğ‘—M‚·‚é€”õ
+    /// Dataã‚’é€ä¿¡ã™ã‚‹æº–å‚™
     /// </summary>
     void PrepareSendLocationData()
     {
-        locationData.Add("objId", "");
-        locationData.Add("type", "location");
-        locationData.Add("position", transform.position.ToSplitString());
-        locationData.Add("rotation", transform.rotation.eulerAngles.ToSplitString());
+        locationData.objId = "";
+        locationData.position = transform.position;
+        locationData.rotation = transform.rotation.eulerAngles;        
     }
 
     /// <summary>
@@ -172,46 +171,46 @@ public class RTCObject : MonoBehaviour
     /// </summary>
     void UpdataLocation()
     {
-        // ‘—MŠÔŠu
+        // é€ä¿¡é–“éš”
         time += Time.deltaTime;
         if (time < syncIntervalTimeSecond) return;
         time = 0;
 
-        // À•W‚ª•Ï‚í‚Á‚Ä‚¢‚È‚¢ê‡‚ÍA‘—M‚µ‚È‚¢
+        // åº§æ¨™ãŒå¤‰ã‚ã£ã¦ã„ãªã„å ´åˆã¯ã€é€ä¿¡ã—ãªã„
         if (previousPosition == transform.position &&
             previousRotation == transform.rotation) return; 
 
-        // À•W‚ªˆÙ‚È‚éê‡A‘—M‚·‚é
+        // åº§æ¨™ãŒç•°ãªã‚‹å ´åˆã€é€ä¿¡ã™ã‚‹
         previousPosition = transform.position;
         transform.rotation = transform.rotation;
 
-        locationData["position"] = transform.position.ToSplitString();
-        locationData["rotation"] = transform.rotation.eulerAngles.ToSplitString();
+        locationData.position = transform.position;
+        locationData.rotation = transform.rotation.eulerAngles;
 
-        // ‚¢‚Â‚Å‚à©•ª‚Ìî•ñ‚ğ‘—‚ê‚é‚æ‚¤‚É€”õ‚µ‚Ä‚¨‚­
+        // ã„ã¤ã§ã‚‚è‡ªåˆ†ã®æƒ…å ±ã‚’é€ã‚Œã‚‹ã‚ˆã†ã«æº–å‚™ã—ã¦ãŠã
         GM.Msg("SetSelfLocationData", locationData);
     }
 
     /// <summary>
-    /// À•W‚ğóM‚·‚é
+    /// åº§æ¨™ã‚’å—ä¿¡ã™ã‚‹
     /// </summary>
     /// <param name="data"></param>
-    public void ReceiveLocation(Dictionary<string, object> data)
+    public void ReceiveLocation(P_Location data)
     {
-        recievedPosition = data["position"].ToString().ToVector3();
-        recievedRotation = Quaternion.Euler(data["rotation"].ToString().ToVector3());
-        syncIntervalTimeSecond = float.Parse(data["time"].ToString());
+        recievedPosition = data.position;
+        recievedRotation = Quaternion.Euler(data.rotation);
+        // syncIntervalTimeSecond = data.time;
         currentPosition = transform.position;
         currentRotation = transform.rotation;
         elapsedTime = 0;
     }
 
     /// <summary>
-    /// À•W‚Ì•âŠÔ
+    /// åº§æ¨™ã®è£œé–“
     /// </summary>
     void InterpolationLocation()
     {
-        var t = elapsedTime / syncIntervalTimeSecond; // TODO: syncIntervalTimeSecond‚ğŠO•”‚©‚çæ“¾‚·‚é•K—v‚ª‚ ‚é
+        var t = elapsedTime / syncIntervalTimeSecond; // TODO: syncIntervalTimeSecondã‚’å¤–éƒ¨ã‹ã‚‰å–å¾—ã™ã‚‹å¿…è¦ãŒã‚ã‚‹
         elapsedTime += Time.deltaTime;
         transform.position = Vector3.LerpUnclamped(currentPosition, recievedPosition, t);
         transform.rotation = Quaternion.LerpUnclamped(currentRotation, recievedRotation, t);
@@ -221,7 +220,7 @@ public class RTCObject : MonoBehaviour
     }
 
     /// <summary>
-    /// TODO: ’N‚ª‚±‚ê‚ğ‘—M‚·‚é‚©‚ÌŒˆ’è‚ª•K—v
+    /// TODO: èª°ãŒã“ã‚Œã‚’é€ä¿¡ã™ã‚‹ã‹ã®æ±ºå®šãŒå¿…è¦
     /// </summary>
     /// <param name="path"></param>
     public async void SetObject(string path)
@@ -229,12 +228,12 @@ public class RTCObject : MonoBehaviour
         var avatarObj = GM.Msg<GameObject>("LoadAvatar", path);
         SetContent(avatarObj.transform);
 
-        // IPFS‚Ö‚ÌUpload
+        // IPFSã¸ã®Upload
         var cid = await GM.Msg<UniTask<string>>("UploadAvatar", path);
         this.cid = cid;
         GM.db.user.users[GM.db.rtc.id].cid = cid;
 
-        // ‘S‘Ì‚Ö‚Ì’Ê’m
+        // å…¨ä½“ã¸ã®é€šçŸ¥
         var sendData = new Dictionary<string, object>()
         {
             { "type", "change" },
@@ -246,7 +245,7 @@ public class RTCObject : MonoBehaviour
     }
 
     /// <summary>
-    /// Avatar“™‚ğİ’è‚·‚é
+    /// Avatarç­‰ã‚’è¨­å®šã™ã‚‹
     /// </summary>
     /// <param name="obj"></param>
     public async void SetContent(Transform obj)

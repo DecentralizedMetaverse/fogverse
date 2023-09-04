@@ -124,14 +124,14 @@ public class RTCAnimator : MonoBehaviour
     /// Receive aimation data
     /// </summary>
     /// <param name="data"></param>
-    public void ReceiveAnim(Dictionary<string, object> data)
+    public void ReceiveAnim(P_Animation data)
     {
         if (rtc == null || rtc.animator == null)
         {
             Debug.LogWarning("Not found rtc or animator");
             return;
         }
-        stateData = data["state"].ToString().GetDict<string, object>();
+        stateData = data.state.GetDict<string, object>();
 
         // Receive Animator State Value
         foreach (var (stateId, stateValue) in stateData)

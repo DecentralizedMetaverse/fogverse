@@ -5,14 +5,16 @@ using System.IO;
 using UnityEngine.Rendering;
 using System.Linq;
 using DC;
+using MemoryPack;
 
 public class SaveData : MonoBehaviour
 {
     string path = "";
-    Dictionary<string, object> data = new();
+    SaveDataContent save = new();
 
     void Awake()
     {
+        // save.data = new();
         path = Application.persistentDataPath + "/save.dat";
         Read();
     }
@@ -28,11 +30,11 @@ public class SaveData : MonoBehaviour
         GM.Add("Save", Write);
         GM.Add<string, object>("SetSaveData", (key, obj) =>
         {
-            data.ForceAdd(key, obj);
+            save.ForceAdd(key, obj);
         });
         GM.Add<string, object>("GetSaveData", (key) =>
         {
-            data.TryGetValue(key, out object obj);
+            save.TryGetValue(key, out object obj);
             return obj;
         });
     }
@@ -42,12 +44,25 @@ public class SaveData : MonoBehaviour
         if (!File.Exists(path))
             return;
 
-        data = File.ReadAllText(path).GetDict<string, object>();
-
+        var txt = File.ReadAllBytes(path);
+        save = MemoryPackSerializer.Deserialize<SaveDataContent>(txt);
+        if (save.TryGetValue("version", out object version))
+        {
+            Debug.Log($"[SaveData] {version.ToString()}");
+        }
     }
 
     public void Write()
     {
-        File.WriteAllText(path, data.GetString());
+        GM.Msg("SetSaveData", "version", "0.1");
+        
+        var bin = MemoryPackSerializer.Serialize(save);
+        File.WriteAllBytes(path, bin);
     }
+}
+
+[MemoryPackable(GenerateType.Collection)]
+public partial class SaveDataContent : Dictionary<string, object>
+{
+    // public string version { get; set; }
 }

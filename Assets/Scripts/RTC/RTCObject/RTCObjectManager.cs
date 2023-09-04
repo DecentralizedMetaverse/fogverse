@@ -1,11 +1,12 @@
 using Cysharp.Threading.Tasks;
 using DC;
+using MemoryPack;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ‘SObject‚ÌÀ•WŠÇ—
-/// TODO: ‰Šú•\¦‚³‚ê‚È‚¢
+/// å…¨Objectã®åº§æ¨™ç®¡ç†
+/// TODO: åˆæœŸè¡¨ç¤ºã•ã‚Œãªã„
 /// </summary>
 public class RTCObjectManager : MonoBehaviour
 {
@@ -21,31 +22,32 @@ public class RTCObjectManager : MonoBehaviour
         syncObjects = GM.db.rtc.syncObjects;
 
         GM.Add<string, string>("RequestObjectData", RequestObjectData);
-        GM.Add<Dictionary<string, object>, string>("RPC_location", RPC_ReceiveLocation);
-        GM.Add<Dictionary<string, object>, string>("RPC_requestObj", RPC_RTCRequstObjectInfo);
-        GM.Add<Dictionary<string, object>, string>("RPC_instantiate", RPC_ObjectInstantiate);
-        GM.Add<Dictionary<string, object>, string>("RPC_change", RPC_ObjectChange);
-        GM.Add<Dictionary<string, object>, string>("RPC_changeNametag", RPC_ChangeNametag);
-        GM.Add<Dictionary<string, object>, string>("RPC_anim", (data, sourceId) =>
+        GM.Add<RTCMessage, string>("RECV_Location", RPC_ReceiveLocation);
+        // GM.Add<byte[], string>("RPC_requestObj", RPC_RTCObjectInfoRequest);
+        GM.Add<RTCMessage, string>("RECV_instantiate", RPC_ObjectInstantiate);
+        GM.Add<RTCMessage, string>("RECV_change", RPC_ObjectChange);
+        GM.Add<RTCMessage, string>("RECV_ChangeNametag", RPC_ChangeNametag);
+        GM.Add<RTCMessage, string>("RECV_Animation", (data, sourceId) =>
         {
-            if (!syncObjects.ContainsKey(data["objId"].ToString()))
+            var animationData = MemoryPackSerializer.Deserialize<P_Animation>(data.data);
+            if (!syncObjects.ContainsKey(animationData.objId))
             {
-                Debug.LogWarning("‘¶İ‚µ‚È‚¢Object‚Ö‚ÌƒAƒNƒZƒX");
+                Debug.LogWarning("å­˜åœ¨ã—ãªã„Objectã¸ã®ã‚¢ã‚¯ã‚»ã‚¹");
                 return;
             }
 
-            if (syncObjects[data["objId"].ToString()].rtcAniamtor == null)
+            if (syncObjects[animationData.objId].rtcAniamtor == null)
             {
                 Debug.LogWarning("Not found RTC Animator");
                 return;
             }
 
-            syncObjects[data["objId"].ToString()].rtcAniamtor.ReceiveAnim(data);
+            syncObjects[animationData.objId].rtcAniamtor.ReceiveAnim(animationData);
         });
 
         GM.Add<RTCObject>("AddSyncObject", (obj) =>
         {
-            // LocalAvatar‚ğ’Ç‰Á‚·‚é
+            // LocalAvatarã‚’è¿½åŠ ã™ã‚‹
             if (syncObjects.ContainsKey(obj.objId)) return;
             syncObjects.Add(obj.objId, obj);
             syncObjectsByID.TryAdd(GM.db.rtc.id, new List<string>());
@@ -66,36 +68,38 @@ public class RTCObjectManager : MonoBehaviour
     }    
 
     /// <summary>
-    /// –¼‘O‚Ì•ÏX
+    /// åå‰ã®å¤‰æ›´
     /// </summary>
     /// <param name="data"></param>
     /// <param name="sourceId"></param>
-    private void RPC_ChangeNametag(Dictionary<string, object> data, string sourceId)
+    private void RPC_ChangeNametag(RTCMessage data, string sourceId)
     {
-        var objId = data["objId"].ToString();
+        var changeData = MemoryPackSerializer.Deserialize<P_ChangeNametag>(data.data);
+        var objId = changeData.objId;
         if (!syncObjects.TryGetValue(objId, out RTCObject obj)) return;
-        obj.nametag = data["nametag"].ToString();
+        obj.nametag = changeData.nametag;
     }
 
     /// <summary>
-    /// À•Wî•ñ‚Ìæ“¾
+    /// åº§æ¨™æƒ…å ±ã®å–å¾—
     /// </summary>
     /// <param name="data"></param>
-    void RPC_ReceiveLocation(Dictionary<string, object> data, string targetId)
+    void RPC_ReceiveLocation(RTCMessage data, string targetId)
     {
-        var objId = data["objId"].ToString();
+        var locationData = MemoryPackSerializer.Deserialize<P_Location>(data.data);
+        var objId = locationData.objId;
         if (!syncObjects.ContainsKey(objId))
         {
-            // V‹KObject
+            // æ–°è¦Object
             RequestObjectData(targetId, objId);
             return;
         }
 
-        syncObjects[objId].ReceiveLocation(data);
+        syncObjects[objId].ReceiveLocation(locationData);
     }
 
     /// <summary>
-    /// V‹KObject
+    /// æ–°è¦Object
     /// </summary>
     /// <param name="objId"></param>
     void RequestObjectData(string targetId, string objId)
@@ -114,76 +118,77 @@ public class RTCObjectManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Object‚ÉŠÖ‚·‚éî•ñ‚Ìæ“¾
+    /// Objectã«é–¢ã™ã‚‹æƒ…å ±ã®å–å¾—
     /// </summary>
     /// <param name="data"></param>
     /// <param name="targetId"></param>
-    void RPC_RTCRequstObjectInfo(Dictionary<string, object> data, string targetId)
-    {
-        var objId = data["objId"].ToString();
-        if (string.IsNullOrEmpty(objId))
-        {
-            // ©•ª‚ÌObject‚ğæ“¾
-            var self = GM.db.rtc.selfObject;
-            if(self != null)
-            {
-                objId = self.objId;
-            }
-            // TODO: “®ìƒ`ƒFƒbƒN
-            //if (syncObjectsByID.TryGetValue(GM.db.rtc.id, out List<string> objIds))
-            //{
-            //    objId = objIds[0];
-            //}
-        }
+    //void RPC_RTCObjectInfoRequest(byte[] data, string targetId)
+    //{
+    //    //var objId = data["objId"].ToString();
+    //    if (string.IsNullOrEmpty(objId))
+    //    {
+    //        // è‡ªåˆ†ã®Objectã‚’å–å¾—
+    //        var self = GM.db.rtc.selfObject;
+    //        if(self != null)
+    //        {
+    //            objId = self.objId;
+    //        }
+    //        // TODO: å‹•ä½œãƒã‚§ãƒƒã‚¯
+    //        //if (syncObjectsByID.TryGetValue(GM.db.rtc.id, out List<string> objIds))
+    //        //{
+    //        //    objId = objIds[0];
+    //        //}
+    //    }
 
-        if (!syncObjects.TryGetValue(objId, out RTCObject obj))
-        {
-            // Error
-            GM.db.rtc.errorData.ForceAdd("reason", "‘¶İ‚µ‚È‚¢Object‚Ö‚ÌAccess");
-            GM.Msg("RTCSendDirect", targetId, GM.db.rtc.errorData);
-            Debug.LogWarning("‘¶İ‚µ‚È‚¢Object‚Ö‚ÌƒAƒNƒZƒX");
-            return;
-        }
+    //    if (!syncObjects.TryGetValue(objId, out RTCObject obj))
+    //    {
+    //        // Error
+    //        GM.db.rtc.errorData.ForceAdd("reason", "å­˜åœ¨ã—ãªã„Objectã¸ã®Access");
+    //        GM.Msg("RTCSendDirect", targetId, GM.db.rtc.errorData);
+    //        Debug.LogWarning("å­˜åœ¨ã—ãªã„Objectã¸ã®ã‚¢ã‚¯ã‚»ã‚¹");
+    //        return;
+    //    }
 
-        Dictionary<string, object> sendData = new()
-        {
-            { "objId",  objId },
-            { "type", "instantiate" },
-            { "objType",  obj.objType },
-            { "cid", obj.cid },
-            { "nametag", obj.nametag },
-            { "position", obj.transform.position.ToSplitString() },
-            { "rotation", obj.transform.rotation.eulerAngles.ToSplitString() },
-        };
+    //    Dictionary<string, object> sendData = new()
+    //    {
+    //        { "objId",  objId },
+    //        { "type", "instantiate" },
+    //        { "objType",  obj.objType },
+    //        { "cid", obj.cid },
+    //        { "nametag", obj.nametag },
+    //        { "position", obj.transform.position.ToSplitString() },
+    //        { "rotation", obj.transform.rotation.eulerAngles.ToSplitString() },
+    //    };
 
-        GM.Msg("RTCSendDirect", targetId, sendData);
-    }
+    //    GM.Msg("RTCSendDirect", targetId, sendData);
+    //}
 
     /// <summary>
-    /// Object¶¬
+    /// Objectç”Ÿæˆ
     /// </summary>
     /// <param name="data"></param>
-    async void RPC_ObjectInstantiate(Dictionary<string, object> data, string sourceId)
+    async void RPC_ObjectInstantiate(RTCMessage data, string sourceId)
     {
-        // î•ñó‚¯æ‚è
-        var objId = data["objId"].ToString();
+        var objectInstantiateData = MemoryPackSerializer.Deserialize<P_ObjectInstantiate>(data.data);    
+        // æƒ…å ±å—ã‘å–ã‚Š
+        var objId = objectInstantiateData.objId;
         if(syncObjects.ContainsKey(objId))
         {
-            // Šù‚É‘¶İ‚·‚éObject
-            Debug.LogWarning("Šù‚É‘¶İ‚·‚éObject");
+            // æ—¢ã«å­˜åœ¨ã™ã‚‹Object
+            Debug.LogWarning("æ—¢ã«å­˜åœ¨ã™ã‚‹Object");
             return;
         }
 
         // requestObjWaitingList.Remove(objId);
 
-        var position = data["position"].ToString().ToVector3();
-        var rotation = data["rotation"].ToString().ToVector3();
-        var cid = data["cid"].ToString();
-        var objType = data["objType"].ToString();
-        var nameTag = data["nametag"].ToString();
+        var position = objectInstantiateData.position;
+        var rotation = objectInstantiateData.rotation;
+        var cid = objectInstantiateData.cid;
+        var objType = objectInstantiateData.objType;
+        var nameTag = objectInstantiateData.nameTag;
 
-        // Object¶¬
-        // TODO: type‚É‰‚¶‚Äobject‚Ìí—Ş‚ğ•Ï‚¦‚é‚×‚«
+        // Objectç”Ÿæˆ
+        // TODO: typeã«å¿œã˜ã¦objectã®ç¨®é¡ã‚’å¤‰ãˆã‚‹ã¹ã
         GameObject obj = null;
         if (objType == "human")
         {
@@ -194,7 +199,7 @@ public class RTCObjectManager : MonoBehaviour
             obj = Instantiate(emptyPrefab);
         }
 
-        // Objectİ’è
+        // Objectè¨­å®š
         var objectData = obj.AddComponent<RTCObject>();
         objectData.SetData(sourceId, objId, cid, objType, position, rotation);
         Debug.Log(nameTag);
@@ -209,24 +214,25 @@ public class RTCObjectManager : MonoBehaviour
 
         GM.db.rtc.activeObjects.Add(objId, obj);
 
-        // Avatarİ’è
-        GM.db.user.AddUser(sourceId, objId); // TODO: Às‡”Ô‚É’ˆÓ
+        // Avatarè¨­å®š
+        GM.db.user.AddUser(sourceId, objId); // TODO: å®Ÿè¡Œé †ç•ªã«æ³¨æ„
         await SetAvatar(objId, cid);
     }
 
     /// <summary>
-    /// Object‚ÌØ‚è‘Ö‚¦
+    /// Objectã®åˆ‡ã‚Šæ›¿ãˆ
     /// </summary>
     /// <param name="data"></param>
     /// <param name="sourceId"></param>
-    async void RPC_ObjectChange(Dictionary<string, object> data, string sourceId)
+    async void RPC_ObjectChange(RTCMessage data, string sourceId)
     {
-        var objId = data["objId"].ToString();
-        var cid = data["cid"].ToString();
+        var objectChangeData = MemoryPackSerializer.Deserialize<P_ObjectChange>(data.data);
+        var objId = objectChangeData.objId;
+        var cid = objectChangeData.cid;;
 
         if (!syncObjects.ContainsKey(objId))
         {
-            // V‹KObject
+            // æ–°è¦Object
             RequestObjectData(sourceId, objId);
             return;
         }
