@@ -1,4 +1,4 @@
-## Decentralized Metaverse Project
+## 完全分散型メタバースProject Decentralized Metaverse Project
 
 This project aims to create a decentralized metaverse. 
 
