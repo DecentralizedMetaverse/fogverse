@@ -6,21 +6,21 @@ using UnityEngine;
 using System.Threading;
 
 /// <summary>
-/// ƒvƒŒƒCƒ„[‚Ìƒ`ƒƒƒ“ƒN‚ğí’²‚×‚é
-/// •Ï‰»‚ÍWorld‚Ì“Ç‚İ‚İ‚ğs‚¤
-/// TODO: UniTask‚ÌCancelˆ—‚ğs‚¤
+/// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ãƒãƒ£ãƒ³ã‚¯ã‚’å¸¸æ™‚èª¿ã¹ã‚‹
+/// å¤‰åŒ–æ™‚ã¯Worldã®èª­ã¿è¾¼ã¿ã‚’è¡Œã†
+/// TODO: UniTaskã®Cancelå‡¦ç†ã‚’è¡Œã†
 /// </summary>
-[RequireComponent(typeof(RTCObject))]
+[RequireComponent(typeof(RTCObjectSync))]
 public class PlayerChunk : MonoBehaviour
 {
     [SerializeField] DB_Player dbPlayer;
     float divideChunkSize;
     private CancellationTokenSource cts;
-    RTCObject rtc;
+    RTCObjectSync rtc;
 
     void Start()
     {
-        rtc = GetComponent<RTCObject>();
+        rtc = GetComponent<RTCObjectSync>();
         if (!rtc.isLocal) return;
 
         dbPlayer.user = transform;
@@ -52,10 +52,10 @@ public class PlayerChunk : MonoBehaviour
             if (IsChangedChunk(chunk))
             {
                 dbPlayer.chunk = chunk;
-                // World‚ğ“Ç‚İ‚Ş
+                // Worldã‚’èª­ã¿è¾¼ã‚€
                 // await GM.MsgAsync("LoadWorldByChunk", x, y);
 
-                // Chunk‚Ì•ÏX‚ğ‘—M
+                // Chunkã®å¤‰æ›´ã‚’é€ä¿¡
                 GM.Msg("ChangeChunk", chunk);
             }
 

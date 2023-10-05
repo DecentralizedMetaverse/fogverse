@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 /// <summary>
-/// Object�𑀍삷��
+/// Objectを操作する
 /// </summary>
 public class InteractObject : MonoBehaviour
 {

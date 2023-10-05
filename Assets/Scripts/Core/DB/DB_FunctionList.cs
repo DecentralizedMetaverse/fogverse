@@ -12,7 +12,7 @@ public class DB_FunctionList : ScriptableObject
     public List<DB_FunctionListE> data = new List<DB_FunctionListE>();
 
     /// <summary>
-    /// ƒhƒLƒ…ƒƒ“ƒg¶¬
+    /// ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆç”Ÿæˆ
     /// </summary>
     /// <returns></returns>
     public string GetDocs()
@@ -23,10 +23,10 @@ public class DB_FunctionList : ScriptableObject
         {
             docsTxt += $"## {dt.functionName}\n";
 
-            // à–¾
+            // èª¬æ˜
             docsTxt += $"### Description\n{dt.description}\n";
 
-            // ˆø”
+            // å¼•æ•°
             if (dt.@params != "")
             {
                 docsTxt += $"### Parameters\n";
@@ -38,7 +38,7 @@ public class DB_FunctionList : ScriptableObject
                 }
             }
 
-            // •Ô‚è’l
+            // è¿”ã‚Šå€¤
             if (dt.@return != "")
             {
                 docsTxt += $"### Returns\n" +
@@ -51,24 +51,24 @@ public class DB_FunctionList : ScriptableObject
     }
 
     /// <summary>
-    /// “o˜^‚³‚ê‚½ŠÖ”‚ğˆê——‚Æ‚µ‚ÄƒeƒLƒXƒgFile‚É‘‚«o‚·
+    /// ç™»éŒ²ã•ã‚ŒãŸé–¢æ•°ã‚’ä¸€è¦§ã¨ã—ã¦ãƒ†ã‚­ã‚¹ãƒˆFileã«æ›¸ãå‡ºã™
     /// </summary>
     public void SaveFunctionList(Dictionary<string, List<Delegate>> functions)
     {
-        data.Clear(); // ‰Šú‰»
+        data.Clear(); // åˆæœŸåŒ–
 
-        // “o˜^‚³‚ê‚½ŠÖ”‚Ìæ“¾
+        // ç™»éŒ²ã•ã‚ŒãŸé–¢æ•°ã®å–å¾—
         foreach (var functionName in functions.Keys)
         {
             var name = functionName;
             DB_FunctionListE data = new();
             data.functionName = name;
 
-            // ˆø”æ“¾                
+            // å¼•æ•°å–å¾—                
             var paramsTxt = GetParamsTxt(name, functions);
             data.@params = paramsTxt;
 
-            // •Ô‚è’læ“¾
+            // è¿”ã‚Šå€¤å–å¾—
             var returnTxt = functions[name][0].GetMethodInfo().ReturnType.ToString();
             data.@return = returnTxt;
 
@@ -77,9 +77,9 @@ public class DB_FunctionList : ScriptableObject
     }
 
     /// <summary>
-    /// ˆø”‚Ìæ“¾
+    /// å¼•æ•°ã®å–å¾—
     /// </summary>
-    /// <param name="name">functions‚Ìkey</param>
+    /// <param name="name">functionsã®key</param>
     /// <returns></returns>
     private string GetParamsTxt(string name, Dictionary<string, List<Delegate>> functions)
     {

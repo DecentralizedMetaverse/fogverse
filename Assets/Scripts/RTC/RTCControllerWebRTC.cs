@@ -1,14 +1,12 @@
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DC;
 using MemoryPack;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Unity.WebRTC;
 using UnityEngine;
 
 /// <summary>
-/// TODO: H–’†
+/// TODO: å·¥äº‹ä¸­
 /// Peer A -> Peer C (signalingId) -> Peer C (targetId)
 /// </summary>
 class RTCControllerWebRTC : RTCControllerBase
@@ -24,86 +22,67 @@ class RTCControllerWebRTC : RTCControllerBase
         });
 
         GM.Add<Dictionary<string, object>, string>("RPC_offer", ResponseOffer);
-        GM.Add<Dictionary<string, object>, string>("RPC_join", Connect);
         GM.Add<Dictionary<string, object>, string>("RPC_answer", ResponseAnswer);
         GM.Add<Dictionary<string, object>, string>("RPC_candidateAdd", ResponseCandidate);
+        GM.Add<RTCMessage, string, string>($"RECV_{nameof(MessageType.Join)}", Connect);
         //responseFunctions.Add("error", (_, _, _) => {  });
         //responseFunctions.Add("offer", ResponseOffer);
         //responseFunctions.Add("join", Connect);
         //responseFunctions.Add("answer", ResponseAnswer);
-        //responseFunctions.Add("candidateAdd", ResponseCandidate); // TODO: –¼‘O‚Ì•ÏX‚ğs‚¤        
+        //responseFunctions.Add("candidateAdd", ResponseCandidate); // TODO: åå‰ã®å¤‰æ›´ã‚’è¡Œã†        
 
-        GM.Add<byte[], string>("WebRTCMessageHandler", OnMessageFromSignalingPeer);
+        GM.Add<RTCMessage, string>("WebRTCMessageHandler", OnMessageFromSignalingPeer);
     }
 
     /// <summary>
-    /// V‹KÚ‘±‚ÉPeer‚É‘Î‚µ‚ÄOffer‚ğ‘—M‚·‚é
+    /// æ–°è¦æ¥ç¶šæ™‚ã«Peerã«å¯¾ã—ã¦Offerã‚’é€ä¿¡ã™ã‚‹
     /// </summary>
     /// <param name="targetId"></param>
-    /// <param name="signalingId">Signaling‚ğ‚¨Šè‚¢‚·‚éPeer‚ÌID</param>
+    /// <param name="signalingId">Signalingã‚’ãŠé¡˜ã„ã™ã‚‹Peerã®ID</param>
     /// <param name="type"></param>
-    async void Connect(Dictionary<string, object> data, string sourceId)
+    async void Connect(RTCMessage data, string sourceId, string relayId)
     {
-        var signalingId = data["relayId"].ToString();
+        var joinData = MemoryPackSerializer.Deserialize<P_Join>(data.data);
 
-        var joinIds = data["joinIds"].ToString().Deserialize<List<string>>();
-
-        foreach (var joinId in joinIds)
+        foreach (var joinId in joinData.joinIds)
         {
             if (GM.db.rtc.peers.ContainsKey(joinId)) { continue; }
-            if (joinId == signalingId) continue;
+            if (joinId == relayId) continue;
 
             GM.Msg("AddOutput", $"[Connect] {joinId}");
-            
-            // V‹KConnectionì¬
-            AddConnection(joinId, signalingId);
 
-            // offer‘—M
+            // æ–°è¦Connectionä½œæˆ
+            AddConnection(joinId, relayId);
+
+            // offeré€ä¿¡
             await UniTask.WaitWhile(() => isBlocking);
-            OfferHandler(joinId, signalingId);
+            OfferHandler(joinId, relayId);
         }
     }
 
     /// <summary>
-    /// ’†Œp‚³‚ê‚Ä‚«‚½ƒf[ƒ^‚ğˆ—‚·‚é
+    /// ä¸­ç¶™ã•ã‚Œã¦ããŸãƒ‡ãƒ¼ã‚¿ã‚’å‡¦ç†ã™ã‚‹
     /// </summary>
     /// <param name="data"></param>
     /// <param name="relayId"></param>
-    void OnMessageFromSignalingPeer(byte[] data, string relayId)
+    void OnMessageFromSignalingPeer(RTCMessage data, string relayId)
     {
-        var dataMessage = MemoryPackSerializer.Deserialize<RTCMessage>(data);
-        // var output = $"{System.Text.Encoding.UTF8.GetString(data)}";
-
-        // GM.Msg("AddOutput", $"[Receive][WebRTC] {output}");
-
-        // var dataDict = output.GetDict<string, object>();
-        // if (dataDict.TryGetValue("type", out object value))
-        // {
-        // receive
-        var typeText = dataMessage.type.ToString(); ;
-        var sourceId = dataMessage.id;
-        GM.Msg($"RECV_{typeText}", dataMessage, sourceId, relayId);
-
-        //if (responseFunctions.ContainsKey(typeText))
-        //{
-            //responseFunctions[typeText].DynamicInvoke(dataDict, sourceId, relayId);
-        //}
-        //else
-        //{
-        //}
-        // }
+        var typeText = data.type.ToString(); ;
+        var sourceId = data.id;
+        Debug.Log($"receive: {typeText}");
+        GM.Msg($"RECV_{typeText}", data, sourceId, relayId);
     }
 
     void OnCandiadte(RTCIceCandidate candidate, string targetId, string signalingId)
     {
         var ice = new Ice(candidate);
-        // sdp‘—Mî•ñ‚Ì€”õ
+        // sdpé€ä¿¡æƒ…å ±ã®æº–å‚™
         var sendData = CreateSendData();
         sendData.Add("targetId", targetId);
         sendData.Add("candidate", ice);
         sendData.Add("type", "candidateAdd");
 
-        // sdp‘—M
+        // sdpé€ä¿¡
         Send(signalingId, sendData);
     }
 
@@ -128,10 +107,10 @@ class RTCControllerWebRTC : RTCControllerBase
 
     async void AnswerHandler(Dictionary<string, object> data, string sourceId, string signalingId)
     {
-        // Remote Description ó‚¯æ‚é
+        // Remote Description å—ã‘å–ã‚‹
         var remoteDesc = JsonUtility.FromJson<RTCSessionDescription>(data["sdp"].ToString());
 
-        // Answer ‘—M
+        // Answer é€ä¿¡
         var desc = await GM.db.rtc.peers[sourceId].CreateAnswer(remoteDesc);
         var sendData = CreateSendData();
         sendData.Add("sdp", desc);
@@ -145,7 +124,7 @@ class RTCControllerWebRTC : RTCControllerBase
 
 
     /// <summary>
-    /// Offer‚ğó‚¯æ‚é
+    /// Offerã‚’å—ã‘å–ã‚‹
     /// </summary>
     /// <param name="response"></param>
     /// <param name="sourceId"></param>
@@ -159,7 +138,7 @@ class RTCControllerWebRTC : RTCControllerBase
     }
 
     /// <summary>
-    /// Answer‚ğó‚¯æ‚é
+    /// Answerã‚’å—ã‘å–ã‚‹
     /// </summary>
     /// <param name="response"></param>
     /// <param name="sourceId"></param>
@@ -168,7 +147,7 @@ class RTCControllerWebRTC : RTCControllerBase
     {
         var signalingId = response["relayId"].ToString();
 
-        // Remote Description ó‚¯æ‚é
+        // Remote Description å—ã‘å–ã‚‹
         var remoteDesc = JsonUtility.FromJson<RTCSessionDescription>(response["sdp"].ToString());
         GM.db.rtc.peers[sourceId].SetRemoteDescription(remoteDesc); // TODO: Error
 
@@ -198,7 +177,7 @@ class RTCControllerWebRTC : RTCControllerBase
 
         connection.OnMessage += (message) =>
         {
-            OnMessage(message, targetId);   // TODO: Signaling’†‚ÉŒÄ‚Î‚ê‚È‚¢‚æ‚¤‚É•ÏX‚·‚×‚«
+            OnMessage(message, targetId);   // TODO: Signalingä¸­ã«å‘¼ã°ã‚Œãªã„ã‚ˆã†ã«å¤‰æ›´ã™ã¹ã
         };
 
         connection.OnDisconnected += () =>

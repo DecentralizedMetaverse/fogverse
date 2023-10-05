@@ -10,7 +10,7 @@ public class ObjectPipe : MonoBehaviour
     const float lineWidth = 0.005f;
     // public Queue<object[]> output;
 
-    // TODO: objId‚ÅŠÇ—‚µA“¯‚¶obj‚ª“o˜^‚³‚ê‚È‚¢‚æ‚¤‚É‚·‚é•K—v‚ª‚ ‚é
+    // TODO: objIdã§ç®¡ç†ã—ã€åŒã˜objãŒç™»éŒ²ã•ã‚Œãªã„ã‚ˆã†ã«ã™ã‚‹å¿…è¦ãŒã‚ã‚‹
     public List<IPipe> connectedObjects { get; set; } = new List<IPipe>();
     object[] outputBuffer;
 
@@ -55,7 +55,7 @@ public class ObjectPipe : MonoBehaviour
     }    
 
     /// <summary>
-    /// Ú‘±æ‚Æü‚ÅŒ‹‚Ô
+    /// æ¥ç¶šå…ˆã¨ç·šã§çµã¶
     /// </summary>
     void DrawLine()
     {

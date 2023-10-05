@@ -18,7 +18,7 @@ public class AvatarImporter : MonoBehaviour
     
     void Start()
     {        
-        GM.Add<string, bool, uint>("LoadAvatar", LoadAvatar);// id‚ª0‚Ìê‡‚Í©g‚ğƒ[ƒh‚·‚é
+        GM.Add<string, bool, uint>("LoadAvatar", LoadAvatar);// idãŒ0ã®å ´åˆã¯è‡ªèº«ã‚’ãƒ­ãƒ¼ãƒ‰ã™ã‚‹æ™‚
         avatarPath = $"{Application.dataPath}/../Avatar";
     }
     
@@ -30,7 +30,7 @@ public class AvatarImporter : MonoBehaviour
     /// 
     /// </summary>
     /// <param name="path"></param>
-    /// <param name="mode">0:ƒ[ƒJƒ‹</param>
+    /// <param name="mode">0:ãƒ­ãƒ¼ã‚«ãƒ«</param>
     public void GetAvatar(string avatarName, uint id, bool local)
     {
         var path = $"{avatarPath}/{avatarName}.vrm";

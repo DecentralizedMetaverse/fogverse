@@ -22,7 +22,7 @@ public class CameraController : MonoBehaviour
     }
 
     /// <summary>
-    /// Camera‚Ì‹——£‚ğ•ÏX‚·‚é
+    /// Cameraã®è·é›¢ã‚’å¤‰æ›´ã™ã‚‹
     /// </summary>
     /// <param name="context"></param>
     private void OnScroll(InputAction.CallbackContext context)

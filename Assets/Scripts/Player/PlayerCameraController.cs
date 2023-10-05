@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// ˆêlÌCamera
+/// ä¸€äººç§°Camera
 /// </summary>
 [Obsolete]
 public class PlayerCameraController : MonoBehaviour
@@ -66,7 +66,7 @@ public class PlayerCameraController : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒJƒƒ‰‚ÌŠp“x‚©‚çˆÚ“®ƒxƒNƒgƒ‹‚ğŒvZ
+    /// ã‚«ãƒ¡ãƒ©ã®è§’åº¦ã‹ã‚‰ç§»å‹•ãƒ™ã‚¯ãƒˆãƒ«ã‚’è¨ˆç®—
     /// </summary>
     Vector3 CalcMovementFromCamera(Vector2 moveInput)
     {        
@@ -76,17 +76,17 @@ public class PlayerCameraController : MonoBehaviour
     }
 
     /// <summary>
-    /// Šp“x‚É§ŒÀ‚ğ‚©‚¯‚é
+    /// è§’åº¦ã«åˆ¶é™ã‚’ã‹ã‘ã‚‹
     /// </summary>
     private void LimitAngle()
     {
-        //0`360 -> -180 ` 180 
+        //0ã€œ360 -> -180 ã€œ 180 
         var rot_x = (transform.localRotation.eulerAngles.x > 180f) ?
             transform.localRotation.eulerAngles.x - 360 : transform.localRotation.eulerAngles.x;
         
         var rot_y = transform.localRotation.eulerAngles.y;
         rot_x = Mathf.Clamp(rot_x, -limitAngle, limitAngle);
-        //-180 ` 180 -> 0`360
+        //-180 ã€œ 180 -> 0ã€œ360
         rot_x = (rot_x < 0) ?
             rot_x + 360 : rot_x;
 

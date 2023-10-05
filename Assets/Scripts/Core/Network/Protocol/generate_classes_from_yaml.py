@@ -68,6 +68,7 @@ def get_csharp_type(field_type):
     type_mapping = {
         "string": "string",
         "List<string>": "List<string>",
+        "List<byte[]>": "List<byte[]>",
         "(int, int, int)": "(int, int, int)",
         "int": "int",
         "float": "float",

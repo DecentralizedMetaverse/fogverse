@@ -12,7 +12,7 @@ public class DB_Chunk : ScriptableObject
     public Dictionary<string, (int, int, int)> chunkTable = new(); 
 
     /// <summary>
-    /// À•W‚ğ‘—M‚·‚é‘ÎÛ‚ÌChunk
+    /// åº§æ¨™ã‚’é€ä¿¡ã™ã‚‹å¯¾è±¡ã®Chunk
     /// </summary>
     public HashSet<(int, int, int)> sendTargetChunk = new();
 

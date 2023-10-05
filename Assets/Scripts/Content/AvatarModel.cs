@@ -17,7 +17,7 @@ public class AvatarModel : MonoBehaviour
     }       
 
     /// <summary>
-    /// Avatar‚ğIPFS‚ÉUpload‚·‚é
+    /// Avatarã‚’IPFSã«Uploadã™ã‚‹
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
@@ -41,7 +41,7 @@ public class AvatarModel : MonoBehaviour
     }
 
     /// <summary>
-    /// IPFS‚©‚çDownload‚ğs‚¤
+    /// IPFSã‹ã‚‰Downloadã‚’è¡Œã†
     /// </summary>
     /// <param name="cid"></param>
     /// <returns></returns>

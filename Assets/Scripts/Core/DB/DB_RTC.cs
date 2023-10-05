@@ -26,7 +26,7 @@ public class DB_RTC : ScriptableObject
     };
 
     public Dictionary<string, List<string>> syncObjectsByID = new();
-    public Dictionary<string, RTCObject> syncObjects = new();
+    public Dictionary<string, RTCObjectSync> syncObjects = new();
 
     public List<int> classifiedDistances = new List<int>();
     public Dictionary<int, float> classifiedTimes = new Dictionary<int, float>()
@@ -92,7 +92,7 @@ public class DB_RTC : ScriptableObject
         GM.Msg("SetConfig", "distances", classifiedTimes);
     }
 
-    public RTCObject selfObject
+    public RTCObjectSync selfObject
     {
         get
         {
@@ -107,7 +107,7 @@ public class DB_RTC : ScriptableObject
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public RTCObject GetSyncObjectById(string id)
+    public RTCObjectSync GetSyncObjectById(string id)
     {
         syncObjectsByID.TryGetValue(id, out var ids);
         if (ids == null || ids.Count == 0)

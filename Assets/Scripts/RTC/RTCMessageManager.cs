@@ -1,7 +1,5 @@
 using DC;
 using MemoryPack;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -17,11 +15,11 @@ public class RTCMessageManager : MonoBehaviour
             {
                 var message = new RTCMessage
                 {
-                    data = data, 
-                    targetId = "*" ,
+                    data = data,
+                    targetId = "*",
                     id = GM.db.rtc.id,
                     type = type,
-                };                
+                };
 
                 peer.Send(MemoryPackSerializer.Serialize(message));
             }
@@ -30,17 +28,21 @@ public class RTCMessageManager : MonoBehaviour
 
         GM.Add<MessageType, string, byte[]>("RTCSendDirect", (type, targetId, data) =>
         {
-            if(GM.db.rtc.peers.TryGetValue(targetId, out var peer))
+            if (GM.db.rtc.peers.TryGetValue(targetId, out var peer))
             {
                 var message = new RTCMessage
                 {
-                    data = data,
-                    targetId = targetId,
-                    id = GM.db.rtc.id,
                     type = type,
+                    id = GM.db.rtc.id,
+                    targetId = targetId,
+                    data = data,
                 };
 
-                peer.Send(MemoryPackSerializer.Serialize(message));
+                var bytes = MemoryPackSerializer.Serialize(message);
+                //var txt = System.Text.Encoding.UTF8.GetString(data);
+                //Debug.Log($"■{type}\n■{txt}\n{message}\n■");
+                // var re = MemoryPackSerializer.Deserialize<RTCMessage>(bytes);
+                peer.Send(bytes);
             }
             else
             {
@@ -52,37 +54,6 @@ public class RTCMessageManager : MonoBehaviour
         {
             GM.db.rtc.peers[id].Close();
         });
-        
-        //GM.Add<Dictionary<string, object>>("RTCSendAll", (data) =>
-        //{
-        //    foreach (var (id, peer) in GM.db.rtc.peers)
-        //    {
-        //        data.ForceAdd("target_id", "*");
-        //        data.ForceAdd("id", GM.db.rtc.id);
-
-        //        peer.Send(data);
-
-        //        // GM.Msg("AddOutput", $"[Send] {dataTxt}");
-        //    }
-
-        //});
-
-        //GM.Add<string, Dictionary<string, object>>("RTCSendDirect", (target_id, data) =>
-        //{
-        //    if(GM.db.rtc.peers.TryGetValue(target_id, out var peer))
-        //    {
-        //        data.ForceAdd("id", GM.db.rtc.id);
-        //        data.ForceAdd("target_id", target_id);
-                
-        //        // var dataTxt = data.GetString();
-        //        peer.Send(data);
-        //        // GM.Msg("AddOutput", $"[Send] ->{target_id} {dataTxt}");
-        //    }
-        //    else
-        //    {
-        //        // GM.Msg("AddOutput", $"[���L][Send] ->{target_id} {data.GetString()}");
-        //    }
-        //});        
     }
 }
 

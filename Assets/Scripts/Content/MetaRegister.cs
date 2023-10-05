@@ -7,7 +7,7 @@ using System;
 using System.IO;
 
 /// <summary>
-/// ”z’u‚³‚ê‚½Object‚ÌMetaFile‚ğì¬‚·‚é
+/// é…ç½®ã•ã‚ŒãŸObjectã®MetaFileã‚’ä½œæˆã™ã‚‹
 /// </summary>
 public class MetaRegister : MonoBehaviour
 {
@@ -25,7 +25,7 @@ public class MetaRegister : MonoBehaviour
     }
     
     /// <summary>
-    /// MetaFile‚ğì¬‚·‚é
+    /// MetaFileã‚’ä½œæˆã™ã‚‹
     /// </summary>
     /// <param name="transform"></param>
     /// <returns></returns>
@@ -42,7 +42,7 @@ public class MetaRegister : MonoBehaviour
         }
         else
         {
-            // qŠK‘w‚ÉƒAƒNƒZƒX
+            // å­éšå±¤ã«ã‚¢ã‚¯ã‚»ã‚¹
             foreach (Transform child in transform)
             {
                 var childMetaCID = await UpdateMeta(child);
@@ -50,14 +50,14 @@ public class MetaRegister : MonoBehaviour
             }
         }
 
-        // MetaFile‚Ìì¬
+        // MetaFileã®ä½œæˆ
         var metaCID = await CreateYamlObjectData(fileName, transform, objs);
         
         return metaCID;
     }
 
     /// <summary>
-    /// Yaml‚ÉObject‚Ì“à—e‚ğ‘‚«o‚·
+    /// Yamlã«Objectã®å†…å®¹ã‚’æ›¸ãå‡ºã™
     /// </summary>
     /// <param name="fileName"></param>
     /// <param name="transform"></param>
@@ -70,7 +70,7 @@ public class MetaRegister : MonoBehaviour
         {
             if (GM.Msg<bool>("IsBasicObject", fileName))
             {
-                // TODO: Šm”F
+                // TODO: ç¢ºèª
                 cid = fileName;
             }
             else
@@ -103,21 +103,21 @@ public class MetaRegister : MonoBehaviour
         data.Add("components", comps);
 
 
-        // File‚Ì‘‚«o‚µ
+        // Fileã®æ›¸ãå‡ºã—
         var metaCID = await WriteMeta(data);
 
         return metaCID;
     }
 
     /// <summary>
-    /// Content‚ğƒAƒbƒvƒ[ƒh‚µAYaml‚ÉContent‚Ì“à—e‚ğ‘‚«o‚·
+    /// Contentã‚’ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ã—ã€Yamlã«Contentã®å†…å®¹ã‚’æ›¸ãå‡ºã™
     /// </summary>
     /// <param name="path"></param>
     /// <param name="transform"></param>
     /// <returns></returns>
     async UniTask<string> CreateYamlAndUploadContent(string path)
     {
-        // IPFS‚É“o˜^
+        // IPFSã«ç™»éŒ²
         var fileCID = await GM.Msg<UniTask<string>>("IPFSUpload", path);
         var fileName = System.IO.Path.GetFileName(path);
         
@@ -125,33 +125,33 @@ public class MetaRegister : MonoBehaviour
         data.Add("name", fileName);
         data.Add("cid", fileCID);
 
-        // MetaFile‚Ì‘‚«o‚µ
+        // MetaFileã®æ›¸ãå‡ºã—
         var metaCID = await WriteMeta(data);
 
         return metaCID;
     }
 
     /// <summary>
-    /// MetaFile‘‚«‚İ
+    /// MetaFileæ›¸ãè¾¼ã¿
     /// </summary>
     /// <param name="yamlData"></param>
-    /// <returns>•Û‘¶‚µ‚½FileƒpƒX</returns>
+    /// <returns>ä¿å­˜ã—ãŸFileãƒ‘ã‚¹</returns>
     async UniTask<string> WriteMeta(Dictionary<string, object> yamlData)
     {
-        // ‰¼‚ÌFile‚ğì¬
+        // ä»®ã®Fileã‚’ä½œæˆ
         Guid guid = Guid.NewGuid();
         string guidString = guid.ToString();
 
         var path = $"{Application.dataPath}/{GM.mng.metaPath}/{guidString}.yaml";
         GM.Msg("WriteYaml", path, yamlData);
 
-        // IPFS‚Ö“o˜^
+        // IPFSã¸ç™»éŒ²
         var cid = await GM.Msg<UniTask<string>>("IPFSUpload", path);
 
-        // TMPFile‚Ìíœ
+        // TMPFileã®å‰Šé™¤
         File.Delete(path);
 
-        // ‘‚«o‚µ
+        // æ›¸ãå‡ºã—
         var outputPath = $"{Application.dataPath}/{GM.mng.metaPath}/{cid}.yaml";
         GM.Msg("WriteYaml", outputPath, yamlData);
 
@@ -159,14 +159,14 @@ public class MetaRegister : MonoBehaviour
     }
 
     /// <summary>
-    /// Component‚ÌMetaFile‚ğì¬‚µAIPFS‚É“o˜^‚·‚é
+    /// Componentã®MetaFileã‚’ä½œæˆã—ã€IPFSã«ç™»éŒ²ã™ã‚‹
     /// </summary>
     /// <param name="path"></param>
     /// <param name="custom"></param>
     /// <returns></returns>
     async UniTask<string> CreateYamlComponentData(string path, Dictionary<string, object> custom)
     {
-        // IPFS‚É“o˜^
+        // IPFSã«ç™»éŒ²
         var fileCID = await GM.Msg<UniTask<string>>("IPFSUpload", path);
         var fileName = System.IO.Path.GetFileName(path);
         Dictionary<string, object> data = new();
@@ -174,7 +174,7 @@ public class MetaRegister : MonoBehaviour
         data.Add("cid", fileCID);
         data.Add("custom", custom);
 
-        // MetaFile‚Ì‘‚«o‚µ
+        // MetaFileã®æ›¸ãå‡ºã—
         var metaCID = await WriteMeta(data);
 
         return metaCID;

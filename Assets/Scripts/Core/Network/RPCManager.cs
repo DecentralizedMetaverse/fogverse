@@ -1,8 +1,6 @@
-﻿using DC;
+﻿using System.Collections.Generic;
+using DC;
 using MemoryPack;
-using Newtonsoft.Json;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class RPCManager : MonoBehaviour
@@ -14,29 +12,26 @@ public class RPCManager : MonoBehaviour
             var data = MemoryPackSerializer.Deserialize<P_RPC>(message.data);
             var dataDict = data.args.GetDict<string, object>();
             dataDict.ForceAdd("relayId", relayId);
-            GM.Msg($"RPC_{data.method}", dataDict);
+            GM.Msg($"RPC_{data.method}", dataDict, sourceId);
         });
 
         GM.Add<Dictionary<string, object>>("RPCSendAll", (data) =>
         {
-            foreach (var (id, peer) in GM.db.rtc.peers)
+            data.ForceAdd("targetId", "*");
+            data.ForceAdd("id", GM.db.rtc.id);
+
+            var message = new P_RPC
             {
-                data.ForceAdd("targetId", "*");
-                data.ForceAdd("id", GM.db.rtc.id);
+                method = data["type"].ToString(),
+                args = data.GetString(),
+            };
 
-                var message = new P_RPC
-                {
-                    method = data["type"].ToString(),
-                    args = data.GetString(),
-                };
-
-                peer.Send(MemoryPackSerializer.Serialize(message));
-            }
+            var bytes = MemoryPackSerializer.Serialize(message);
+            GM.Msg("RTCSendAll", MessageType.RPC, bytes);
         });
 
         GM.Add<string, Dictionary<string, object>>("RPCSendDirect", (targetId, data) =>
         {
-            if (!GM.db.rtc.peers.TryGetValue(targetId, out var peer)) return;
             data.ForceAdd("id", GM.db.rtc.id);
             data.ForceAdd("targetId", targetId);
 
@@ -46,7 +41,8 @@ public class RPCManager : MonoBehaviour
                 args = data.GetString(),
             };
 
-            peer.Send(MemoryPackSerializer.Serialize(message));
+            var bytes = MemoryPackSerializer.Serialize(message);
+            GM.Msg("RTCSendDirect", MessageType.RPC, targetId, bytes);
         });
     }
 }

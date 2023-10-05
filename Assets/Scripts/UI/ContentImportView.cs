@@ -15,7 +15,7 @@ using Path = System.IO.Path;
 using AnKuchen.KuchenList;
 
 /// <summary>
-/// File‚ğƒRƒs[‚·‚é
+/// Fileã‚’ã‚³ãƒ”ãƒ¼ã™ã‚‹
 /// </summary>
 public class ContentImportView : MonoBehaviour
 {
@@ -48,7 +48,7 @@ public class ContentImportView : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒfƒBƒŒƒNƒgƒŠ[“à‚ÌFileˆê——‚ğæ“¾‚·‚é
+    /// ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªãƒ¼å†…ã®Fileä¸€è¦§ã‚’å–å¾—ã™ã‚‹
     /// </summary>
     /// <param name="input"></param>
     void OnDirectoryChanged()
@@ -56,12 +56,12 @@ public class ContentImportView : MonoBehaviour
         currentPath = input.text;
         if (!Directory.Exists(currentPath)) return;
 
-        // ƒfƒBƒŒƒNƒgƒŠ“à‚ÌFileˆê——‚ğæ“¾
+        // ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå†…ã®Fileä¸€è¦§ã‚’å–å¾—
         files = Directory.GetFiles(currentPath);
         using (var editor = ui.ItemList.Edit())
         {
             //editor.con
-            // Fileˆê——‚ğ•\¦
+            // Fileä¸€è¦§ã‚’è¡¨ç¤º
             int i = 0;
             foreach (string file in files)
             {
@@ -81,7 +81,7 @@ public class ContentImportView : MonoBehaviour
     }
 
     /// <summary>
-    /// File‘I‘ğ‚Ìˆ—
+    /// Fileé¸æŠæ™‚ã®å‡¦ç†
     /// </summary>
     /// <param name="i"></param>
     void OnSubmit(int i)

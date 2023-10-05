@@ -15,6 +15,8 @@ messages:
         type: Vector3
       - name: rotation
         type: Vector3
+      - name: time
+        type: float
 
   - name: Animation
     fields:
@@ -28,6 +30,13 @@ messages:
       - name: objId
         type: string
       - name: nametag
+        type: string
+
+  - name: Chunk
+    filelds:
+      - name: chunk
+        type: (int, int, int)
+      - name: data
         type: string
 
   # - name: SpawnRequest
@@ -51,25 +60,28 @@ messages:
     fields:
       - name: content
         type: string
-  
-  - name: ObjectRequest
-    fields:
-      - name: objId
-        type: string
-
-  - name: ObjectResponse
-    fields:
-      - name: objId
-        type: string
-      - name: objName
-        type: string
-      - name: cid
-        type: string
 
   - name: ObjectInfoRequest
     fields:
       - name: objId
         type: string      
+
+  - name: ObjectInfoResponse
+    fields:
+      - name: objId
+        type: string      
+      - name: cid
+        type: string
+      - name: objName
+        type: string
+      - name: position
+        type: Vector3
+      - name: rotation
+        type: Vector3
+      - name: components
+        type: List<string>
+      - name: childObjId
+        type: List<byte[]>
 
   - name: ObjectChange
     fields:
@@ -77,25 +89,15 @@ messages:
         type: string
       - name: cid
         type: string
-  
-  - name: ObjectInstantiate
-    fields:
-      - name: objId
-        type: string
-      - name: objName
-        type: string
-      - name: cid
-        type: string
-      - name: position
-        type: Vector3
-      - name: rotation
-        type: Vector3
-      - name: objType
-        type: string
-      - name: nameTag
-        type: string
     
   - name: GetUserList
+
+  - name: GetUserListResponse
+    fields:
+      - name: ids
+        type: List<string>
+      - name: chunk
+        type: string
   
   - name: UserDataRequest
 
@@ -123,7 +125,14 @@ messages:
   #     - name: candidate
   #       type: string
 
-  # - name: Join
-  #   fields:
-  #     - name: joinIds
-  #       type: List<string>
+  - name: Join
+    fields:
+      - name: joinIds
+        type: List<string>
+      - name: chunk
+        type: string
+
+  - name: Error
+    fields:
+      - name: message
+        type: string

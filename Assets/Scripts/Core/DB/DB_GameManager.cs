@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,14 +8,16 @@ using UnityEngine;
 /// </summary>
 [CreateAssetMenu(fileName = "DB_GameManager", menuName = "DB/DB_GameManager")]
 public class DB_GameManager : ScriptableObject
-{    
+{
     [Header("Debugging Options")]
+    public bool autoConnect = true;
+    public bool autoClientMode = false;
     public bool visiblePerformance;
     public bool visibleLog;
     public bool startWorldPosition = true;
     public bool bgmOff = true;
-    
-    [Header("Debugging Authentication")] 
+
+    [Header("Debugging Authentication")]
     public string userName;
     public string password;
     public bool skipSignInScreen = true;
@@ -38,12 +37,12 @@ public class DB_GameManager : ScriptableObject
     public void SetSceneName()
     {
         // Sceneの名前を取得する
-        foreach(var d in data)
+        foreach (var d in data)
         {
             var count = d.scene.Count;
             d.sceneName = new string[count];
-            
-            for(int i = 0; i < d.scene.Count; i++)
+
+            for (int i = 0; i < d.scene.Count; i++)
             {
                 d.sceneName[i] = d.scene[i].name;
             }

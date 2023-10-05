@@ -10,7 +10,7 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 
 /// <summary>
-/// TODO: AFK‚É•\¦‚ğˆÛ‚·‚é‚æ‚¤‚É’Ç‰Á‚·‚é
+/// TODO: AFKæ™‚ã«è¡¨ç¤ºã‚’ç¶­æŒã™ã‚‹ã‚ˆã†ã«è¿½åŠ ã™ã‚‹
 /// </summary>
 public class ChatMessageView : MonoBehaviour
 {

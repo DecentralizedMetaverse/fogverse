@@ -12,7 +12,7 @@ using DC;
 using Cysharp.Threading.Tasks;
 
 /// <summary>
-/// İ’è‰æ–Ê
+/// è¨­å®šç”»é¢
 /// </summary>
 public class UI_Settings : MonoBehaviour
 {
@@ -37,7 +37,7 @@ public class UI_Settings : MonoBehaviour
         
         ui = root.Get<UI_ToggleFade>();
 
-        // password‚Ìƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚Ş
+        // passwordã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿è¾¼ã‚€
         salt = System.Text.Encoding.UTF8.GetBytes(saltStr);
         path = $"{Application.persistentDataPath}/settings.dat";
         ReadPassword();
@@ -45,17 +45,17 @@ public class UI_Settings : MonoBehaviour
 
         GM.Add("ShowSettings", Show);
 
-        // nametagæ“¾
+        // nametagå–å¾—
         //var result = GM.Msg<object>("GetSaveData", "nametag");
         //if (result == null) return;
         
-        // nametag‚ªæ“¾‚Å‚«‚é‚Ü‚Å‘Ò‚Â
+        // nametagãŒå–å¾—ã§ãã‚‹ã¾ã§å¾…ã¤
         while(GM.db.rtc.selfObject == null)
         {
             await UniTask.Yield();
         }
 
-        // nametag‚ğİ’è
+        // nametagã‚’è¨­å®š
         inputNameTagField.text = GM.db.rtc.selfObject.nametag;
     }
 
@@ -65,7 +65,7 @@ public class UI_Settings : MonoBehaviour
     }
 
     /// <summary>
-    /// password‚ğ•Û‘¶‚·‚é
+    /// passwordã‚’ä¿å­˜ã™ã‚‹
     /// </summary>
     private void OnSavePassword()
     {
@@ -78,11 +78,11 @@ public class UI_Settings : MonoBehaviour
     }
 
     /// <summary>
-    /// password‚ğ“Ç‚İ‚Ş
+    /// passwordã‚’èª­ã¿è¾¼ã‚€
     /// </summary>
     void ReadPassword()
     {
-        // ƒtƒ@ƒCƒ‹‚ª‚È‚¯‚ê‚Î‰½‚à‚µ‚È‚¢
+        // ãƒ•ã‚¡ã‚¤ãƒ«ãŒãªã‘ã‚Œã°ä½•ã‚‚ã—ãªã„
         if (!File.Exists(path)) return;
 
         var txt = File.ReadAllText(path);        

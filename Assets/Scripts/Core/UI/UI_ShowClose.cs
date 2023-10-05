@@ -27,7 +27,7 @@ public abstract class UI_ShowClose : MonoBehaviour
     public delegate void OnCompleteDelegate();
     public delegate void OnComplete(bool a);
     /// <summary>
-    /// ƒAƒjƒ[ƒVƒ‡ƒ“I—¹‚ÉŒÄ‚Ño‚³‚ê‚éƒƒ\ƒbƒh
+    /// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³çµ‚äº†æ™‚ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ãƒ¡ã‚½ãƒƒãƒ‰
     /// </summary>    
     public OnCompleteDelegate OnShow, OnClose;
     public OnComplete Finished;
@@ -39,7 +39,7 @@ public abstract class UI_ShowClose : MonoBehaviour
     {
         group = GetComponent<CanvasGroup>();
 
-        //‰Šú‰»@alpha‚Ìİ’è
+        //åˆæœŸåŒ–ã€€alphaã®è¨­å®š
         SetInit(_active);
     }
 
@@ -68,7 +68,7 @@ public abstract class UI_ShowClose : MonoBehaviour
     }
 
     /// <summary>
-    /// UI‰Šúó‘Ô
+    /// UIåˆæœŸçŠ¶æ…‹
     /// </summary>
     /// <param name="b"></param>
     protected void SetInit(bool b)
@@ -79,7 +79,7 @@ public abstract class UI_ShowClose : MonoBehaviour
     }
 
     /// <summary>
-    /// ‘€ì‰Â”\E•s‰Â”\
+    /// æ“ä½œå¯èƒ½ãƒ»ä¸å¯èƒ½
     /// </summary>
     /// <param name="b"></param>
     protected void SetInteractable(bool b)

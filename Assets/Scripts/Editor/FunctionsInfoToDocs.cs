@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// “o˜^‚³‚ê‚½ŠÖ”‚ğƒhƒLƒ…ƒƒ“ƒg‰»‚·‚é
+/// ç™»éŒ²ã•ã‚ŒãŸé–¢æ•°ã‚’ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆåŒ–ã™ã‚‹
 /// </summary>
 [CustomEditor(typeof(DB_FunctionList))]
 public class FunctionsInfoToDocs : Editor

@@ -1,17 +1,16 @@
+using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DC;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.WebRTC;
 using UnityEngine;
 
 public class RTCControllerWebSocket : RTCControllerBase
 {
     [SerializeField] SendMessageView view;
-    
+
     protected string targetId = "";
-    
+
     RTCConnection connection = new();
     Dictionary<string, Action<Dictionary<string, object>>> responseFunctions = new();
 
@@ -33,12 +32,17 @@ public class RTCControllerWebSocket : RTCControllerBase
                 responseFunctions[value.ToString()].DynamicInvoke(receiveDataDict);
             }
         });
-    }   
+    }
+
+    private void Start()
+    {
+        if (GM.mng.autoConnect) OnClickConnect();
+    }
 
     protected void Connect()
     {
         GM.Msg("AddOutput", $"[ID: {GM.db.rtc.id}]");
-        // V‹KConnectionì¬
+        // æ–°è¦Connectionä½œæˆ
         connection = new RTCConnection();
         connection.OnCandidate += OnCandidate;
 
@@ -49,11 +53,11 @@ public class RTCControllerWebSocket : RTCControllerBase
         GM.Msg("WebSocketSend", sendData.GetString());
         GM.Msg("AddOutput", $"[Connect] Server");
     }
-       
+
     void OnCandidate(RTCIceCandidate candidate)
     {
         var ice = new Ice(candidate);
-        // sdp‘—M
+        // sdpé€ä¿¡
         var sendData = CreateSendData();
         sendData.Add("type", "candidateAdd");
         sendData.Add("target_id", targetId);
@@ -63,18 +67,18 @@ public class RTCControllerWebSocket : RTCControllerBase
     }
 
     // -----------------------------------
-    // UIŠÖ˜A
+    // UIé–¢é€£
     /// <summary>
-    /// Ú‘±‚·‚é
+    /// æ¥ç¶šã™ã‚‹
     /// </summary>
     public void OnClickConnect()
     {
         GM.db.rtc.url = view.address.text;
         Connect();
-    }    
+    }
 
     /// <summary>
-    /// WebRTC‚ÅƒƒbƒZ[ƒW‘—M
+    /// WebRTCã§ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸é€ä¿¡
     /// </summary>
     public void OnClickSend()
     {
@@ -94,30 +98,30 @@ public class RTCControllerWebSocket : RTCControllerBase
 
     // -----------------------------------
     /// <summary>
-    /// TODO: ƒ`ƒFƒbƒN
+    /// TODO: ãƒã‚§ãƒƒã‚¯
     /// </summary>
     /// <param name="response"></param>
     void ResponseConnect(Dictionary<string, object> response)
     {
         if (!response.ContainsKey("sdp"))
         {
-            // offer‚ª‚Ü‚¾server‚É‚È‚¢ê‡
+            // offerãŒã¾ã serverã«ãªã„å ´åˆ
             OfferHandler();
         }
         else
         {
-            // offer‚ğó‚¯æ‚é
+            // offerã‚’å—ã‘å–ã‚‹
             AnswerHandler(response);
         }
     }
 
     /// <summary>
-    /// [Offer‘—MÒ‚Ìˆ—]
+    /// [Offeré€ä¿¡è€…ã®å‡¦ç†]
     /// </summary>
     /// <param name="response"></param>
     void ResponseAnswer(Dictionary<string, object> response)
     {
-        // Remote Description ó‚¯æ‚é
+        // Remote Description å—ã‘å–ã‚‹
         var remoteDesc = JsonUtility.FromJson<RTCSessionDescription>(response["sdp"].ToString());
         targetId = response["id"].ToString();
         SetTargetId(targetId);
@@ -149,20 +153,20 @@ public class RTCControllerWebSocket : RTCControllerBase
     async void AnswerHandler(Dictionary<string, object> data)
     {
         // GM.Msg("AddOutput", "[Answer]");
-        // Remote Description ó‚¯æ‚é
+        // Remote Description å—ã‘å–ã‚‹
         var remoteDesc = JsonUtility.FromJson<RTCSessionDescription>(data["sdp"].ToString());
         targetId = data["id"].ToString();
         SetTargetId(targetId);
 
-        // Answer ‘—M        
+        // Answer é€ä¿¡        
         var desc = await connection.CreateAnswer(remoteDesc);
         var sendData = CreateSendData();
         sendData.Add("type", "answer");
         sendData.Add("sdp", desc);
-        sendData.Add("target_id", targetId);    // ’N‚Éanswer‚ğ‘—‚é‚©w’è
+        sendData.Add("target_id", targetId);    // èª°ã«answerã‚’é€ã‚‹ã‹æŒ‡å®š
         GM.Msg("WebSocketSend", sendData.GetString());
     }
-    
+
     // -----------------------------------
     private void SetTargetId(string targetId)
     {

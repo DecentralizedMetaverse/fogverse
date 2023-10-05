@@ -11,7 +11,7 @@ using System.Linq;
 using Newtonsoft.Json;
 
 /// <summary>
-/// World‚ğ\’z‚·‚é
+/// Worldã‚’æ§‹ç¯‰ã™ã‚‹
 /// </summary>
 public class WorldGenerator : MonoBehaviour
 {
@@ -30,7 +30,7 @@ public class WorldGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// ”ñ“¯Šú‚ÅWorld‚Ì¶¬‚ğs‚¤
+    /// éåŒæœŸã§Worldã®ç”Ÿæˆã‚’è¡Œã†
     /// </summary>
     /// <param name="cid"></param>
     async void GenerateWorldAsync(string cid)
@@ -45,7 +45,7 @@ public class WorldGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// Ä‹A“I‚ÉObject‚ğ¶¬‚·‚é
+    /// å†å¸°çš„ã«Objectã‚’ç”Ÿæˆã™ã‚‹
     /// </summary>
     /// <param name="cid"></param>
     /// <param name="parent"></param>
@@ -60,8 +60,8 @@ public class WorldGenerator : MonoBehaviour
         Transform transform = null;
         if (GM.Msg<bool>("IsBasicObject", fileCID))
         {
-            // Šî–{Object (Cube, Sphere, Plane, etc.)‚Å‚ ‚éê‡
-            // TODO: Šm”F
+            // åŸºæœ¬Object (Cube, Sphere, Plane, etc.)ã§ã‚ã‚‹å ´åˆ
+            // TODO: ç¢ºèª
             transform = GM.Msg<Transform>("GenerateBasicObject", fileCID);
             transform.SetParent(parent);
         }
@@ -73,7 +73,7 @@ public class WorldGenerator : MonoBehaviour
         // download child object
         foreach (var obj in (List<object>)data["objs"])
         {
-            // Ä‹A“I‚ÉObject‚ğ¶¬
+            // å†å¸°çš„ã«Objectã‚’ç”Ÿæˆ
             await GenerateByCID(obj.ToString(), transform);
         }
 
@@ -87,7 +87,7 @@ public class WorldGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// MetaFile‚ğDownload‚·‚é
+    /// MetaFileã‚’Downloadã™ã‚‹
     /// </summary>
     /// <param name="cid"></param>
     /// <returns></returns>
@@ -104,7 +104,7 @@ public class WorldGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// Object¶¬
+    /// Objectç”Ÿæˆ
     /// </summary>
     /// <param name="parent"></param>
     /// <param name="data"></param>
@@ -115,7 +115,7 @@ public class WorldGenerator : MonoBehaviour
         Transform transform;
         if (fileCID != "")
         {
-            // Content‚ÌmetaFile‚ğDownload‚µObject¶¬
+            // Contentã®metaFileã‚’Downloadã—Objectç”Ÿæˆ
             transform = await GenerateContent(fileCID);
         }
         else
@@ -136,7 +136,7 @@ public class WorldGenerator : MonoBehaviour
     {
         var data = await GetMetaData(metaCID);
 
-        // Content‚ğDownload
+        // Contentã‚’Download
         var fileCID = data["cid"].ToString();
         var fileName = data["name"].ToString();
         var filePath = $"{Application.dataPath}/{GM.mng.contentPath}/{fileName}";
@@ -148,7 +148,7 @@ public class WorldGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// À•W“™‚ğİ’è
+    /// åº§æ¨™ç­‰ã‚’è¨­å®š
     /// </summary>
     /// <param name="obj"></param>
     /// <param name="parent"></param>
@@ -164,22 +164,22 @@ public class WorldGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// Content‚ğDownload‚µAWorld‹óŠÔ‚É”z’u‚·‚é
+    /// Contentã‚’Downloadã—ã€Worldç©ºé–“ã«é…ç½®ã™ã‚‹
     /// </summary>
     /// <param name="cid"></param>
     /// <returns></returns>
     async UniTask<Transform> GenerateContent(string cid)
     {
-        // Content‚ğDownload
+        // Contentã‚’Download
         string filePath = await DownloadContent(cid);
 
-        // World‹óŠÔ‚É”z’u
+        // Worldç©ºé–“ã«é…ç½®
         var transform = GM.Msg<Transform>("GenerateObj", filePath);
         return transform;
     }
 
     /// <summary>
-    /// Content‚ğDownload‚·‚é
+    /// Contentã‚’Downloadã™ã‚‹
     /// </summary>
     /// <param name="cid"></param>
     /// <returns></returns>
@@ -187,10 +187,10 @@ public class WorldGenerator : MonoBehaviour
     {
         Dictionary<string, object> data = await GetMetaData(cid);
 
-        // MetaFile‚Ìí•Ê”»’è
+        // MetaFileã®ç¨®åˆ¥åˆ¤å®š
         if (data.ContainsKey("transform"))
         {
-            // World‚Å‚ ‚éê‡
+            // Worldã§ã‚ã‚‹å ´åˆ
             GenerateWorldAsync(cid);
             return "";
         }
@@ -215,7 +215,7 @@ public class WorldGenerator : MonoBehaviour
         // metaFileDownload        
         var metaPath = await DownloadMetaFile(cid);
 
-        // metaFile“Ç‚İ‚İ
+        // metaFileèª­ã¿è¾¼ã¿
         var data = GM.Msg<Dictionary<string, object>>("ReadYaml", metaPath);
 
         metaObjs.Add(cid, data);

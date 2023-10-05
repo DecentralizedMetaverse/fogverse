@@ -13,7 +13,7 @@ public class DB_User : ScriptableObject
     {
         if (!users.ContainsKey(id))
         {
-            // Data‚ª‘¶İ‚µ‚È‚¢ê‡
+            // DataãŒå­˜åœ¨ã—ãªã„å ´åˆ
             DB_UserE user = new DB_UserE()
             {
                 id = id,

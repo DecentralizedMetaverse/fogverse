@@ -8,7 +8,7 @@ using UnityEngine;
 using System.IO;
 
 /// <summary>
-/// IPFS‚Æ‚â‚èæ‚è‚ğs‚¤ƒvƒƒOƒ‰ƒ€
+/// IPFSã¨ã‚„ã‚Šå–ã‚Šã‚’è¡Œã†ãƒ—ãƒ­ã‚°ãƒ©ãƒ 
 /// </summary>
 public class IpfsManager : MonoBehaviour
 {
@@ -22,13 +22,13 @@ public class IpfsManager : MonoBehaviour
     /// 
     /// </summary>
     /// <param name="filePath"></param>
-    /// <returns>true: ¬Œ÷</returns>
+    /// <returns>true: æˆåŠŸ</returns>
     async UniTask<string> Upload(string filePath)
     {
         //var path = GetPath(fileName);
         if (!GM.Msg<bool>("EncryptFile", filePath)) return "";
         var ret = await GM.Msg<UniTask<string>>("Exe", "ipfs", $"add \"{filePath}.enc\"");
-        File.Delete($"{filePath}.enc"); // Fileíœ
+        File.Delete($"{filePath}.enc"); // Fileå‰Šé™¤
 
         GM.Log($"{ret}");
         var words = ret.Split(' ');
@@ -42,13 +42,13 @@ public class IpfsManager : MonoBehaviour
     /// </summary>
     /// <param name="cid"></param>
     /// <param name="filePath"></param>
-    /// <returns>true: ¬Œ÷</returns>
+    /// <returns>true: æˆåŠŸ</returns>
     async UniTask<bool> Download(string cid, string filePath)
     {
         var ret = await GM.Msg<UniTask<string>>("Exe", "ipfs", $"get {cid} -o \"{filePath}.enc\"");
         
         if (!GM.Msg<bool>("DecryptFile", $"{filePath}.enc")) return false;
-        File.Delete($"{filePath}.enc"); // Fileíœ
+        File.Delete($"{filePath}.enc"); // Fileå‰Šé™¤
 
         return true;
     }   

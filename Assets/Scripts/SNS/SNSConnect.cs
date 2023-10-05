@@ -9,8 +9,8 @@ using System.Text;
 using System;
 
 /// <summary>
-/// Misskey Streaming API‚ğ—˜—p‚µA
-/// Timeline‚ÉV‚µ‚­“Še‚³‚ê‚½“à—e‚ğæ“¾‚·‚é
+/// Misskey Streaming APIã‚’åˆ©ç”¨ã—ã€
+/// Timelineã«æ–°ã—ãæŠ•ç¨¿ã•ã‚ŒãŸå†…å®¹ã‚’å–å¾—ã™ã‚‹
 /// </summary>
 public class SNSConnect : MonoBehaviour
 {
@@ -89,14 +89,14 @@ public class SNSConnect : MonoBehaviour
 
     public string RemoveQueryParam(string url, string paramName)
     {
-        // •ªŠ„‚³‚ê‚½URL‚ğ‰ğÍ
+        // åˆ†å‰²ã•ã‚ŒãŸURLã‚’è§£æ
         UriBuilder uriBuilder = new UriBuilder(url);
         string query = uriBuilder.Query;
 
-        // ƒNƒGƒŠƒpƒ‰ƒ[ƒ^‚ğ•ªŠ„
+        // ã‚¯ã‚¨ãƒªãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’åˆ†å‰²
         string[] queryParams = query.TrimStart('?').Split('&');
 
-        // V‚µ‚¢ƒNƒGƒŠƒpƒ‰ƒ[ƒ^‚ğ¶¬
+        // æ–°ã—ã„ã‚¯ã‚¨ãƒªãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’ç”Ÿæˆ
         StringBuilder newQuery = new StringBuilder();
         foreach (string param in queryParams)
         {
@@ -110,7 +110,7 @@ public class SNSConnect : MonoBehaviour
             }
         }
 
-        // V‚µ‚¢ƒNƒGƒŠƒpƒ‰ƒ[ƒ^‚ğİ’è‚µ‚ÄURL‚ğÄ\’z
+        // æ–°ã—ã„ã‚¯ã‚¨ãƒªãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’è¨­å®šã—ã¦URLã‚’å†æ§‹ç¯‰
         uriBuilder.Query = newQuery.ToString();
 
         return uriBuilder.ToString();
@@ -118,7 +118,7 @@ public class SNSConnect : MonoBehaviour
 
     public string[] ExtractImageUrls(string text)
     {
-        string pattern = @"(http(s)?:\/\/.*\.(?:png|jpg|jpeg|gif|bmp))"; // ‰æ‘œƒtƒ@ƒCƒ‹‚ÌŠg’£q‚É‡‚í‚¹‚ÄŠg’£q‚ğ’Ç‰Á
+        string pattern = @"(http(s)?:\/\/.*\.(?:png|jpg|jpeg|gif|bmp))"; // ç”»åƒãƒ•ã‚¡ã‚¤ãƒ«ã®æ‹¡å¼µå­ã«åˆã‚ã›ã¦æ‹¡å¼µå­ã‚’è¿½åŠ 
         MatchCollection matches = Regex.Matches(text, pattern);
 
         string[] imageUrls = new string[matches.Count];

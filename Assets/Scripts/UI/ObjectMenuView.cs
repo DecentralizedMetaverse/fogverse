@@ -4,14 +4,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ƒIƒuƒWƒFƒNƒg‚Éinteract‚·‚é‚ÆŠJ‚­ƒƒjƒ…[
+/// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«interactã™ã‚‹ã¨é–‹ããƒ¡ãƒ‹ãƒ¥ãƒ¼
 /// </summary>
 public class ObjectMenuView : Menu
 {
     Transform targetObj;
 
     /// <summary>
-    /// ƒIƒuƒWƒFƒNƒg‚ğˆµ‚¤‚½‚ßAˆø”‚Åtransform‚ğó‚¯æ‚é
+    /// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ‰±ã†ãŸã‚ã€å¼•æ•°ã§transformã‚’å—ã‘å–ã‚‹
     /// </summary>
     protected override void AddMsg()
     {

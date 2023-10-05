@@ -39,7 +39,7 @@ namespace DC.Player
         }
 
         /// <summary>
-        /// ˆÚ“®‚·‚é
+        /// ç§»å‹•ã™ã‚‹
         /// </summary>
         /// <param name="moveVector"></param>
         /// <param name="dash"></param>
@@ -57,7 +57,7 @@ namespace DC.Player
             {
                 if (dash)
                 {
-                    // ƒ_ƒbƒVƒ…
+                    // ãƒ€ãƒƒã‚·ãƒ¥
                     move *= multiplyDash;
                 }
 
@@ -66,10 +66,10 @@ namespace DC.Player
 
             if (moveVector != Vector2.zero)
             {
-                // “ü—Í‚ª‚ ‚éê‡
+                // å…¥åŠ›ãŒã‚ã‚‹å ´åˆ
                 var targetRotation = rb.velocity;
                 targetRotation.y = 0;
-                ChangeAngleFromInput(targetRotation); // Œü‚«‚ğ•Ï‚¦‚é
+                ChangeAngleFromInput(targetRotation); // å‘ãã‚’å¤‰ãˆã‚‹
             }
 
             rb.AddForce(move);
@@ -77,7 +77,7 @@ namespace DC.Player
         }
 
         /// <summary>
-        /// ƒWƒƒƒ“ƒv
+        /// ã‚¸ãƒ£ãƒ³ãƒ—
         /// </summary>
         public void Jump()
         {
@@ -97,7 +97,7 @@ namespace DC.Player
 
 
         // -----------------------------------------------------------
-        // ’nŒ`‚ÌŒX‚«‚©‚çY²‚ÌˆÚ“®—Ê‚ğŒvZ
+        // åœ°å½¢ã®å‚¾ãã‹ã‚‰Yè»¸ã®ç§»å‹•é‡ã‚’è¨ˆç®—
         float CalcYForceFromTerrainHeight(Vector3 moveVec)
         {
             if (!isGrounded) return 0;
@@ -122,7 +122,7 @@ namespace DC.Player
 #endif
 
         /// <summary>
-        /// ƒJƒƒ‰‚ÌŠp“x‚©‚çˆÚ“®ƒxƒNƒgƒ‹‚ğŒvZ
+        /// ã‚«ãƒ¡ãƒ©ã®è§’åº¦ã‹ã‚‰ç§»å‹•ãƒ™ã‚¯ãƒˆãƒ«ã‚’è¨ˆç®—
         /// </summary>
         Vector3 CalcMovementFromCamera(Vector2 moveInput)
         {
@@ -135,7 +135,7 @@ namespace DC.Player
         }
 
         /// <summary>
-        /// ˆÚ“®ƒxƒNƒgƒ‹‚ğ‚à‚Æ‚É‚µ‚ÄAƒLƒƒƒ‰ƒNƒ^[‚ÌŒü‚«‚ğ•Ï‚¦‚é
+        /// ç§»å‹•ãƒ™ã‚¯ãƒˆãƒ«ã‚’ã‚‚ã¨ã«ã—ã¦ã€ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®å‘ãã‚’å¤‰ãˆã‚‹
         /// Change the character's orientation
         /// </summary>
         /// <param name="angle"></param>

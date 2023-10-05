@@ -51,13 +51,13 @@ public class WebRequest : MonoBehaviour
 
     async UniTask<string> Post(string url, Dictionary<string, object> data)
     {
-        // ƒLƒƒƒ“ƒZƒ‹ƒg[ƒNƒ“‚Ìæ“¾
+        // ã‚­ãƒ£ãƒ³ã‚»ãƒ«ãƒˆãƒ¼ã‚¯ãƒ³ã®å–å¾—
         var token = this.GetCancellationTokenOnDestroy();
 
         var json = JsonConvert.SerializeObject(data);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-        // UnityWebRequest.Post‚ÅƒŠƒNƒGƒXƒg‚ğì¬
+        // UnityWebRequest.Postã§ãƒªã‚¯ã‚¨ã‚¹ãƒˆã‚’ä½œæˆ
         using (var webRequest = new UnityWebRequest(url, "POST"))
         {
             webRequest.SetRequestHeader("Content-Type", "application/json");
@@ -65,7 +65,7 @@ public class WebRequest : MonoBehaviour
             webRequest.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
             try
             {
-                // ƒŠƒNƒGƒXƒg‚ğ‘—M‚µAƒLƒƒƒ“ƒZƒ‹‰Â”\‚É‚·‚é
+                // ãƒªã‚¯ã‚¨ã‚¹ãƒˆã‚’é€ä¿¡ã—ã€ã‚­ãƒ£ãƒ³ã‚»ãƒ«å¯èƒ½ã«ã™ã‚‹
                 await webRequest.SendWebRequest().WithCancellation(token);
                 if (webRequest.result != UnityWebRequest.Result.Success)
                 {
@@ -80,7 +80,7 @@ public class WebRequest : MonoBehaviour
             }
             catch (OperationCanceledException)
             {
-                // ƒLƒƒƒ“ƒZƒ‹‚³‚ê‚½ê‡‚Ìˆ—
+                // ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã•ã‚ŒãŸå ´åˆã®å‡¦ç†
                 Debug.Log("Canceled");
             }
 
@@ -90,21 +90,21 @@ public class WebRequest : MonoBehaviour
 
     async UniTask<string> Put(string url, Dictionary<string, object> data)
     {
-        // ƒLƒƒƒ“ƒZƒ‹ƒg[ƒNƒ“‚Ìæ“¾
+        // ã‚­ãƒ£ãƒ³ã‚»ãƒ«ãƒˆãƒ¼ã‚¯ãƒ³ã®å–å¾—
         var token = this.GetCancellationTokenOnDestroy();
 
         var json = JsonConvert.SerializeObject(data);
-        // •¶š—ñ‚ğbyte”z—ñ‚É•ÏŠ·‚·‚é
+        // æ–‡å­—åˆ—ã‚’byteé…åˆ—ã«å¤‰æ›ã™ã‚‹
         byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
 
-        // UnityWebRequest.Post‚ÅƒŠƒNƒGƒXƒg‚ğì¬
+        // UnityWebRequest.Postã§ãƒªã‚¯ã‚¨ã‚¹ãƒˆã‚’ä½œæˆ
         using (var webRequest = UnityWebRequest.Put(url, bodyRaw))
         {
             webRequest.SetRequestHeader("Content-Type", "application/json");
 
             try
             {
-                // ƒŠƒNƒGƒXƒg‚ğ‘—M‚µAƒLƒƒƒ“ƒZƒ‹‰Â”\‚É‚·‚é
+                // ãƒªã‚¯ã‚¨ã‚¹ãƒˆã‚’é€ä¿¡ã—ã€ã‚­ãƒ£ãƒ³ã‚»ãƒ«å¯èƒ½ã«ã™ã‚‹
                 await webRequest.SendWebRequest().WithCancellation(token);
                 if (webRequest.result != UnityWebRequest.Result.Success)
                 {
@@ -119,7 +119,7 @@ public class WebRequest : MonoBehaviour
             }
             catch (OperationCanceledException)
             {
-                // ƒLƒƒƒ“ƒZƒ‹‚³‚ê‚½ê‡‚Ìˆ—
+                // ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã•ã‚ŒãŸå ´åˆã®å‡¦ç†
                 Debug.Log("Canceled");
             }
 
@@ -129,7 +129,7 @@ public class WebRequest : MonoBehaviour
 
     Dictionary<string, object> StringToDict(string json)
     {
-        // Json‚©‚çDictionary‚É•ÏŠ·
+        // Jsonã‹ã‚‰Dictionaryã«å¤‰æ›
         var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
 
         return dictionary;

@@ -1,6 +1,5 @@
-using DC;
-using System.Collections;
 using System.Collections.Generic;
+using DC;
 using UnityEngine;
 
 public class ChatModel : MonoBehaviour
@@ -14,7 +13,7 @@ public class ChatModel : MonoBehaviour
         GM.Add<string, string>("SendChat", (id, txt) =>
         {
             sendData["content"] = txt;
-            GM.Msg("RTCSendAll", sendData);
+            GM.Msg("RPCSendAll", sendData);
         });
 
         GM.Add<Dictionary<string, object>, string>("RPC_message", (data, sourceId) =>
@@ -23,5 +22,5 @@ public class ChatModel : MonoBehaviour
         });
     }
 
-    
+
 }

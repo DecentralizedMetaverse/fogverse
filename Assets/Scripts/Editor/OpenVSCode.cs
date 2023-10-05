@@ -18,4 +18,10 @@ public class OpenVSCode
         psInfo.Arguments = fullPath;
         Process.Start(psInfo);
     }
+
+    [MenuItem("Tools/Open Visual Studio Code")]
+    static void Execute2()
+    {
+        Process.Start("code", ".");
+    }
 }

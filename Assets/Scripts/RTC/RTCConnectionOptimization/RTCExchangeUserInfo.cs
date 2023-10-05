@@ -1,62 +1,75 @@
-using DC;
-using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using DC;
+using MemoryPack;
 using UnityEngine;
 
 public class RTCExchangeUserInfo : MonoBehaviour
 {
     void Start()
     {
-        GM.Add<Dictionary<string, object>, string>("RPC_get_user_list", RPCGetUserList);
-        GM.Add<Dictionary<string, object>, string>("RPC_response_get_user_list", RPCResponseGetUserList);
+        GM.Add<RTCMessage, string, string>($"RECV_{nameof(MessageType.GetUserList)}", RPCGetUserList);
+        GM.Add<RTCMessage, string, string>($"RECV_{nameof(MessageType.GetUserListResponse)}", RPCResponseGetUserList);
     }
 
     /// <summary>
-    /// ©g‚Ìî•ñ‚ğ‘—MŒ³‚É‘—‚è•Ô‚·
+    /// è‡ªèº«ã®æƒ…å ±ã‚’é€ä¿¡å…ƒã«é€ã‚Šè¿”ã™
     /// </summary>
     /// <param name="dictionary"></param>
     /// <param name="sourceId"></param>
-    private void RPCGetUserList(Dictionary<string, object> dictionary, string sourceId)
+    private void RPCGetUserList(RTCMessage data, string sourceId, string _)
     {
+        // var getUserListData = MemoryPackSerializer.Deserialize<P_GetUserList>(data.data);
+
+
         List<string> ids = new List<string>(GM.db.rtc.peers.Keys);
+        // P_UserDataResponse
         ids.Add(GM.db.rtc.id);
 
-        Dictionary<string, object> sendData = new()
+        P_GetUserListResponse response = new()
         {
-            {"type", "response_get_user_list"},
-            {"ids", ids},
-            {"chunk", GM.db.player.chunk}
+            // ids = string.Join(",", ids),
+            ids = ids,
+            chunk = GM.db.player.chunk.ToString()
         };
-        
-        GM.Msg("RTCSendDirect", sourceId, sendData);
+        var bytes = MemoryPackSerializer.Serialize(response);
+        GM.Msg("RTCSendDirect", MessageType.GetUserListResponse, sourceId, bytes);
     }
 
     /// <summary>
-    /// V‹KÚ‘±Ò‚Ìî•ñ‚ğó‚¯æ‚èA‘S‘Ì‚É‘—M‚·‚é
+    /// æ–°è¦æ¥ç¶šè€…ã®æƒ…å ±ã‚’å—ã‘å–ã‚Šã€å…¨ä½“ã«é€ä¿¡ã™ã‚‹
     /// </summary>
     /// <param name="data"></param>
     /// <param name="sourceId"></param>
-    private void RPCResponseGetUserList(Dictionary<string, object> data, string sourceId)
+    private void RPCResponseGetUserList(RTCMessage data, string sourceId, string _)
     {
-        // Ú‘±æ‚Ìî•ñ‚ğ‘S‘Ì‚É‘—M
-        Dictionary<string, object> sendData = new()
-        {
-            { "type", "join" },
-            { "join_ids", data["ids"] },
-            { "chunk", data["chunk"] }
-        };        
+        var getUserListData = MemoryPackSerializer.Deserialize<P_GetUserListResponse>(data.data);
 
+        // æ¥ç¶šå…ˆã®æƒ…å ±ã‚’å…¨ä½“ã«é€ä¿¡
+        P_Join joinData = new P_Join()
+        {
+            joinIds = getUserListData.ids,
+            chunk = getUserListData.chunk
+        };
+        var bytes = MemoryPackSerializer.Serialize(joinData);
+
+        // TODO: æ¯å›å…¨å“¡é€ã‚‹ã®ã¯å†—é•·ã€€ã¾ã¨ã‚ã¦é€ã‚‹ã®ã§ã‚‚è‰¯ã„ã‹ã‚‚ã€€
         foreach (var (id, peer) in GM.db.rtc.peers)
         {
             if (id == sourceId) continue;
-            GM.Msg("RTCSendDirect", id, sendData);
+            GM.Msg("RTCSendDirect", MessageType.Join, id, bytes);
         }
 
-        // ‘Šè‚Ìî•ñ‚ğ—v‹‚·‚é (Chunk‚Ìæ“¾)
+        // ç›¸æ‰‹ã®æƒ…å ±ã‚’è¦æ±‚ã™ã‚‹ (Chunkã®å–å¾—)
         //GM.Msg("RequestUserData", connectedId);
 
-        var chunkData = data["chunk"].ToString().GetDict<string, int>();
-        var chunk = (chunkData["Item1"], chunkData["Item2"], chunkData["Item3"]);
+        MatchCollection matches = Regex.Matches(getUserListData.chunk, @"\d+");
+
+        int first = int.Parse(matches[0].Value);
+        int second = int.Parse(matches[1].Value);
+        int third = int.Parse(matches[2].Value);
+
+        var chunk = (first, second, third);
         GM.Msg("UpdateChunk", sourceId, chunk);
     }
 }

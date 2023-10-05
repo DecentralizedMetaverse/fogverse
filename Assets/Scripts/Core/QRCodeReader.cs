@@ -8,7 +8,7 @@ using UnityEngine.UI;
 using ZXing;
 
 /// <summary>
-/// QRƒR[ƒh‚ğƒXƒLƒƒƒ“‚·‚éƒvƒƒOƒ‰ƒ€
+/// QRã‚³ãƒ¼ãƒ‰ã‚’ã‚¹ã‚­ãƒ£ãƒ³ã™ã‚‹ãƒ—ãƒ­ã‚°ãƒ©ãƒ 
 /// </summary>
 public class QRCodeReader : MonoBehaviour
 {
@@ -43,7 +43,7 @@ public class QRCodeReader : MonoBehaviour
 
     async UniTask<string> ReadQRCode()
     {
-        // Camera‚ğ‘I‘ğ‚·‚é
+        // Cameraã‚’é¸æŠã™ã‚‹
         selectCameraOpen = true;
         string[] cameraNames = new string[WebCamTexture.devices.Length+1];
         var i = 0;
@@ -60,7 +60,7 @@ public class QRCodeReader : MonoBehaviour
 
         ui.active = true;
 
-        // Camera‚ğŠJ‚­
+        // Cameraã‚’é–‹ã
         camTexture = new WebCamTexture(cameraNames[result]);
         
         rawImage.texture = camTexture;
@@ -82,7 +82,7 @@ public class QRCodeReader : MonoBehaviour
                 print(result);
                 camTexture.Stop();
 
-                // Content‚ÌDownload‚ğs‚¤
+                // Contentã®Downloadã‚’è¡Œã†
                 await GM.Msg<UniTask<string>>("DownloadContent", result);
                 return result;
             }

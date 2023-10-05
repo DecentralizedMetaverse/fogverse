@@ -7,8 +7,8 @@ using UnityEngine.InputSystem;
 using System;
 
 /// <summary>
-/// Object‚ğ‘I‘ğ‚µ‚ÄAPipe‚ğİ’è‚·‚é
-/// TODO: ‘I‘ğƒ‚[ƒh‚É’Ç‰Á‚·‚é
+/// Objectã‚’é¸æŠã—ã¦ã€Pipeã‚’è¨­å®šã™ã‚‹
+/// TODO: é¸æŠãƒ¢ãƒ¼ãƒ‰ã«è¿½åŠ ã™ã‚‹
 /// </summary>
 public class PipeController : MonoBehaviour
 {
@@ -44,7 +44,7 @@ public class PipeController : MonoBehaviour
         var pos = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (!Physics.Raycast(pos, out RaycastHit hit, 5000)) return;
 
-        // “ñ‚Â–Ú‚ÌObject‚ğæ“¾
+        // äºŒã¤ç›®ã®Objectã‚’å–å¾—
         if (!hit.transform.TryGetComponent(out IPipe targetObj))
         {
             GM.Msg("ShortMessage", "This object is not supported");
@@ -64,7 +64,7 @@ public class PipeController : MonoBehaviour
     }
 
     /// <summary>
-    /// Ú‘±‚ğŠm’è‚·‚é
+    /// æ¥ç¶šã‚’ç¢ºå®šã™ã‚‹
     /// </summary>
     void SetConnect()
     {
@@ -73,7 +73,7 @@ public class PipeController : MonoBehaviour
     }
 
     /// <summary>
-    /// I—¹ˆ—
+    /// çµ‚äº†å‡¦ç†
     /// </summary>
     void FinishSearchingPipeObject()
     {

@@ -6,7 +6,7 @@ using DC;
 using UnityEngine;
 
 /// <summary>
-/// [全体使用可能] ローディング画面
+/// [蜈ｨ菴謎ｽｿ逕ｨ蜿ｯ閭ｽ] 繝ｭ繝ｼ繝�繧｣繝ｳ繧ｰ逕ｻ髱｢
 /// </summary>
 [RequireComponent(typeof(UI_ShowCloseFade))]
 public class UI_Loading : MonoBehaviour
@@ -25,7 +25,7 @@ public class UI_Loading : MonoBehaviour
     }
 
     /// <summary>
-    /// ロード画面を表示する
+    /// 繝ｭ繝ｼ繝臥判髱｢繧定｡ｨ遉ｺ縺吶ｋ
     /// </summary>
     /// <returns></returns>
     async UniTask ShowLoading()
@@ -34,7 +34,7 @@ public class UI_Loading : MonoBehaviour
     }
 
     /// <summary>
-    /// ロード画面を非表示にする
+    /// 繝ｭ繝ｼ繝臥判髱｢繧帝撼陦ｨ遉ｺ縺ｫ縺吶ｋ
     /// </summary>
     void CloseLoading()
     {

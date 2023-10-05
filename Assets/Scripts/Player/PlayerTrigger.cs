@@ -26,7 +26,7 @@ public class PlayerTrigger : MonoBehaviour
         if (runnableObjs.Count == 0) return;
         if (runnableObjs[0] != null) return;
 
-        //ƒCƒxƒ“ƒgÀs‚É‚æ‚èƒQ[ƒ€Object‚ªÁ‚¦‚½ê‡
+        //ã‚¤ãƒ™ãƒ³ãƒˆå®Ÿè¡Œã«ã‚ˆã‚Šã‚²ãƒ¼ãƒ ObjectãŒæ¶ˆãˆãŸå ´åˆ
         runnableObjs.RemoveAt(0);
         exeEvents.RemoveAt(0);
 
@@ -34,7 +34,7 @@ public class PlayerTrigger : MonoBehaviour
     }
 
     /// <summary>
-    /// Œˆ’èƒL[‚ğ‰Ÿ‚µ‚½‚Æ‚«‚Ìˆ—
+    /// æ±ºå®šã‚­ãƒ¼ã‚’æŠ¼ã—ãŸã¨ãã®å‡¦ç†
     /// </summary>
     /// <param name="contex"></param>
     void OnSubmit(InputAction.CallbackContext contex)

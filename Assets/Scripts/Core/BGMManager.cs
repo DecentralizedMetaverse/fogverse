@@ -32,7 +32,7 @@ public class BGMManager : MonoBehaviour
         {
             nextAudio = op.Result;
             change = true;
-            Debug.Log(op.Result.name); //ƒ[ƒhŠ®—¹Žž‚ÌƒƒbƒZ[ƒW
+            Debug.Log(op.Result.name); //ãƒ­ãƒ¼ãƒ‰å®Œäº†æ™‚ã®ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
         };
     }
 

@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using TMPro;
-using JetBrains.Annotations;
-using DC;
 using System;
+using System.Collections.Generic;
+using DC;
+using TMPro;
+using UnityEngine;
 
 public class Evaluation : MonoBehaviour
 {
@@ -54,22 +52,22 @@ public class Evaluation : MonoBehaviour
         data.Add(currentData);
         // currentData = new EvaluationData();
 
-        // ping‚Ì‘—M
+        // pingã®é€ä¿¡
         if (GM.db.rtc.peers.Count == 0) return;
         sendPingTime = DateTime.Now;
-        GM.Msg("RTCSendAll", sendPingData);
+        GM.Msg("RPCSendAll", sendPingData);
         UpdateText();
     }
 
     /// <summary>
-    /// TODO: Šm”F‚ª•K—v
+    /// TODO: ç¢ºèªãŒå¿…è¦
     /// </summary>
     /// <param name="data"></param>
     /// <param name="sourceId"></param>
     private void RPCPing(Dictionary<string, object> data, string sourceId)
     {
         data["type"] = "pong";
-        GM.Msg("RTCSendDirect", sourceId, data);
+        GM.Msg("RPCSendDirect", sourceId, data);
     }
 
     /// <summary>

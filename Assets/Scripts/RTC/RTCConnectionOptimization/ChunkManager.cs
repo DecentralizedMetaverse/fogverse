@@ -1,8 +1,5 @@
-using DC;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
+using DC;
 using UnityEngine;
 
 public class ChunkManager : MonoBehaviour
@@ -28,11 +25,11 @@ public class ChunkManager : MonoBehaviour
             { "type", "reqest_user_data" },
         };
 
-        GM.Msg("RTCSendDirect", targetId, sendData);
+        GM.Msg("RPCSendDirect", targetId, sendData);
     }
 
     /// <summary>
-    /// Userî•ñ‚ğ•Ô‚·
+    /// Useræƒ…å ±ã‚’è¿”ã™
     /// </summary>
     /// <param name="data"></param>
     /// <param name="sourceId"></param>
@@ -44,29 +41,29 @@ public class ChunkManager : MonoBehaviour
             { "chunk", GM.db.player.chunk },
         };
 
-        GM.Msg("RTCSendDirect", sourceId, sendData);
+        GM.Msg("RPCSendDirect", sourceId, sendData);
     }
 
     /// <summary>
-    /// Chunk‚ÌXV
+    /// Chunkã®æ›´æ–°
     /// </summary>
     /// <param name="data"></param>
     /// <param name="sourceId"></param>
     private void RPCChunk(Dictionary<string, object> data, string sourceId)
     {
-        var chunkData = data["chunk"].ToString().GetDict<string,int>();
+        var chunkData = data["chunk"].ToString().GetDict<string, int>();
         var chunk = (chunkData["Item1"], chunkData["Item2"], chunkData["Item3"]);
         GM.Msg("UpdateChunk", sourceId, chunk);
     }
 
     /// <summary>
-    /// Œ»İ‚ÌChunk‚ª•ÏX‚³‚ê‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚é
-    /// ‹ß‚­‚ÌChunk‚ğ‘—M‘ÎÛ‚É‚·‚é
+    /// ç¾åœ¨ã®ChunkãŒå¤‰æ›´ã•ã‚ŒãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹
+    /// è¿‘ãã®Chunkã‚’é€ä¿¡å¯¾è±¡ã«ã™ã‚‹
     /// </summary>
     /// <param name="currentChunk"></param>
     public void OnChangeChunk((int, int, int) currentChunk)
     {
-        // ‘—M‘ÎÛ‚ÌChunk‚ğXV
+        // é€ä¿¡å¯¾è±¡ã®Chunkã‚’æ›´æ–°
         GM.db.chunk.sendTargetChunk.Clear();
         var (x, y, z) = currentChunk;
 
@@ -81,8 +78,8 @@ public class ChunkManager : MonoBehaviour
             }
         }
 
-        // Chunk‚Ì•ÏX‚ğ‘—M
+        // Chunkã®å¤‰æ›´ã‚’é€ä¿¡
         sendData.ForceAdd("chunk", currentChunk);
-        GM.Msg("RTCSendAll", sendData);        
+        GM.Msg("RPCSendAll", sendData);
     }
 }

@@ -6,13 +6,13 @@ using UnityEditor.AssetImporters;
 using UnityEngine;
 
 /// <summary>
-/// LuaFile‚ğ“Ç‚İ‚ß‚é‚æ‚¤‚É‚·‚é
+/// LuaFileã‚’èª­ã¿è¾¼ã‚ã‚‹ã‚ˆã†ã«ã™ã‚‹
 /// </summary>
 [ScriptedImporter(1, "lua")]
 public class LuaImporter : ScriptedImporter
 {
     /// <summary>
-    /// LuaFile‚ğ•Û‘¶‚·‚éêŠ
+    /// LuaFileã‚’ä¿å­˜ã™ã‚‹å ´æ‰€
     /// </summary>
     const string dirName = "Assets/LuaScripts";
     public override void OnImportAsset(AssetImportContext ctx)
@@ -24,7 +24,7 @@ public class LuaImporter : ScriptedImporter
     }
 
     /// <summary>
-    /// LuaScriptFile‚ğì¬‚·‚éƒƒjƒ…[
+    /// LuaScriptFileã‚’ä½œæˆã™ã‚‹ãƒ¡ãƒ‹ãƒ¥ãƒ¼
     /// </summary>
     [MenuItem("Assets/Create/Lua Script", priority = 71)]
     static void Create()

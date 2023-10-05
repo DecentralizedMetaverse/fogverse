@@ -13,7 +13,7 @@ using UnityEditor;
 namespace DC
 {
     /// <summary>
-    /// ƒƒbƒZ[ƒWŠÇ—
+    /// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ç®¡ç†
     /// </summary>
     public static class GM
     {
@@ -25,7 +25,7 @@ namespace DC
         // static List<string> userFunctions = new();
 
         /// <summary>
-        /// ‰Šú‰»
+        /// åˆæœŸåŒ–
         /// </summary>
         public static void Init()
         {
@@ -34,7 +34,7 @@ namespace DC
         }
 
         /// <summary>
-        /// [LuaŒÄ‚Ño‚µ—p] ƒ†[ƒU[ƒƒ\ƒbƒh‚Ì‘¶İ‚ğŠm”F‚·‚é
+        /// [Luaå‘¼ã³å‡ºã—ç”¨] ãƒ¦ãƒ¼ã‚¶ãƒ¼ãƒ¡ã‚½ãƒƒãƒ‰ã®å­˜åœ¨ã‚’ç¢ºèªã™ã‚‹
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
@@ -44,7 +44,7 @@ namespace DC
         //}
 
         /// <summary>
-        /// [LuaŒÄ‚Ño‚µ—p] ƒ†[ƒU[ƒƒ\ƒbƒh‚ğŒÄ‚Ño‚·
+        /// [Luaå‘¼ã³å‡ºã—ç”¨] ãƒ¦ãƒ¼ã‚¶ãƒ¼ãƒ¡ã‚½ãƒƒãƒ‰ã‚’å‘¼ã³å‡ºã™
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
@@ -76,11 +76,11 @@ namespace DC
         //}
 
         /// <summary>
-        /// ‘—M
+        /// é€ä¿¡
         /// </summary>
         /// <param name="key">keyword</param>
-        /// <param name="args">ƒf[ƒ^1,ƒf[ƒ^2,ƒf[ƒ^3,...</param>
-        /// <returns>true:¬Œ÷ false:¸”s</returns>
+        /// <param name="args">ãƒ‡ãƒ¼ã‚¿1,ãƒ‡ãƒ¼ã‚¿2,ãƒ‡ãƒ¼ã‚¿3,...</param>
+        /// <returns>true:æˆåŠŸ false:å¤±æ•—</returns>
         public static bool Msg(string key, params object[] args)
         {
             if (functions.ContainsKey(key))
@@ -89,14 +89,14 @@ namespace DC
                 {
                     functions[key][i].DynamicInvoke(args);
 #if UNITY_EDITOR
-                    var msg = $"<color=#628cb8>Às:</color> <b><color=#ffa500>{key}</color> ";
+                    var msg = $"<color=#628cb8>å®Ÿè¡Œ:</color> <b><color=#ffa500>{key}</color> ";
 #endif
                 }
             }
             else
             {
-                //‘¶İ‚µ‚È‚¢ê‡
-                Log($"<color=#ff4500>‘—M¸”s failed:</color> <b>{key}</b>");
+                //å­˜åœ¨ã—ãªã„å ´åˆ
+                Log($"<color=#ff4500>é€ä¿¡å¤±æ•— failed:</color> <b>{key}</b>");
                 return false;
             }
 
@@ -104,10 +104,10 @@ namespace DC
         }
 
         /// <summary>
-        /// •Ô‚è’l‚ ‚èMsg
-        /// Msg<•Ô‚è’l‚ÌŒ^>
+        /// è¿”ã‚Šå€¤ã‚ã‚ŠMsg
+        /// Msg<è¿”ã‚Šå€¤ã®å‹>
         /// </summary>
-        /// <typeparam name="T">•Ô‚è’l‚ÌŒ^</typeparam>
+        /// <typeparam name="T">è¿”ã‚Šå€¤ã®å‹</typeparam>
         /// <param name="key"></param>
         /// <param name="args"></param>
         /// <returns></returns>
@@ -117,7 +117,7 @@ namespace DC
         }
 
         /// <summary>
-        /// •Ô‚è’l‚ª‚ ‚éê‡‚ÍAMsg‚ğg—p‚µ‚Ä‚­‚¾‚³‚¢
+        /// è¿”ã‚Šå€¤ãŒã‚ã‚‹å ´åˆã¯ã€Msgã‚’ä½¿ç”¨ã—ã¦ãã ã•ã„
         /// </summary>
         /// <param name="key"></param>
         /// <param name="args"></param>
@@ -128,66 +128,66 @@ namespace DC
         }
 
         /// <summary>
-        /// óMæ’Ç‰Á
+        /// å—ä¿¡å…ˆè¿½åŠ 
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="function">‚±‚±‚Å‚Íuƒƒ\ƒbƒhv‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢</param>
-        /// <param name="isPublic">ŠÖ”‚ğƒ†[ƒU[‚É‚àŒöŠJ‚·‚é‚©</param>
+        /// <param name="function">ã“ã“ã§ã¯ã€Œãƒ¡ã‚½ãƒƒãƒ‰ã€ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„</param>
+        /// <param name="isPublic">é–¢æ•°ã‚’ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«ã‚‚å…¬é–‹ã™ã‚‹ã‹</param>
         public static void Add(string key, Action function, bool isPublic = false)
         {
             AddFunction(key, function, isPublic);
         }
 
         /// <summary>
-        /// óMæ’Ç‰Á
+        /// å—ä¿¡å…ˆè¿½åŠ 
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="function">‚±‚±‚Å‚Íuƒƒ\ƒbƒhv‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢</param>
-        /// <param name="isPublic">ŠÖ”‚ğƒ†[ƒU[‚É‚àŒöŠJ‚·‚é‚©</param>
+        /// <param name="function">ã“ã“ã§ã¯ã€Œãƒ¡ã‚½ãƒƒãƒ‰ã€ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„</param>
+        /// <param name="isPublic">é–¢æ•°ã‚’ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«ã‚‚å…¬é–‹ã™ã‚‹ã‹</param>
         public static void Add<T>(string key, Action<T> function, bool isPublic = false)
         {
             AddFunction(key, function, isPublic);
         }
 
         /// <summary>
-        /// óMæ’Ç‰Á
+        /// å—ä¿¡å…ˆè¿½åŠ 
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="function">‚±‚±‚Å‚Íuƒƒ\ƒbƒhv‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢</param>
-        /// <param name="isPublic">ŠÖ”‚ğƒ†[ƒU[‚É‚àŒöŠJ‚·‚é‚©</param>    
+        /// <param name="function">ã“ã“ã§ã¯ã€Œãƒ¡ã‚½ãƒƒãƒ‰ã€ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„</param>
+        /// <param name="isPublic">é–¢æ•°ã‚’ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«ã‚‚å…¬é–‹ã™ã‚‹ã‹</param>    
         public static void Add<T1, T2>(string key, Action<T1, T2> function, bool isPublic = false)
         {
             AddFunction(key, function, isPublic);
         }
 
         /// <summary>
-        /// óMæ’Ç‰Á
+        /// å—ä¿¡å…ˆè¿½åŠ 
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="function">‚±‚±‚Å‚Íuƒƒ\ƒbƒhv‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢</param>
-        /// <param name="isPublic">ŠÖ”‚ğƒ†[ƒU[‚É‚àŒöŠJ‚·‚é‚©</param>
+        /// <param name="function">ã“ã“ã§ã¯ã€Œãƒ¡ã‚½ãƒƒãƒ‰ã€ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„</param>
+        /// <param name="isPublic">é–¢æ•°ã‚’ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«ã‚‚å…¬é–‹ã™ã‚‹ã‹</param>
         public static void Add<T1, T2, T3>(string key, Action<T1, T2, T3> function, bool isPublic = false)
         {
             AddFunction(key, function, isPublic);
         }
         
         /// <summary>
-         /// óMæ’Ç‰Á
+         /// å—ä¿¡å…ˆè¿½åŠ 
          /// </summary>
          /// <param name="key"></param>
-         /// <param name="function">‚±‚±‚Å‚Íuƒƒ\ƒbƒhv‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢</param>
-         /// <param name="isPublic">ŠÖ”‚ğƒ†[ƒU[‚É‚àŒöŠJ‚·‚é‚©</param>
+         /// <param name="function">ã“ã“ã§ã¯ã€Œãƒ¡ã‚½ãƒƒãƒ‰ã€ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„</param>
+         /// <param name="isPublic">é–¢æ•°ã‚’ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«ã‚‚å…¬é–‹ã™ã‚‹ã‹</param>
         public static void Add<T1, T2, T3, T4>(string key, Action<T1, T2, T3, T4> function, bool isPublic = false)
         {
             AddFunction(key, function, isPublic);
         }
 
         /// <summary>
-        /// óMæ’Ç‰Á
+        /// å—ä¿¡å…ˆè¿½åŠ 
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="function">‚±‚±‚Å‚Íuƒƒ\ƒbƒhv‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢</param>
-        /// <param name="isPublic">ŠÖ”‚ğƒ†[ƒU[‚É‚àŒöŠJ‚·‚é‚©</param>
+        /// <param name="function">ã“ã“ã§ã¯ã€Œãƒ¡ã‚½ãƒƒãƒ‰ã€ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„</param>
+        /// <param name="isPublic">é–¢æ•°ã‚’ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«ã‚‚å…¬é–‹ã™ã‚‹ã‹</param>
         public static void Add<T>(string key, Func<T> function, bool isPublic = false)
         {
             AddFunction(key, function, isPublic);
@@ -204,11 +204,11 @@ namespace DC
         }
 
         /// <summary>
-        /// óMæ’Ç‰Á
+        /// å—ä¿¡å…ˆè¿½åŠ 
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="function">‚±‚±‚Å‚Íuƒƒ\ƒbƒhv‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢</param>
-        /// <param name="isPublic">ŠÖ”‚ğƒ†[ƒU[‚É‚àŒöŠJ‚·‚é‚©</param>    
+        /// <param name="function">ã“ã“ã§ã¯ã€Œãƒ¡ã‚½ãƒƒãƒ‰ã€ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„</param>
+        /// <param name="isPublic">é–¢æ•°ã‚’ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«ã‚‚å…¬é–‹ã™ã‚‹ã‹</param>    
         public static void Add<T1, T2>(string key, Func<T1, T2> function, bool isPublic = false)
         {
             AddFunction(key, function, isPublic);
@@ -225,11 +225,11 @@ namespace DC
         }
 
         /// <summary>
-        /// óMæ’Ç‰Á
+        /// å—ä¿¡å…ˆè¿½åŠ 
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="function">‚±‚±‚Å‚Íuƒƒ\ƒbƒhv‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢</param>
-        /// <param name="isPublic">ŠÖ”‚ğƒ†[ƒU[‚É‚àŒöŠJ‚·‚é‚©</param>    
+        /// <param name="function">ã“ã“ã§ã¯ã€Œãƒ¡ã‚½ãƒƒãƒ‰ã€ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„</param>
+        /// <param name="isPublic">é–¢æ•°ã‚’ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«ã‚‚å…¬é–‹ã™ã‚‹ã‹</param>    
         public static void Add<T1, T2, T3>(string key, Func<T1, T2, T3> function, bool isPublic = false)
         {
             AddFunction(key, function, isPublic);
@@ -246,11 +246,11 @@ namespace DC
         }
 
         /// <summary>
-        /// óMæ’Ç‰Á
+        /// å—ä¿¡å…ˆè¿½åŠ 
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="function">‚±‚±‚Å‚Íuƒƒ\ƒbƒhv‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢</param>
-        /// <param name="isPublic">ŠÖ”‚ğƒ†[ƒU[‚É‚àŒöŠJ‚·‚é‚©</param>    
+        /// <param name="function">ã“ã“ã§ã¯ã€Œãƒ¡ã‚½ãƒƒãƒ‰ã€ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„</param>
+        /// <param name="isPublic">é–¢æ•°ã‚’ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«ã‚‚å…¬é–‹ã™ã‚‹ã‹</param>    
         public static void Add<T1, T2, T3, T4>(string key, Func<T1, T2, T3, T4> function, bool isPublic = false)
         {
             AddFunction(key, function, isPublic);
@@ -267,7 +267,7 @@ namespace DC
         }
 
         /// <summary>
-        /// Add‚Ì‹¤’Êˆ—‚ğ‚Ü‚Æ‚ß‚½ƒƒ\ƒbƒh
+        /// Addã®å…±é€šå‡¦ç†ã‚’ã¾ã¨ã‚ãŸãƒ¡ã‚½ãƒƒãƒ‰
         /// </summary>
         /// <param name="key"></param>
         /// <param name="function"></param>
@@ -279,15 +279,15 @@ namespace DC
                 functions.Add(key, new());
             }
             functions[key].Add(function);
-            Log($"<color=#1e90ff>óMæ’Ç‰Á:</color> <b>{key}</b>");
+            Log($"<color=#1e90ff>å—ä¿¡å…ˆè¿½åŠ :</color> <b>{key}</b>");
 
-            // ‘½d“o˜^–h~
+            // å¤šé‡ç™»éŒ²é˜²æ­¢
             if (IsUniTaskMethod(function))
             {
                 return;
             }
 
-            // Lua‚É“o˜^
+            // Luaã«ç™»éŒ²
             if (isPublic)
             {
                 LuaManager.RegisterLuaFunction(LuaManager.lua, key, function);
@@ -301,7 +301,7 @@ namespace DC
         }
 
         /// <summary>
-        /// [LuaŒÄ‚Ño‚µ—p] ƒƒ\ƒbƒh‚ğæ“¾‚·‚é
+        /// [Luaå‘¼ã³å‡ºã—ç”¨] ãƒ¡ã‚½ãƒƒãƒ‰ã‚’å–å¾—ã™ã‚‹
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
@@ -311,49 +311,49 @@ namespace DC
         }
 
         /// <summary>
-        /// óMæíœ
+        /// å—ä¿¡å…ˆå‰Šé™¤
         /// </summary>
         /// <param name="key"></param>
-        /// <returns>true:¬Œ÷ false:¸”s</returns>
+        /// <returns>true:æˆåŠŸ false:å¤±æ•—</returns>
         public static bool Remove(string key, Action function)
         {
             if (!functions.ContainsKey(key))
             {
-                Log($"<color=#ff4040>óMæíœ¸”s:</color> <b>{key}</b>");
+                Log($"<color=#ff4040>å—ä¿¡å…ˆå‰Šé™¤å¤±æ•—:</color> <b>{key}</b>");
                 return false;
             }
             GM.functions[key].Remove(function);
 
             if (GM.functions[key].Count == 0)
                 GM.functions.Remove(key);
-            Log($"<color=#dda0dd>óMæíœ:</color> <b>{key}</b>");
+            Log($"<color=#dda0dd>å—ä¿¡å…ˆå‰Šé™¤:</color> <b>{key}</b>");
             return true;
         }
 
         /// <summary>
-        /// óMæíœ
+        /// å—ä¿¡å…ˆå‰Šé™¤
         /// </summary>
         /// <param name="key"></param>
-        /// <returns>true:¬Œ÷ false:¸”s</returns>
+        /// <returns>true:æˆåŠŸ false:å¤±æ•—</returns>
         public static bool Remove<T>(string key, Action<T> function)
         {
             if (!functions.ContainsKey(key))
             {
-                Log($"<color=#ff4040>óMæíœ¸”s:</color> <b>{key}</b>");
+                Log($"<color=#ff4040>å—ä¿¡å…ˆå‰Šé™¤å¤±æ•—:</color> <b>{key}</b>");
                 return false;
             }
             GM.functions[key].Remove(function);
 
             if (GM.functions[key].Count == 0)
                 GM.functions.Remove(key);
-            Log($"<color=#dda0dd>óMæíœ:</color> <b>{key}</b>");
+            Log($"<color=#dda0dd>å—ä¿¡å…ˆå‰Šé™¤:</color> <b>{key}</b>");
             return true;
         }
 
         static ePause.mode _pause;
         /// <summary>
-        /// ƒ|[ƒYƒ‚[ƒh
-        /// “ü—Í—á(
+        /// ãƒãƒ¼ã‚ºãƒ¢ãƒ¼ãƒ‰
+        /// å…¥åŠ›ä¾‹(
         /// Gm.pose = ePose.mode.UIStop;
         /// Gm.pose = ePose.mode.GameStop;
         /// Gm.pose = ePose.mode.none;
@@ -382,7 +382,7 @@ namespace DC
         }
 
         /// <summary>
-        /// ƒQ[ƒ€I—¹ˆ—
+        /// ã‚²ãƒ¼ãƒ çµ‚äº†å‡¦ç†
         /// </summary>
         /// <returns></returns>
         public static void GameQuit()
@@ -395,7 +395,7 @@ namespace DC
         }
 
         /// <summary>
-        /// ƒƒO•\¦
+        /// ãƒ­ã‚°è¡¨ç¤º
         /// </summary>
         /// <param name="message"></param>
         public static void Log(string message)
@@ -405,7 +405,7 @@ namespace DC
         }
 
         /// <summary>
-        /// ƒGƒ‰[ƒƒO•\¦
+        /// ã‚¨ãƒ©ãƒ¼ãƒ­ã‚°è¡¨ç¤º
         /// </summary>
         /// <param name="message"></param>
         public static void LogError(string message)
@@ -415,7 +415,7 @@ namespace DC
         }
 
         /// <summary>
-        /// ŒxƒƒO•\¦
+        /// è­¦å‘Šãƒ­ã‚°è¡¨ç¤º
         /// </summary>
         /// <param name="message"></param>
         public static void LogWarning(string message)
@@ -426,7 +426,7 @@ namespace DC
 
 
         /// <summary>
-        /// “o˜^‚³‚ê‚½ŠÖ”‚ğˆê——‚Æ‚µ‚ÄƒeƒLƒXƒgFile‚É‘‚«o‚·
+        /// ç™»éŒ²ã•ã‚ŒãŸé–¢æ•°ã‚’ä¸€è¦§ã¨ã—ã¦ãƒ†ã‚­ã‚¹ãƒˆFileã«æ›¸ãå‡ºã™
         /// </summary>
         public static void SaveFunctionList(DB_FunctionList db)
         {

@@ -1,0 +1,10 @@
+name: root
+cid: ''
+transform:
+  position: 0,0,0
+  rotation: 0,0,0
+  scale: 1,1,1
+objs:
+- QmTEHcGsP923a8AtdKsm9LMETbSZFfYk1JcusQaav7Y3ya
+- Qmc9RVMcA18is6EokE3Y9YzkvYW1i7nNbRN8edZEEHEjQa
+components: []

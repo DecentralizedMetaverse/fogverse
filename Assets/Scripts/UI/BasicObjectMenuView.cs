@@ -53,7 +53,7 @@ public class BasicObjectMenuView : MonoBehaviour
                 var button = editor.Create();
                 button.Text.text = menu;
                 var key = menu;
-                button.Button.onClick.RemoveAllListeners(); // TODO: –{—ˆ‚Í‚±‚Ìs‚Í•s—v‚Ì‚Í‚¸@Šm”F‚ª•K—v‚©‚à
+                button.Button.onClick.RemoveAllListeners(); // TODO: æœ¬æ¥ã¯ã“ã®è¡Œã¯ä¸è¦ã®ã¯ãšã€€ç¢ºèªãŒå¿…è¦ã‹ã‚‚
                 button.Button.onClick.AddListener(() =>
                 {
                     var transform = GenerateObject(key);

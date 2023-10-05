@@ -1,20 +1,19 @@
-using DC;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using DC;
 using UnityEngine;
 
 /// <summary>
-/// Log—v‹—p‚ÌƒNƒ‰ƒX
+/// Logè¦æ±‚ç”¨ã®ã‚¯ãƒ©ã‚¹
 /// </summary>
 public class RTCLog : MonoBehaviour
 {
     /// <summary>
-    /// —v‹—p‚Ìƒf[ƒ^
+    /// è¦æ±‚ç”¨ã®ãƒ‡ãƒ¼ã‚¿
     /// </summary>
     Dictionary<string, object> sendData = new Dictionary<string, object>()
     {
-        { "type", "log" } 
+        { "type", "log" }
     };
 
     void Start()
@@ -24,13 +23,13 @@ public class RTCLog : MonoBehaviour
 
         GM.Add("GetAllLog", () =>
         {
-            // ‘S‘ÌClient‚ÉLog‚ğ—v‹‚·‚é
-            GM.Msg("RTCSendAll", sendData);
+            // å…¨ä½“Clientã«Logã‚’è¦æ±‚ã™ã‚‹
+            GM.Msg("RPCSendAll", sendData);
         });
     }
 
     /// <summary>
-    /// ‘—‚èå‚ÉLog‚ğ•Ô‚·
+    /// é€ã‚Šä¸»ã«Logã‚’è¿”ã™
     /// </summary>
     /// <param name="data"></param>
     /// <param name="sourceId"></param>
@@ -46,11 +45,11 @@ public class RTCLog : MonoBehaviour
             { "output",outputData }
         };
 
-        GM.Msg("RTCSendDirect", sourceId, sendData);
+        GM.Msg("RPCSendDirect", sourceId, sendData);
     }
 
     /// <summary>
-    /// Log‚ğ•Û‘¶‚·‚é
+    /// Logã‚’ä¿å­˜ã™ã‚‹
     /// </summary>
     /// <param name="data"></param>
     /// <param name="sourceId"></param>

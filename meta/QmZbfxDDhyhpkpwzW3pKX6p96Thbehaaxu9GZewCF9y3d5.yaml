@@ -1,0 +1,8 @@
+name: Cube(Clone)
+cid: Cube
+transform:
+  position: -6.673997,0.4799998,1.908978
+  rotation: 0,8.412062,0
+  scale: 1,1,1
+objs: []
+components: []

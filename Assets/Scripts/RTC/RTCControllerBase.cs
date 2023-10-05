@@ -1,19 +1,16 @@
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DC;
 using MemoryPack;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.WebRTC;
 using UnityEngine;
 
 public class RTCControllerBase : MonoBehaviour
 {
     protected HashSet<string> candidateData = new();
-    HashSet<MessageType> logTargetExcludeTypes = new HashSet<MessageType>()
-    { 
-        MessageType.Location
-    };
+    //HashSet<MessageType> logTargetExcludeTypes = new HashSet<MessageType>()
+    //{ 
+    //    MessageType.Location
+    //};
 
     /// <summary>
     /// 接続完了時
@@ -26,13 +23,12 @@ public class RTCControllerBase : MonoBehaviour
         await UniTask.Delay(1000); // TODO: 暫定的な措置
 
         // 接続先の情報を全体に送信        
-        RTCMessage rtcMessage = new()
-        {
-            type = MessageType.GetUserList,
-        };
+        GM.Msg("RTCSendDirect", MessageType.GetUserList, connectedId, null);
 
-        var bytes = MemoryPackSerializer.Serialize(rtcMessage);
-        GM.Msg("RTCSendDirect", connectedId, bytes);
+        await UniTask.Yield();
+
+        // UserObjectの情報を取得する
+        GM.Msg("UserObjectInfoRequest", connectedId);
     }
 
     /// <summary>
@@ -44,23 +40,29 @@ public class RTCControllerBase : MonoBehaviour
     {
         // Message処理
         var dataMessage = MemoryPackSerializer.Deserialize<RTCMessage>(data);
-
-        // Logの表示
-        // AddOutputLog(dataMessage, "Receive");
-
-        // Message以外の処理
-        var targetId = dataMessage.targetId;
-        // dataDict["target_id"].ToString(); // TODO: KeyNotFound
-        if (targetId != GM.db.rtc.id && targetId != "*")
+        if (dataMessage.id == null)
         {
-            GM.Msg("AddOutput", $"[Relay]");
-            // 中継する                
-            Send(targetId, data);
+            Debug.LogError(System.Text.Encoding.UTF8.GetString(data));
             return;
         }
+        // Message以外の処理
+        var targetId = dataMessage.targetId;
+        if (IsRelayData(targetId))
+        {
+            // 中継する                
+            GM.Msg("AddOutput", $"[Relay]");
+            Send(targetId, data);
+        }
+        else
+        {
+            // Messageの具体的な処理を行う
+            GM.Msg("WebRTCMessageHandler", dataMessage, sourceId);
+        }
+    }
 
-        // Messageの具体的な処理を行う
-        GM.Msg("WebRTCMessageHandler", dataMessage, sourceId);
+    private static bool IsRelayData(string targetId)
+    {
+        return targetId != GM.db.rtc.id && targetId != "*";
     }
 
     protected void Send(string id, string data)

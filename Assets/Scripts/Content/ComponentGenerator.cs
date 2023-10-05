@@ -1,14 +1,13 @@
-using Cysharp.Threading.Tasks;
-using DC;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using DC;
 using UnityEngine;
 
 /// <summary>
-/// Component‚ğ¶¬‚µObject‚É’Ç‰Á‚·‚é
+/// TODO: éœ€è¦Refactoring
+/// Componentã‚’ç”Ÿæˆã—Objectã«è¿½åŠ ã™ã‚‹
 /// </summary>
 public class ComponentGenerator : MonoBehaviour
 {
@@ -18,11 +17,11 @@ public class ComponentGenerator : MonoBehaviour
     {
         GM.Add<string, Transform, Dictionary<string, object>>("GenerateComponent", GenerateComponent);
         GM.Add("GetComponentExtensions", GetComponentExtensions);
-        AddFunc<string, Transform, Dictionary<string, object>>(".lua", ComponentLua);        
+        AddFunc<string, Transform, Dictionary<string, object>>(".lua", ComponentLua);
     }
 
     /// <summary>
-    /// Component¶¬
+    /// Componentç”Ÿæˆ
     /// </summary>
     /// <param name="path"></param>
     /// <param name="root"></param>
@@ -33,7 +32,7 @@ public class ComponentGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// ‘Î‰‚·‚éŠg’£q‚ÌƒŠƒXƒg‚ğ•Ô‚·
+    /// å¯¾å¿œã™ã‚‹æ‹¡å¼µå­ã®ãƒªã‚¹ãƒˆã‚’è¿”ã™
     /// </summary>
     /// <returns></returns>
     string[] GetComponentExtensions()
@@ -42,7 +41,7 @@ public class ComponentGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// ŠÖ”‚ğ“o˜^‚·‚é
+    /// é–¢æ•°ã‚’ç™»éŒ²ã™ã‚‹
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="key"></param>
@@ -55,11 +54,11 @@ public class ComponentGenerator : MonoBehaviour
     // ------------------------------------------------
     void ComponentLua(string path, Transform root, Dictionary<string, object> custom)
     {
-        var txt = File.ReadAllText(path);        
+        var txt = File.ReadAllText(path);
         var eventObj = root.gameObject.AddComponent<EventObject3D>();
         eventObj.code = txt;
         eventObj.custom = custom;
-        eventObj.type  = (eYScript.exeType)Enum.Parse(typeof(eYScript.exeType), custom["run"].ToString());
+        eventObj.type = (eYScript.exeType)Enum.Parse(typeof(eYScript.exeType), custom["run"].ToString());
         eventObj.fileName = path;
-    }    
+    }
 }

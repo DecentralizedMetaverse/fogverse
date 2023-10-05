@@ -29,11 +29,11 @@ public class AvatarView : MonoBehaviour
         ui.ui.active = true;
 
         var files = Directory.GetFiles(avatarPath, "*.vrm");
-        // ƒfƒBƒŒƒNƒgƒŠ“à‚ÌFileˆê——‚ğæ“¾
+        // ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå†…ã®Fileä¸€è¦§ã‚’å–å¾—
         files = Directory.GetFiles(avatarPath);
         using (var editor = ui.ItemList.Edit())
         {
-            // Fileˆê——‚ğ•\¦
+            // Fileä¸€è¦§ã‚’è¡¨ç¤º
             foreach (string filePath in files)
             {
                 editor.Contents.Add(new UIFactory<FileButtonUiElements>(button =>

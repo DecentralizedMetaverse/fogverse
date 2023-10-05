@@ -16,10 +16,10 @@ public class GameState : MonoBehaviour
         //print(await GM.Msg<UniTask<bool>>("IPFSDownload", "QmT3VUqAzLQSmYBUp83Ywbt57QkPs9NVhEmYVMPWXQJWtB", "0_0.yaml"));
         //print(await GM.Msg<UniTask<bool>>("IPFSDownload", "QmezMyczWgBQuD3c7pZez6jE2jmofNNjbmYb6biU3nqzUc", "0_0.yaml"));
         //print(await GM.Msg<UniTask<bool>>("IPFSDownload", "QmUNN63Brzn1qDxSRd1HDCsFJxboCetSckGR3FyP5sRTdQ", "yun.vrm"));
-        // Worldì«Ç›çûÇ›
+        // WorldË™≠„ÅøËæº„Åø
         //await GM.MsgAsync("LoadWorldByChunk", 0, 0);
 
-        // ÉvÉåÉCÉÑÅ[ê∂ê¨
+        // „Éó„É¨„Ç§„É§„ÉºÁîüÊàê
         //await GM.MsgAsync("PlayerStart");
     }
 }

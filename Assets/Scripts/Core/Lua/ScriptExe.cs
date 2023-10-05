@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Lua‚ğÀs‚·‚é
+/// Luaã‚’å®Ÿè¡Œã™ã‚‹
 /// </summary>
 public class ScriptExe : MonoBehaviour
 {
