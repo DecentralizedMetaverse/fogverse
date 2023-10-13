@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// WebRTC�@Message���M
 /// </summary>
-public class RTCMessageManager : MonoBehaviour
+public class RTCMessageSender : MonoBehaviour
 {
     void Start()
     {

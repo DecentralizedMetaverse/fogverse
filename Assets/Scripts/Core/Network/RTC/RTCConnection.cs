@@ -14,6 +14,7 @@ public class RTCConnection
     public Action<byte[]> OnMessage;
     public Action<RTCIceCandidate> OnCandidate;
     public Action OnConnected, OnDisconnected;
+    public MediaStream remoteStream = new MediaStream();
 
     public async UniTask<RTCSessionDescription> CreateOffer()
     {
@@ -29,13 +30,21 @@ public class RTCConnection
 
 
         pc = new RTCPeerConnection(ref configuration);
+        GM.Msg("SetTrack", pc); // 音声等を追加する
+        pc.OnTrack = (RTCTrackEvent e) =>
+        {
+            if (e.Track.Kind == TrackKind.Audio)
+            {
+                remoteStream.AddTrack(e.Track);
+            }
+        };
 
         // ----------------------------
         // Candidate
         pc.OnIceCandidate = OnIceCandidate;
         pc.OnIceConnectionChange = OnIceConnectionChange;
 
-        SetDataChannel();
+        SetDataChannel();       // DataChannelを作成し追加する
 
         // ----------------------------
         // CreateOffer
@@ -76,6 +85,14 @@ public class RTCConnection
         pc.OnIceCandidate = OnIceCandidate;
         pc.OnIceConnectionChange = OnIceConnectionChange;
 
+        GM.Msg("SetTrack", pc); // 音声等を追加する
+        pc.OnTrack = (RTCTrackEvent e) =>
+        {
+            if (e.Track.Kind == TrackKind.Audio)
+            {
+                remoteStream.AddTrack(e.Track);
+            }
+        };
 
         // ----------------------------
         // DataChannels
@@ -148,24 +165,6 @@ public class RTCConnection
 
         dataChannel.Send(data);
     }
-
-    //public void Send(Dictionary<string, object> data)
-    //{
-    //    var dataStr = data.GetString();
-    //    if (data["type"].ToString() != "location" &&
-    //        data["type"].ToString() != "anim" &&
-    //        data["type"].ToString() != "ping" &&
-    //        data["type"].ToString() != "pong" &&
-    //        data["type"].ToString() != "chunk")
-
-    //    {
-    //        GM.Msg("AddOutput", $"[Send] ->{data["target_id"].ToString()} {dataStr}");
-    //    }
-
-    //    var bin = MemoryPackSerializer.Serialize(dataStr);
-    //    Send(bin);
-    //    // Send(dataStr);
-    //}
 
     public void Send(byte[] data)
     {

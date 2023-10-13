@@ -5,7 +5,10 @@ using DC;
 using Unity.WebRTC;
 using UnityEngine;
 
-public class RTCControllerWebSocket : RTCControllerBase
+/// <summary>
+/// メッセージ受信時にMain Threadでない点に注意
+/// </summary>
+public class RTCWebSocketController : RTCControllerBase
 {
     [SerializeField] SendMessageView view;
 
@@ -24,6 +27,7 @@ public class RTCControllerWebSocket : RTCControllerBase
         view.output.text = "";
 
         GM.Add("WebRTCConnectToServer", Connect);
+        //メッセージ受信時にMain Threadでない点に注意
         GM.Add<string>("WebRTCResponse", (data) =>
         {
             var receiveDataDict = data.GetDict<string, object>();
@@ -34,9 +38,13 @@ public class RTCControllerWebSocket : RTCControllerBase
         });
     }
 
-    private void Start()
+    private async void Start()
     {
-        if (GM.mng.autoConnect) OnClickConnect();
+        if (GM.mng.autoConnect)
+        {
+            await UniTask.Delay(1000);// TODO: 暫定的な措置
+            OnClickConnect();
+        }
     }
 
     protected void Connect()

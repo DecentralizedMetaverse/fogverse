@@ -29,6 +29,7 @@ public class RTCControllerBase : MonoBehaviour
 
         // UserObjectの情報を取得する
         GM.Msg("UserObjectInfoRequest", connectedId);
+        // GM.Msg("OnConnected", connectedId);
     }
 
     /// <summary>

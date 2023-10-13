@@ -11,8 +11,8 @@ public class RTCObjectSync : MonoBehaviour
 {
     // Object Data
     public bool isLocal = false;
-    [System.NonSerialized] public string objId = "";
     public string ownerId = "";
+    public string objId = "";
     public string cid = "";
     public string objType = "human";    // TODO: 別の場所で設定すべき
     public float syncIntervalTimeSecond = 0.1f; // 最小値を設定しておく
@@ -70,6 +70,9 @@ public class RTCObjectSync : MonoBehaviour
     public Animator animator;
     public RTCAnimator rtcAniamtor;
 
+    // -----------------------------------
+    public Action InitMethod;
+
     // StarterAssets.StarterAssetsInputs starterAssets;
 
     // -----------------------------------
@@ -98,13 +101,11 @@ public class RTCObjectSync : MonoBehaviour
             this.content = content.transform;
             content.transform.ResetTransform();
         }
-    }
 
-    private void Start()
-    {
-        if (!isLocal) return;
-
-        SetData();
+        if (isLocal)
+        {
+            SetLocalData();
+        }
     }
 
     private void Update()
@@ -122,8 +123,9 @@ public class RTCObjectSync : MonoBehaviour
     /// <summary>
     /// Localの場合、Dataを設定する
     /// </summary>
-    public void SetData()
+    public void SetLocalData()
     {
+
         isLocal = true;
         PrepareSendLocationData();
         objId = Guid.NewGuid().ToString("N");
@@ -138,6 +140,7 @@ public class RTCObjectSync : MonoBehaviour
         }
 
         GM.Msg("AddSyncObject", this);
+        InitMethod?.Invoke();
     }
 
     /// <summary>

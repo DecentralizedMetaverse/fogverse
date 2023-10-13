@@ -9,10 +9,10 @@ using UnityEngine;
 /// TODO: 工事中
 /// Peer A -> Peer C (signalingId) -> Peer C (targetId)
 /// </summary>
-class RTCControllerWebRTC : RTCControllerBase
+class RTCWebRTCController : RTCControllerBase
 {
-    // Dictionary<string, Action<Dictionary<string, object>, string, string>> responseFunctions = new();
     private bool isBlocking;
+    // Action<string> OnConnectedPeer;
 
     void Start()
     {
@@ -21,16 +21,12 @@ class RTCControllerWebRTC : RTCControllerBase
             GM.Msg("AddOutput", $"[Error][Receive][WebRTC]");
         });
 
+        // GM.Add<Action<string>>("AddOnConnected", (func) => { OnConnectedPeer += func; });
+        // GM.Add<string>("OnConnected", (id) => { OnConnectedPeer?.Invoke(id); });
         GM.Add<Dictionary<string, object>, string>("RPC_offer", ResponseOffer);
         GM.Add<Dictionary<string, object>, string>("RPC_answer", ResponseAnswer);
         GM.Add<Dictionary<string, object>, string>("RPC_candidateAdd", ResponseCandidate);
         GM.Add<RTCMessage, string, string>($"RECV_{nameof(MessageType.Join)}", Connect);
-        //responseFunctions.Add("error", (_, _, _) => {  });
-        //responseFunctions.Add("offer", ResponseOffer);
-        //responseFunctions.Add("join", Connect);
-        //responseFunctions.Add("answer", ResponseAnswer);
-        //responseFunctions.Add("candidateAdd", ResponseCandidate); // TODO: 名前の変更を行う        
-
         GM.Add<RTCMessage, string>("WebRTCMessageHandler", OnMessageFromSignalingPeer);
     }
 
@@ -58,6 +54,7 @@ class RTCControllerWebRTC : RTCControllerBase
             await UniTask.WaitWhile(() => isBlocking);
             OfferHandler(joinId, relayId);
         }
+
     }
 
     /// <summary>
@@ -69,7 +66,7 @@ class RTCControllerWebRTC : RTCControllerBase
     {
         var typeText = data.type.ToString(); ;
         var sourceId = data.id;
-        Debug.Log($"receive: {typeText}");
+        // Debug.Log($"receive: {typeText}");
         GM.Msg($"RECV_{typeText}", data, sourceId, relayId);
     }
 
@@ -172,7 +169,7 @@ class RTCControllerWebRTC : RTCControllerBase
         };
         connection.OnConnected += () =>
         {
-            OnConnected(targetId);
+            // OnConnectedPeer(targetId);
         };
 
         connection.OnMessage += (message) =>

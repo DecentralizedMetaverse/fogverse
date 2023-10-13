@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/websocket"
 )
 
@@ -27,10 +28,19 @@ func main() {
 	functions["offer"] = offer
 	functions["answer"] = answer
 	functions["candidateAdd"] = candidateAdd
+	// http.HandleFunc("/ws", handleWebSocket)
 
-	http.HandleFunc("/ws", handleWebSocket)
+	//------------------------------------------------
+	// CORS設定
+	cors := handlers.CORS(
+		handlers.AllowedOrigins([]string{"*"}),
+		handlers.AllowedOrigins([]string{"http://localhost:8000"}),
+		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
+		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
+	)
+	//------------------------------------------------
+	http.Handle("/ws", cors(http.HandlerFunc(handleWebSocket)))
 	go handleMessages()
-
 	http.ListenAndServe(":8080", nil)
 }
 

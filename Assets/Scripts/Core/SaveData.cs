@@ -1,11 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.IO;
-using UnityEngine.Rendering;
-using System.Linq;
 using DC;
 using MemoryPack;
+using UnityEngine;
 
 public class SaveData : MonoBehaviour
 {
@@ -21,7 +18,7 @@ public class SaveData : MonoBehaviour
 
     void OnDisable()
     {
-        Write();
+        // Write();
     }
 
     void Start()
@@ -55,7 +52,7 @@ public class SaveData : MonoBehaviour
     public void Write()
     {
         GM.Msg("SetSaveData", "version", "0.1");
-        
+
         var bin = MemoryPackSerializer.Serialize(save);
         File.WriteAllBytes(path, bin);
     }

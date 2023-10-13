@@ -77,13 +77,13 @@ public class RTCObjectSyncManager : MonoBehaviour
         var requestData = MemoryPackSerializer.Deserialize<P_ObjectInfoRequest>(message.data);
         var objId = requestData.objId;
 
-        RTCObjectSync obj = null;
         if (string.IsNullOrEmpty(objId))
         {
             // UserObjectのRequestの場合
-            obj = GM.db.rtc.selfObject;
+            objId = GM.db.rtc.selfObject.objId;
         }
-        else if (!syncObjects.TryGetValue(objId, out obj))
+
+        if (!syncObjects.TryGetValue(objId, out RTCObjectSync obj))
         {
             // Objectが存在しない
             var error = new P_Error
@@ -394,6 +394,12 @@ public class RTCObjectSyncManager : MonoBehaviour
 
     bool IsExistObject(string sourceId, string objId)
     {
+        if (objId == null)
+        {
+            Debug.LogWarning("objId is null");
+            return false;
+        }
+
         if (syncObjects.ContainsKey(objId)) return true;
 
         if (requestObjWaitingList.Contains(objId)) return false;

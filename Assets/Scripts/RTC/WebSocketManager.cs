@@ -1,14 +1,12 @@
-using Cysharp.Threading.Tasks;
-using DC;
-using System.Collections;
-using System.Collections.Generic;
 using System.Text;
+using DC;
 using UnityEngine;
 using WebSocketSharp;
 
 public class WebSocketManager : MonoBehaviour
 {
     private WebSocket ws;
+    string receiveMessage;
 
     void Start()
     {
@@ -28,6 +26,15 @@ public class WebSocketManager : MonoBehaviour
         if (ws != null) ws.Close();
     }
 
+    private void Update()
+    {
+        if (string.IsNullOrEmpty(receiveMessage)) return;
+        GM.Msg("WebRTCResponse", receiveMessage);
+        receiveMessage = "";
+        GM.Msg("AddOutput", $"[Receive] {receiveMessage}");
+
+    }
+
     void Connect()
     {
         ws = new WebSocket(GM.db.rtc.url);
@@ -39,8 +46,9 @@ public class WebSocketManager : MonoBehaviour
 
         ws.OnMessage += (sender, e) =>
         {
-            GM.Msg("WebRTCResponse", e.Data);
-            GM.Msg("AddOutput", $"[Receive] {e.Data}");
+            // メッセージ受信時にMain Threadでない点に注意
+            // GM.Msg("WebRTCResponse", e.Data);
+            receiveMessage = e.Data;
         };
 
         ws.OnError += (sender, e) =>
