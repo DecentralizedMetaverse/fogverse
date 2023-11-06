@@ -1,11 +1,8 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
-public class UI_Drag : MonoBehaviour, IDragHandler
+public class UI_Drag : MonoBehaviour, IDragHandler, IBeginDragHandler
 {
     Vector3 pos;
 
@@ -26,5 +23,11 @@ public class UI_Drag : MonoBehaviour, IDragHandler
             transform.position += Input.mousePosition - pos;
         }
         pos = Input.mousePosition;
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        transform.SetParent(transform.root);
+        transform.SetAsLastSibling();
     }
 }

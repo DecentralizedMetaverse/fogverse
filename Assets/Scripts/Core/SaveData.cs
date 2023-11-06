@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using System.IO;
 using DC;
-using MemoryPack;
 using UnityEngine;
 
 public class SaveData : MonoBehaviour
 {
     string path = "";
-    SaveDataContent save = new();
+    Dictionary<string, object> data = new();
 
     void Awake()
     {
@@ -16,9 +15,9 @@ public class SaveData : MonoBehaviour
         Read();
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
-        // Write();
+        Write();
     }
 
     void Start()
@@ -27,11 +26,17 @@ public class SaveData : MonoBehaviour
         GM.Add("Save", Write);
         GM.Add<string, object>("SetSaveData", (key, obj) =>
         {
-            save.ForceAdd(key, obj);
+            if (data == null) data = new();
+            data.ForceAdd(key, obj);
         });
         GM.Add<string, object>("GetSaveData", (key) =>
         {
-            save.TryGetValue(key, out object obj);
+            if (data == null)
+            {
+                Debug.LogWarning($"{key} not found in SaveData");
+                return null;
+            }
+            data.TryGetValue(key, out object obj);
             return obj;
         });
     }
@@ -41,9 +46,11 @@ public class SaveData : MonoBehaviour
         if (!File.Exists(path))
             return;
 
-        var txt = File.ReadAllBytes(path);
-        save = MemoryPackSerializer.Deserialize<SaveDataContent>(txt);
-        if (save.TryGetValue("version", out object version))
+        var txt = File.ReadAllText(path);
+        data = txt.GetDict<string, object>();
+        if (data == null) return;
+
+        if (data.TryGetValue("version", out object version))
         {
             Debug.Log($"[SaveData] {version.ToString()}");
         }
@@ -53,13 +60,7 @@ public class SaveData : MonoBehaviour
     {
         GM.Msg("SetSaveData", "version", "0.1");
 
-        var bin = MemoryPackSerializer.Serialize(save);
-        File.WriteAllBytes(path, bin);
+        var txt = data.GetString();
+        File.WriteAllText(path, txt);
     }
-}
-
-[MemoryPackable(GenerateType.Collection)]
-public partial class SaveDataContent : Dictionary<string, object>
-{
-    // public string version { get; set; }
 }

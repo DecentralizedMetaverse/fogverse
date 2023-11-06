@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using DC;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -7,8 +5,6 @@ using UnityEngine.AddressableAssets;
 [RequireComponent(typeof(AudioSource))]
 public class BGMManager : MonoBehaviour
 {
-    [SerializeField] DB_Settings db;
-
     AudioSource source;
     bool change;
     AudioClip nextAudio;
@@ -17,7 +13,7 @@ public class BGMManager : MonoBehaviour
     {
         source = GetComponent<AudioSource>();
         GM.Add<string>("PlayBGM", ChangeBGM);
-    }    
+    }
 
     public void ChangeBGM(string bgmName)
     {
@@ -40,7 +36,7 @@ public class BGMManager : MonoBehaviour
     {
         if (!change)
         {
-            source.volume = db.bgmVolume;
+            source.volume = GM.db.settings.data.bgmVolume;
             return;
         }
 
@@ -58,7 +54,7 @@ public class BGMManager : MonoBehaviour
             return;
         }
         source.clip = nextAudio;
-        source.volume = db.bgmVolume;
+        source.volume = GM.db.settings.data.bgmVolume;
         source.Play();
     }
 }

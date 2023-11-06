@@ -9,6 +9,7 @@ public class DB : ScriptableObject
     public DB_Chunk chunk;
     public DB_Chat chat;
     public DB_FunctionList functionList;
+    public DB_Settings settings;
 
     public void Init()
     {
@@ -18,10 +19,12 @@ public class DB : ScriptableObject
     public void Start()
     {
         rtc.Start();
+        settings.ReadSettings();
     }
 
     public void End()
     {
         rtc.End();
+        settings.WriteSettings();
     }
 }

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using DC;
 using UnityEngine;
@@ -7,8 +6,6 @@ using UnityEngine.AddressableAssets;
 [RequireComponent(typeof(AudioSource))]
 public class SEManager : MonoBehaviour
 {
-    [SerializeField] DB_Settings db;
-
     AudioSource source;
     Queue<string> qlist = new Queue<string>();
     Dictionary<string, AudioClip> seList = new Dictionary<string, AudioClip>();
@@ -17,7 +14,7 @@ public class SEManager : MonoBehaviour
     {
         source = GetComponent<AudioSource>();
         GM.Add<string>("PlaySE", Play);
-    }    
+    }
 
     public void Play(string seName)
     {
@@ -39,7 +36,7 @@ public class SEManager : MonoBehaviour
     void Update()
     {
         if (qlist.Count == 0) return;
-        source.volume = db.seVolume;
+        source.volume = GM.db.settings.data.seVolume;
         source.PlayOneShot(seList[qlist.Dequeue()]);
     }
 }

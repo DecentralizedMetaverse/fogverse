@@ -1,15 +1,10 @@
+using System.IO;
 using AnKuchen.Map;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using DC;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Security.Cryptography;
-using System.Text;
-using System.IO;
-using DC;
-using Cysharp.Threading.Tasks;
 
 /// <summary>
 /// 設定画面
@@ -21,6 +16,7 @@ public class UI_Settings : MonoBehaviour
     private TMP_InputField inputPass;
     private TMP_InputField inputNameTagField;
     private UI_ToggleFade ui;
+    private TMP_Dropdown microphoneDropdown;
     private string path;
     const string password = "NIOQ#afe09q23j";
     const string saltStr = "fwa903Gdf";
@@ -29,13 +25,22 @@ public class UI_Settings : MonoBehaviour
 
     async void Start()
     {
+        GM.Add("ShowSettings", Show);
+
         var button = root.Get<Button>("SaveButton");
         button.onClick.AddListener(() => OnSavePassword());
-        
+
         inputPass = root.Get<TMP_InputField>("PassInputField");
         inputNameTagField = root.Get<TMP_InputField>("NameTagInputField");
-        
+
         ui = root.Get<UI_ToggleFade>();
+
+        microphoneDropdown = root.Get<TMP_Dropdown>("MicrophoneDropdown");
+        microphoneDropdown.onValueChanged.AddListener((index) =>
+        {
+            GM.Msg("SetSaveData", "microphone", index);
+            GM.Msg("SetMicrophone", index);
+        });
 
         // passwordのファイルを読み込む
         salt = System.Text.Encoding.UTF8.GetBytes(saltStr);
@@ -43,14 +48,13 @@ public class UI_Settings : MonoBehaviour
         ReadPassword();
         inputPass.text = GM.password;
 
-        GM.Add("ShowSettings", Show);
 
         // nametag取得
         //var result = GM.Msg<object>("GetSaveData", "nametag");
         //if (result == null) return;
-        
+
         // nametagが取得できるまで待つ
-        while(GM.db.rtc.selfObject == null)
+        while (GM.db.rtc.selfObject == null)
         {
             await UniTask.Yield();
         }
@@ -59,9 +63,28 @@ public class UI_Settings : MonoBehaviour
         inputNameTagField.text = GM.db.rtc.selfObject.nametag;
     }
 
+    private void SetOptionMicrophoneDropdown()
+    {
+        // Optionの設定
+        microphoneDropdown.options.Clear();
+        foreach (var device in Microphone.devices)
+        {
+            microphoneDropdown.options.Add(new TMP_Dropdown.OptionData(device));
+        }
+
+        // 選択
+        var deviceIndex = GM.Msg<object>("GetSaveData", "microphone");
+        if (deviceIndex == null) { return; }
+        microphoneDropdown.value = int.Parse(deviceIndex.ToString());
+    }
+
     void Show()
     {
         ui.active = ui.active ? false : true;
+
+        if (!ui.active) return;
+
+        SetOptionMicrophoneDropdown();
     }
 
     /// <summary>
@@ -72,7 +95,7 @@ public class UI_Settings : MonoBehaviour
         GM.password = inputPass.text;
         GM.db.rtc.selfObject.nametag = inputNameTagField.text;
         GM.Msg("SetSaveData", "nametag", inputNameTagField.text);
-        
+
         File.WriteAllText(path, GM.password);
         ui.active = false;
     }
@@ -85,7 +108,8 @@ public class UI_Settings : MonoBehaviour
         // ファイルがなければ何もしない
         if (!File.Exists(path)) return;
 
-        var txt = File.ReadAllText(path);        
+        var txt = File.ReadAllText(path);
         GM.password = txt;
     }
 }
+

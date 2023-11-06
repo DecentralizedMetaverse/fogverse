@@ -38,16 +38,26 @@ public class RTCVoiceSender : MonoBehaviour
         {
             Debug.Log($"{i}:{Microphone.devices[i]}");
         }
-        deviceName = Microphone.devices[deviceIndex];
 
         if (!sync.isLocal) return;
+
+        SetMicrophone(deviceIndex);
+        // audioSource.Play();
+
+        GM.Add<RTCPeerConnection>("SetTrack", SetTrack);
+        GM.Add<int>("SetMicrophone", (deviceIndex) =>
+        {
+            SetMicrophone(deviceIndex);
+        });
+    }
+
+    private void SetMicrophone(int deviceIndex)
+    {
+        deviceName = Microphone.devices[deviceIndex];
 
         Microphone.GetDeviceCaps(deviceName, out int minFreq, out int maxFreq);
         Debug.Log($"Device: {deviceName}, minFreq:{minFreq}, maxFreq:{maxFreq}");
         microphoneClip ??= Microphone.Start(deviceName, true, 10, maxFreq);
-        // audioSource.Play();
-
-        GM.Add<RTCPeerConnection>("SetTrack", SetTrack);
     }
 
     /// <summary>

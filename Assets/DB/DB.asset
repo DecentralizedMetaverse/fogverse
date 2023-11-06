@@ -17,3 +17,5 @@ MonoBehaviour:
   player: {fileID: 11400000, guid: 99fa93b0863661344a759118ada4436e, type: 2}
   chunk: {fileID: 11400000, guid: ca4037e6a3304f847af2d03e67fc565b, type: 2}
   chat: {fileID: 11400000, guid: a491ec55f0100714e885d79b824834d5, type: 2}
+  functionList: {fileID: 11400000, guid: f98bc59661437274a82ef9905a52ea94, type: 2}
+  settings: {fileID: 11400000, guid: 76c2e0ce59d73ea4c99440f21516d00d, type: 2}

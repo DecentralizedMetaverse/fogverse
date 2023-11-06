@@ -1,14 +1,9 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor;
-using UnityEngine.InputSystem;
-using System;
-using Cysharp.Threading.Tasks;
-using System.IO;
+﻿using System;
 using System.Reflection;
-using System.Collections;
-using System.Linq;
+using Cysharp.Threading.Tasks;
 using DC;
+using UnityEngine;
+using UnityEngine.InputSystem;
 /// <summary>
 /// ゲーム管理クラス
 /// TODO: Addメソッドの中身の共通部分を一つにまとめたい
@@ -40,13 +35,13 @@ public class GameManager : MonoBehaviour
 #if UNITY_EDITOR
 
         GM.mng.SetSceneName();
-        Debug.unityLogger.logEnabled = true;        
+        Debug.unityLogger.logEnabled = true;
 #else
         Debug.unityLogger.logEnabled = false;
 #endif
     }
 
-    private void Start()
+    private async void Start()
     {
         GM.pause = ePause.mode.GameStop;
 
@@ -56,6 +51,7 @@ public class GameManager : MonoBehaviour
 
         debugObj.SetActive(GM.mng.visiblePerformance);
 
+        await UniTask.Yield();
         GM.db.Start();
     }
 
