@@ -106,6 +106,16 @@ messages:
       - name: chunk
         type: (int, int, int)
 
+  - name: AvatarRequest
+    fields:
+      - name: objId
+        type: string 
+        
+  - name: AvatarResponse
+    fields:
+      - name: cid
+        type: string
+
   # - name: Offer
   #   fields:
   #     - name: target

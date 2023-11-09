@@ -1444,6 +1444,7 @@ GameObject:
   - component: {fileID: 9147445252395560320}
   - component: {fileID: 9147445252395560321}
   - component: {fileID: 9147445252395560322}
+  - component: {fileID: 9147445252395560323}
   m_Layer: 8
   m_Name: PlayerArmature
   m_TagString: Player
@@ -4196,6 +4197,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   linePrefab: {fileID: 8718185677155707859, guid: d30eafbba3acea848820c871df3347cf,
     type: 3}
+--- !u!114 &9147445252395560323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 334781318571962462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 056290d3601c8b945b43525984347bcd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9198125226309491746
 GameObject:
   m_ObjectHideFlags: 0

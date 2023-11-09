@@ -5,7 +5,7 @@ using DC;
 using UnityEngine;
 
 /// <summary>
-/// 動的Objectの座標管理
+/// ���IObject�̍��W�Ǘ�
 /// </summary>
 public class RTCObjectSync : MonoBehaviour
 {
@@ -14,8 +14,8 @@ public class RTCObjectSync : MonoBehaviour
     public string ownerId = "";
     public string objId = "";
     public string cid = "";
-    public string objType = "human";    // TODO: 別の場所で設定すべき
-    public float syncIntervalTimeSecond = 0.1f; // 最小値を設定しておく
+    public string objType = "human";    // TODO: �ʂ̏ꏊ�Őݒ肷�ׂ�
+    public float syncIntervalTimeSecond = 0.1f; // �ŏ��l��ݒ肵�Ă���
     public int syncDistance = 0;
 
     public string nametag
@@ -27,7 +27,7 @@ public class RTCObjectSync : MonoBehaviour
             nameTag?.SetName(value);
             if (!isLocal) return;
 
-            // 自キャラの場合は、全員に送信する
+            // ���L�����̏ꍇ�́A�S���ɑ��M����
             var sendData = new Dictionary<string, object>()
             {
                 { "type","changeNametag" },
@@ -60,7 +60,7 @@ public class RTCObjectSync : MonoBehaviour
     Quaternion currentRotation = Quaternion.identity;
 
     /// <summary>
-    /// 実際の時間？
+    /// ���ۂ̎��ԁH
     /// </summary>
     float elapsedTime = 0;
     private Transform content;
@@ -80,22 +80,18 @@ public class RTCObjectSync : MonoBehaviour
     {
         if (objType == "human")
         {
-            // 人型のObjectであれば、Geometryに設定する
+            // �l�^��Object�ł���΁AGeometry�ɐݒ肷��
             content = transform.Find("Geometry");
-
-            //if (!TryGetComponent(out nameTag))
-            //{
-            //    Debug.LogWarning("Nametagが存在しない");
-            //}
-
-            //if (!TryGetComponent(out rtcAniamtor))
-            //{
-            //    Debug.LogError("RTCAnimatorが存在しない");
-            //}
+            // TryGetComponent(out animator);
+            TryGetComponent(out nameTag);
+            if(!TryGetComponent(out rtcAniamtor))
+            {
+                Debug.LogError("RTCAnimator�����݂��Ȃ�");
+            }
         }
         else
         {
-            // 子階層にObject設置の場所を作成する
+            // �q�K�w��Object�ݒu�̏ꏊ���쐬����
             GameObject content = new GameObject("content");
             content.transform.SetParent(transform);
             this.content = content.transform;
@@ -121,7 +117,7 @@ public class RTCObjectSync : MonoBehaviour
     }
 
     /// <summary>
-    /// Localの場合、Dataを設定する
+    /// Local�̏ꍇ�AData��ݒ肷��
     /// </summary>
     public void SetLocalData()
     {
@@ -163,7 +159,7 @@ public class RTCObjectSync : MonoBehaviour
     }
 
     /// <summary>
-    /// Dataを送信する準備
+    /// Data�𑗐M���鏀��
     /// </summary>
     void PrepareSendLocationData()
     {
@@ -177,28 +173,48 @@ public class RTCObjectSync : MonoBehaviour
     /// </summary>
     void UpdataLocation()
     {
+<<<<<<< Updated upstream:Assets/Scripts/Core/Network/RTC/RTCObjectSync.cs
         // 送信間隔
+=======
+        // ���M�Ԋu
+>>>>>>> Stashed changes:Assets/Scripts/Core/RTC/RTCObject.cs
         time += Time.deltaTime;
         if (time < syncIntervalTimeSecond) return;
         time = 0;
 
+<<<<<<< Updated upstream:Assets/Scripts/Core/Network/RTC/RTCObjectSync.cs
         // 座標が変わっていない場合は、送信しない
+=======
+        // ���W���ς���Ă��Ȃ��ꍇ�́A���M���Ȃ�
+>>>>>>> Stashed changes:Assets/Scripts/Core/RTC/RTCObject.cs
         if (previousPosition == transform.position &&
             previousRotation == transform.rotation) return;
 
+<<<<<<< Updated upstream:Assets/Scripts/Core/Network/RTC/RTCObjectSync.cs
         // 座標が異なる場合、送信する
+=======
+        // ���W���قȂ�ꍇ�A���M����
+>>>>>>> Stashed changes:Assets/Scripts/Core/RTC/RTCObject.cs
         previousPosition = transform.position;
         transform.rotation = transform.rotation;
 
         locationData.position = transform.position;
         locationData.rotation = transform.rotation.eulerAngles;
 
+<<<<<<< Updated upstream:Assets/Scripts/Core/Network/RTC/RTCObjectSync.cs
         // いつでも自分の情報を送れるように準備しておく
+=======
+        // ���ł������̏��𑗂��悤�ɏ������Ă���
+>>>>>>> Stashed changes:Assets/Scripts/Core/RTC/RTCObject.cs
         GM.Msg("SetSelfLocationData", locationData);
     }
 
     /// <summary>
+<<<<<<< Updated upstream:Assets/Scripts/Core/Network/RTC/RTCObjectSync.cs
     /// 座標を受信する
+=======
+    /// ���W����M����
+>>>>>>> Stashed changes:Assets/Scripts/Core/RTC/RTCObject.cs
     /// </summary>
     /// <param name="data"></param>
     public void ReceiveLocation(P_Location data)
@@ -212,11 +228,19 @@ public class RTCObjectSync : MonoBehaviour
     }
 
     /// <summary>
+<<<<<<< Updated upstream:Assets/Scripts/Core/Network/RTC/RTCObjectSync.cs
     /// 座標の補間
     /// </summary>
     void InterpolationLocation()
     {
         var t = elapsedTime / syncIntervalTimeSecond; // TODO: syncIntervalTimeSecondを外部から取得する必要がある
+=======
+    /// ���W�̕��
+    /// </summary>
+    void InterpolationLocation()
+    {
+        var t = elapsedTime / syncIntervalTimeSecond; // TODO: syncIntervalTimeSecond���O������擾����K�v������
+>>>>>>> Stashed changes:Assets/Scripts/Core/RTC/RTCObject.cs
         elapsedTime += Time.deltaTime;
         transform.position = Vector3.LerpUnclamped(currentPosition, recievedPosition, t);
         transform.rotation = Quaternion.LerpUnclamped(currentRotation, recievedRotation, t);
@@ -226,7 +250,11 @@ public class RTCObjectSync : MonoBehaviour
     }
 
     /// <summary>
+<<<<<<< Updated upstream:Assets/Scripts/Core/Network/RTC/RTCObjectSync.cs
     /// TODO: 誰がこれを送信するかの決定が必要
+=======
+    /// TODO: �N������𑗐M���邩�̌��肪�K�v
+>>>>>>> Stashed changes:Assets/Scripts/Core/RTC/RTCObject.cs
     /// </summary>
     /// <param name="path"></param>
     public async void SetObject(string path)
@@ -234,12 +262,20 @@ public class RTCObjectSync : MonoBehaviour
         var avatarObj = GM.Msg<GameObject>("LoadAvatar", path);
         SetContent(avatarObj.transform);
 
+<<<<<<< Updated upstream:Assets/Scripts/Core/Network/RTC/RTCObjectSync.cs
         // IPFSへのUpload
+=======
+        // IPFS�ւ�Upload
+>>>>>>> Stashed changes:Assets/Scripts/Core/RTC/RTCObject.cs
         var cid = await GM.Msg<UniTask<string>>("UploadAvatar", path);
         this.cid = cid;
         GM.db.user.users[GM.db.rtc.id].cid = cid;
 
+<<<<<<< Updated upstream:Assets/Scripts/Core/Network/RTC/RTCObjectSync.cs
         // 全体への通知
+=======
+        // �S�̂ւ̒ʒm
+>>>>>>> Stashed changes:Assets/Scripts/Core/RTC/RTCObject.cs
         var sendData = new Dictionary<string, object>()
         {
             { "type", "change" },
@@ -251,7 +287,11 @@ public class RTCObjectSync : MonoBehaviour
     }
 
     /// <summary>
+<<<<<<< Updated upstream:Assets/Scripts/Core/Network/RTC/RTCObjectSync.cs
     /// Avatar等を設定する
+=======
+    /// Avatar����ݒ肷��
+>>>>>>> Stashed changes:Assets/Scripts/Core/RTC/RTCObject.cs
     /// </summary>
     /// <param name="obj"></param>
     public async void SetContent(Transform obj)

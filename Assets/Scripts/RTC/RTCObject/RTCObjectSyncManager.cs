@@ -14,6 +14,7 @@ public class RTCObjectSyncManager : MonoBehaviour
     [SerializeField] GameObject playerPrefab;
     private Dictionary<string, List<string>> syncObjectsByID;
     private Dictionary<string, RTCObjectSync> syncObjects;
+    private Dictionary<string, RTCAvatar> avatarList = new(); // objId, avatar
     HashSet<string> requestObjWaitingList = new();
 
     void Start()
@@ -27,10 +28,13 @@ public class RTCObjectSyncManager : MonoBehaviour
         GM.Add<RTCMessage, string, string>($"RECV_{nameof(MessageType.Animation)}", Animation);
         GM.Add<RTCMessage, string, string>($"RECV_{nameof(MessageType.ObjectInfoRequest)}", ReceiveObjectInfoRequest);
         GM.Add<RTCMessage, string, string>($"RECV_{nameof(MessageType.ObjectInfoResponse)}", ReceiveObjectInfoResponse);
+        GM.Add<RTCMessage, string, string>($"RECV_{nameof(MessageType.AvatarRequest)}", ReceiveAvatarRequest);
+        GM.Add<RTCMessage, string, string>($"RECV_{nameof(MessageType.AvatarResponse)}", ReceiveAvatarResponse);
         // GM.Add<byte[], string>("RPC_requestObj", RPC_RTCObjectInfoRequest);
         // GM.Add<RTCMessage, string, string>("RECV_instantiate", RPC_ObjectInstantiate);
         // GM.Add<RTCMessage, string, string>("RECV_ChangeNametag", RPC_ChangeNametag);
 
+        GM.Add<RTCAvatar>("AddAvatar", avatar => avatarList.Add(GM.db.rtc.selfObject.objId, avatar));
         GM.Add<RTCObjectSync>("AddSyncObject", (obj) =>
         {
             // LocalAvatarを追加する
@@ -64,6 +68,19 @@ public class RTCObjectSyncManager : MonoBehaviour
             var bytes = MemoryPackSerializer.Serialize(objInfoRequest);
             GM.Msg("RTCSendDirect", MessageType.ObjectInfoRequest, connectedId, bytes);
         });
+    }
+
+    private void ReceiveAvatarResponse(RTCMessage message, string sourceId, string _)
+    {
+        var responseData = MemoryPackSerializer.Deserialize<P_AvatarResponse>(message.data);
+    }
+
+    private void ReceiveAvatarRequest(RTCMessage message, string sourceId, string _)
+    {
+        var requestData = MemoryPackSerializer.Deserialize<P_AvatarRequest>(message.data);
+        var objId = requestData.objId;
+        var rtcAvatar = avatarList[objId];
+
     }
 
     /// <summary>

@@ -14,6 +14,8 @@ public enum MessageType
     GetUserListResponse,
     UserDataRequest,
     UserDataResponse,
+    AvatarRequest,
+    AvatarResponse,
     Join,
     Error,
 }

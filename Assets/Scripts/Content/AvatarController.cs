@@ -14,6 +14,7 @@ public class AvatarController : MonoBehaviour
 
     async void Start()
     {
+        // ����GameObject�IAvatar��v������
         var avatarCID = GM.Msg<object>("GetSaveData", "avatar");
         if (avatarCID == null) return;
         var avatarObj = await GM.Msg<UniTask<GameObject>>("DownloadAvatar", avatarCID.ToString());
