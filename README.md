@@ -23,7 +23,7 @@ Please import the following assets before starting with the project:
   2. Press Shift + Click to bring up the component menu.
   3. Choose the desired component to add to the object.
 
-### How It Works
+### MistNet Protocol
 
 The metaverse consists of two layers:
 
