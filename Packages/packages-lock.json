@@ -7,12 +7,28 @@
       "dependencies": {},
       "hash": "b870d64b5704a764fd03aaccb11f2dbe652b1756"
     },
+    "com.cysharp.memorypack": {
+      "version": "https://github.com/Cysharp/MemoryPack.git?path=src/MemoryPack.Unity/Assets/Plugins/MemoryPack",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "f3abd3d687fe024a90c579e6c29d077eb0d8ff65"
+    },
     "com.cysharp.unitask": {
       "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
       "depth": 0,
       "source": "git",
       "dependencies": {},
       "hash": "73d86259ce31ce7f4dfe1d028ea1c3edf96c23e4"
+    },
+    "com.tik-choco.mistnet": {
+      "version": "https://github.com/DecentralizedMetaverse/mistnet.git?path=/Assets/MistNet#develop",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.webrtc": "3.0.0-pre.7"
+      },
+      "hash": "8d16cf2f945f0c1652d83815eccb7481aa0afe6b"
     },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
@@ -220,8 +236,8 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.webrtc": {
-      "version": "3.0.0-pre.5",
-      "depth": 0,
+      "version": "3.0.0-pre.7",
+      "depth": 1,
       "source": "registry",
       "dependencies": {
         "com.unity.modules.jsonserialize": "1.0.0",
