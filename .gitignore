@@ -330,3 +330,7 @@ config.json
 Assets/output.log
 *output.log
 *eval.csv
+.idea/.idea.fogverse/.idea/.gitignore
+.idea/.idea.fogverse/.idea/discord.xml
+.idea/.idea.fogverse/.idea/indexLayout.xml
+.idea/.idea.fogverse/.idea/vcs.xml
