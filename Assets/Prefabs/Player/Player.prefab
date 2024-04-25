@@ -166,6 +166,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f9c8adbf6d6dfe4b819d521e70c365b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dbPlayer: {fileID: 11400000, guid: 99fa93b0863661344a759118ada4436e, type: 2}
   mistAnimator: {fileID: 1571014711162466329}
   animator: {fileID: 8604744008393073923}
   thirdPersonController: {fileID: 3080969492105078216}

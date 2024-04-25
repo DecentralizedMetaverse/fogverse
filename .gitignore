@@ -79,3 +79,6 @@ Assets/output.log
 MistNet/logs/
 Assets/ipfs/
 ipfs/
+meta/
+content/
+UserSettings/

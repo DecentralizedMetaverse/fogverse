@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
+using DC;
 
 public class IpfsInstaller : MonoBehaviour
 {
@@ -22,6 +23,7 @@ public class IpfsInstaller : MonoBehaviour
        {
            await DownloadIpfs(latestVersion);
            SaveInstalledVersion(latestVersion);
+           GM.Msg("IPFSInit");
        }
        else
        {

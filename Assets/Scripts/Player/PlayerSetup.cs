@@ -4,8 +4,9 @@ using StarterAssets;
 using Teo.AutoReference;
 using UnityEngine;
 
-public class PlayerAvatarSetup : MonoBehaviour
+public class PlayerSetup : MonoBehaviour
 {
+    [SerializeField] private DB_Player dbPlayer;
     [Get, SerializeField] private MistAnimator mistAnimator;
     [Get, SerializeField] private Animator animator;
     [Get, SerializeField] private ThirdPersonController thirdPersonController;
@@ -19,6 +20,13 @@ public class PlayerAvatarSetup : MonoBehaviour
         if (!syncObject.IsOwner)
         {
             thirdPersonController.enabled = false;
+            return;
+        }
+
+        dbPlayer.user = transform;
+        if (dbPlayer.worldRoot == null)
+        {
+            dbPlayer.worldRoot = new GameObject("root").transform;
         }
     }
 }

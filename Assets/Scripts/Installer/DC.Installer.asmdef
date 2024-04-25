@@ -2,7 +2,8 @@
     "name": "DC.Installer",
     "rootNamespace": "",
     "references": [
-        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:b7e6fd867a25f7c43b601be4d7772245"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

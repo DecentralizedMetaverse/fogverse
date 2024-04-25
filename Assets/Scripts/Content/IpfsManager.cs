@@ -13,6 +13,20 @@ public class IpfsManager : MonoBehaviour
     {
         GM.Add<string, UniTask<string>>("IPFSUpload", Upload);
         GM.Add<string, string, UniTask<bool>>("IPFSDownload", Download);
+        GM.Add<UniTask<string>>("IPFSInit", Init);
+    }
+
+    private async UniTask<string> Init()
+    {
+        Debug.Log("[IPFS] Init");
+        if (!File.Exists(IpfsPath))
+        {
+            Debug.LogError("[IPFS] Not installed.");
+            return "";
+        }
+
+        var ret = await GM.Msg<UniTask<string>>("Exe", $"\"{IpfsPath}\"", "init");
+        return ret;
     }
 
     /// <summary>
@@ -22,12 +36,13 @@ public class IpfsManager : MonoBehaviour
     /// <returns>true: ����</returns>
     async UniTask<string> Upload(string filePath)
     {
+        Debug.Log($"[IPFS] Upload: {filePath}");
         //var path = GetPath(fileName);
         if (!GM.Msg<bool>("EncryptFile", filePath)) return "";
-        var ret = await GM.Msg<UniTask<string>>("Exe", IpfsPath, $"add \"{filePath}.enc\"");
+        var ret = await GM.Msg<UniTask<string>>("Exe", $"\"{IpfsPath}\"", $"add \"{filePath}.enc\"");
         File.Delete($"{filePath}.enc"); // File�폜
 
-        GM.Log($"{ret}");
+
         var words = ret.Split(' ');
         if (words.Length <= 1) return "";
         
@@ -42,7 +57,8 @@ public class IpfsManager : MonoBehaviour
     /// <returns>true: ����</returns>
     async UniTask<bool> Download(string cid, string filePath)
     {
-        var ret = await GM.Msg<UniTask<string>>("Exe", IpfsPath, $"get {cid} -o \"{filePath}.enc\"");
+        Debug.Log($"[IPFS] Download: {cid} {filePath}");
+        var ret = await GM.Msg<UniTask<string>>("Exe", $"\"{IpfsPath}\"", $"get {cid} -o \"{filePath}.enc\"");
         
         if (!GM.Msg<bool>("DecryptFile", $"{filePath}.enc")) return false;
         File.Delete($"{filePath}.enc"); // File�폜
