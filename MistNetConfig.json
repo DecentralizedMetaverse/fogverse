@@ -16,7 +16,7 @@
   },
   "latencyMilliseconds": 0,
   "intervalSendTableTimeSeconds": 1.5,
-  "debugLog": true,
+  "debugLog": false,
   "logFilter": "[STATS]",
   "showLogLine": 10
 }

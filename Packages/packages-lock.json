@@ -21,6 +21,13 @@
       "dependencies": {},
       "hash": "73d86259ce31ce7f4dfe1d028ea1c3edf96c23e4"
     },
+    "com.tik-choco.message": {
+      "version": "https://github.com/tik-choco/tc-message.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "67e5ecda278a9b9ea7312f4ed8b97621d6e06f41"
+    },
     "com.tik-choco.mistnet": {
       "version": "https://github.com/DecentralizedMetaverse/mistnet.git?path=/Assets/MistNet#develop",
       "depth": 0,

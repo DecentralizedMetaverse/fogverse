@@ -77,3 +77,5 @@ Assets/output.log
 *eval.csv
 .idea/
 MistNet/logs/
+Assets/ipfs/
+ipfs/

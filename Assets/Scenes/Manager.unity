@@ -868,6 +868,80 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 816068881}
   m_CullTransparentMesh: 1
+--- !u!1001 &874234588
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1041370115}
+    m_Modifications:
+    - target: {fileID: 5249629610690584899, guid: 768d1bb3c25e48e43b4c2a643d325bbe,
+        type: 3}
+      propertyPath: m_Name
+      value: TCMessage
+      objectReference: {fileID: 0}
+    - target: {fileID: 6519982845475143364, guid: 768d1bb3c25e48e43b4c2a643d325bbe,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.6458063
+      objectReference: {fileID: 0}
+    - target: {fileID: 6519982845475143364, guid: 768d1bb3c25e48e43b4c2a643d325bbe,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.4986034
+      objectReference: {fileID: 0}
+    - target: {fileID: 6519982845475143364, guid: 768d1bb3c25e48e43b4c2a643d325bbe,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1.8237038
+      objectReference: {fileID: 0}
+    - target: {fileID: 6519982845475143364, guid: 768d1bb3c25e48e43b4c2a643d325bbe,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6519982845475143364, guid: 768d1bb3c25e48e43b4c2a643d325bbe,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6519982845475143364, guid: 768d1bb3c25e48e43b4c2a643d325bbe,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6519982845475143364, guid: 768d1bb3c25e48e43b4c2a643d325bbe,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6519982845475143364, guid: 768d1bb3c25e48e43b4c2a643d325bbe,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6519982845475143364, guid: 768d1bb3c25e48e43b4c2a643d325bbe,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6519982845475143364, guid: 768d1bb3c25e48e43b4c2a643d325bbe,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 768d1bb3c25e48e43b4c2a643d325bbe, type: 3}
+--- !u!4 &874234589 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6519982845475143364, guid: 768d1bb3c25e48e43b4c2a643d325bbe,
+    type: 3}
+  m_PrefabInstance: {fileID: 874234588}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &909255942
 GameObject:
   m_ObjectHideFlags: 0
@@ -999,6 +1073,7 @@ GameObject:
   - component: {fileID: 1041370113}
   - component: {fileID: 1041370117}
   - component: {fileID: 1041370118}
+  - component: {fileID: 1041370119}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -1046,7 +1121,8 @@ Transform:
   m_LocalPosition: {x: -0.6458063, y: 0.4986034, z: -1.8237038}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 874234589}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1041370117
@@ -1071,6 +1147,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1fd5ee0ca9f7b7d4796dc285b3e81a64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1041370119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1041370112}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7dd19b0aab07ed947b897340473ff5b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1077704604
