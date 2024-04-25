@@ -44,7 +44,6 @@ MonoBehaviour:
   - groupName: WebRTC
     scene:
     - {fileID: 102900000, guid: b450f1665b901054fb5fdf8955439b91, type: 3}
-    - {fileID: 102900000, guid: 457cfb6c16ba7784ebf48c8466b1b1fd, type: 3}
     sceneName:
     - RTCUI
     - World

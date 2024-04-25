@@ -28,7 +28,7 @@
       "dependencies": {
         "com.unity.webrtc": "3.0.0-pre.7"
       },
-      "hash": "a4b35549bf12bd1879bba95030844236f6ec8a9b"
+      "hash": "01bf3edcdf95374776d78eb2767b8cb49a6e4b85"
     },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
@@ -272,6 +272,13 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.veriorpies.parrelsync": {
+      "version": "https://github.com/VeriorPies/ParrelSync.git?path=/ParrelSync",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "d1ef610e9fe3ad0b490cce91594449fc0af809a6"
+    },
     "com.vrmc.gltf": {
       "version": "https://github.com/vrm-c/UniVRM.git?path=/Assets/UniGLTF",
       "depth": 0,
@@ -311,6 +318,13 @@
         "com.unity.modules.imageconversion": "1.0.0"
       },
       "hash": "8e89828c411caa228ceeef8921e2adc59f79bea6"
+    },
+    "com.zoodinger.autoreference": {
+      "version": "https://gitlab.com/zoodinger/autoreference.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "284bc73f30977a37ed34aa5aae3032ea3e294202"
     },
     "dev.kyubuns.assetbookmarks": {
       "version": "https://github.com/kyubuns/AssetBookmarks.git?path=Assets/AssetBookmarks",
