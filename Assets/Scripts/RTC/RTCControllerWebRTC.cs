@@ -74,7 +74,6 @@ class RTCControllerWebRTC : RTCControllerBase
             }
             else
             {
-
                 GM.Msg($"RPC_{typeText}", dataDict, sourceId);
             }
         }

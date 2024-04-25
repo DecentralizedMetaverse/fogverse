@@ -40,7 +40,7 @@ public class DB_RTC : ScriptableObject
 
     // Node‚ð‹——£‚É‰ž‚¶‚Ä•ª—Þ
     public Dictionary<int, HashSet<string>> classifiedNodes = new();
-
+    public Dictionary<string, GameObject> activeObjects = new();
     public void Init()
     {        
         peers.Clear();

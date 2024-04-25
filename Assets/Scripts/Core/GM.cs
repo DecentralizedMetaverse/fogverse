@@ -114,7 +114,7 @@ namespace DC
         public static T Msg<T>(string key, params object[] args)
         {
             return (T)functions[key][0].DynamicInvoke(args);
-        }        
+        }
 
         /// <summary>
         /// 返り値がある場合は、Msgを使用してください
@@ -167,6 +167,17 @@ namespace DC
         /// <param name="function">ここでは「メソッド」を入力してください</param>
         /// <param name="isPublic">関数をユーザーにも公開するか</param>
         public static void Add<T1, T2, T3>(string key, Action<T1, T2, T3> function, bool isPublic = false)
+        {
+            AddFunction(key, function, isPublic);
+        }
+        
+        /// <summary>
+         /// 受信先追加
+         /// </summary>
+         /// <param name="key"></param>
+         /// <param name="function">ここでは「メソッド」を入力してください</param>
+         /// <param name="isPublic">関数をユーザーにも公開するか</param>
+        public static void Add<T1, T2, T3, T4>(string key, Action<T1, T2, T3, T4> function, bool isPublic = false)
         {
             AddFunction(key, function, isPublic);
         }

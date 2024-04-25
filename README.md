@@ -13,6 +13,7 @@ The metaverse allows users to interact with virtual environments and objects in 
 Please import the following assets before starting with the project:
 
 - [Runtime OBJ Importer](https://assetstore.unity.com/packages/tools/modeling/runtime-obj-importer-49547): This asset enables runtime OBJ file importing into Unity.
+- [Starter Assets - ThirdPerson | Updates in new CharacterController package | Essentials | Unity Asset Store](https://assetstore.unity.com/packages/essentials/starter-assets-thirdperson-updates-in-new-charactercontroller-pa-196526)
 
 ### How to Operate
 

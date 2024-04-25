@@ -42,7 +42,7 @@ public class GameManager : MonoBehaviour
         GM.mng.SetSceneName();
         Debug.unityLogger.logEnabled = true;        
 #else
-        // Debug.unityLogger.logEnabled = false;
+        Debug.unityLogger.logEnabled = false;
 #endif
     }
 

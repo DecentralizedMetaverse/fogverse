@@ -10,7 +10,7 @@ using VRM;
 using DG.Tweening.Plugins.Core.PathCore;
 
 /// <summary>
-/// World‹óŠÔ‚ÉObject‚ğ¶¬‚·‚é
+/// Worldç©ºé–“ã«Objectã‚’ç”Ÿæˆã™ã‚‹
 /// </summary>
 public class ObjectGenerator : MonoBehaviour
 {
@@ -36,7 +36,7 @@ public class ObjectGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// World‹óŠÔ‚ÉObject‚ğ¶¬‚·‚é
+    /// Worldç©ºé–“ã«Objectã‚’ç”Ÿæˆã™ã‚‹
     /// </summary>
     /// <param name="path"></param>
     Transform Generate(string path)
@@ -52,7 +52,7 @@ public class ObjectGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// ŠÖ”‚ğ“o˜^‚·‚é
+    /// é–¢æ•°ã‚’ç™»éŒ²ã™ã‚‹
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="key"></param>
@@ -63,7 +63,7 @@ public class ObjectGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// ”z’u‚·‚éêŠ‚ÌŒˆ’è
+    /// é…ç½®ã™ã‚‹å ´æ‰€ã®æ±ºå®š
     /// </summary>
     /// <returns></returns>
     private Vector3 GetPosition()

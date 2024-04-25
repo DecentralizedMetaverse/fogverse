@@ -2,6 +2,7 @@ using DC;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class ChunkManager : MonoBehaviour
@@ -82,6 +83,6 @@ public class ChunkManager : MonoBehaviour
 
         // Chunk‚Ì•ÏX‚ğ‘—M
         sendData.ForceAdd("chunk", currentChunk);
-        GM.Msg("RTCSendAll", sendData);
+        GM.Msg("RTCSendAll", sendData);        
     }
 }

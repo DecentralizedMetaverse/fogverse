@@ -157,7 +157,8 @@ public class RTCConnection
         if (data["type"].ToString() != "location" &&
             data["type"].ToString() != "anim" &&
             data["type"].ToString() != "ping" &&
-            data["type"].ToString() != "pong" )
+            data["type"].ToString() != "pong" &&
+            data["type"].ToString() != "chunk" )
 
         {
             GM.Msg("AddOutput", $"[Send] ->{data["target_id"].ToString()} {dataStr}");

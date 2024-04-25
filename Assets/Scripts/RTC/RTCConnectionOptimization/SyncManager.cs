@@ -11,7 +11,7 @@ using UnityEngine.UIElements;
 /// </summary>
 public class SyncManager : MonoBehaviour
 {
-    Dictionary<string, GameObject> activeObjects;
+    Dictionary<string, GameObject> excludedObjects = new();  // 表示制限により、座標同期を停止するObujects
     Dictionary<string, object> selfLocationData = new();
     Dictionary<string, object> selfAnimationData = new();
 
@@ -51,7 +51,7 @@ public class SyncManager : MonoBehaviour
             var syncDistance = GM.db.rtc.classifiedDistances[i];
 
             // 前回の範囲と違う場合
-            Debug.Log($"[{i}] {distance} {compareDistance} {syncDistance} {obj.syncDistance}");
+            // Debug.Log($"[{i}] {distance} {compareDistance} {syncDistance} {obj.syncDistance}");
             if (syncDistance != obj.syncDistance)
             {
 
@@ -67,6 +67,99 @@ public class SyncManager : MonoBehaviour
                 Debug.Log($"距離: {distance}");
             }
             break;
+        }
+
+        if (IsMaxReachedNumShowClient())
+        {
+            OptimizedRemoveShowClient();
+        }
+        else if(IsFullNumOfShowClient())
+        {            
+        }
+        else if (HasExcludeObject())
+        {
+            foreach(var (objId, obj) in excludedObjects)
+            {
+                obj.SetActive(true);
+                excludedObjects.Remove(objId);
+                break;
+            }
+        }
+
+        if (IsMaxNumReservedClient())
+        {
+            OptimizedRemoveReservedClient();
+        }
+    }
+
+    private bool HasExcludeObject()
+    {
+        if (excludedObjects.Count > 0) return true;
+        return false;
+    }
+
+    private bool IsMaxReachedNumShowClient()
+    {
+        var numShowPeers = GM.db.rtc.activeObjects.Count;
+        var numMaxPeers = GM.db.rtc.maxShowPeers;
+
+        if (numShowPeers > numMaxPeers)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    bool IsFullNumOfShowClient()
+    {
+        var numShowPeers = GM.db.rtc.activeObjects.Count;
+        var numMaxPeers = GM.db.rtc.maxShowPeers;
+
+        if (numShowPeers == numMaxPeers) return true;
+        return false;
+    }
+
+    private bool IsMaxNumReservedClient()
+    {
+        var numPeers = GM.db.rtc.peers.Count - GM.db.chunk.sendTargetChunk.Count;
+        var numMaxPeers = GM.db.rtc.maxReservedPeers;
+
+        if (numPeers > numMaxPeers) return true;
+        return false;
+    }
+
+    private void OptimizedRemoveShowClient()
+    {       
+        for (var i = GM.db.rtc.classifiedDistances.Count - 1; i >= 0; i--)
+        {
+            var distanceKey = GM.db.rtc.classifiedDistances[i];
+            var clients = GM.db.rtc.classifiedNodes[distanceKey];
+            foreach (var id in clients)
+            {                
+                // 送信対象から外す
+                var obj = GM.db.rtc.activeObjects[id];
+                excludedObjects.Add(id, obj);
+                obj.SetActive(false);                
+                return;
+            }
+        }
+    }
+
+    private static bool HasOutOfTargetChunkNode()
+    {
+        return GM.db.rtc.activeObjects.Count != GM.db.rtc.peers.Count;
+    }
+
+    private void OptimizedRemoveReservedClient()
+    {
+        foreach (var (id, peer) in GM.db.rtc.peers)
+        {
+            var obj = GM.db.rtc.GetSyncObjectById(id);
+            if (obj == null || obj.syncDistance == 0)
+            {
+                peer.Close();
+                break;
+            }
         }
     }
 
@@ -108,6 +201,7 @@ public class SyncManager : MonoBehaviour
             var list = GM.db.rtc.classifiedNodes[intervalDistance];
             foreach (var id in list)
             {
+                if(excludedObjects.ContainsKey(id)) continue;
                 selfLocationData.ForceAdd("time", intervalTimeSec);
                 GM.Msg("RTCSendDirect", id, selfLocationData);
             }
@@ -128,6 +222,7 @@ public class SyncManager : MonoBehaviour
             var list = GM.db.rtc.classifiedNodes[intervalDistance];
             foreach (var id in list)
             {
+                if (excludedObjects.ContainsKey(id)) continue;
                 GM.Msg("RTCSendDirect", id, selfAnimationData);
             }
             await UniTask.Delay(System.TimeSpan.FromSeconds(intervalTimeSec));

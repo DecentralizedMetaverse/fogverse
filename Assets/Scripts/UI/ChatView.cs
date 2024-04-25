@@ -8,6 +8,7 @@ using DC;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
 public class ChatView : MonoBehaviour
 {
@@ -31,6 +32,7 @@ public class ChatView : MonoBehaviour
         player = GM.db.user;
         ui.Input.onSubmit.AddListener((text) => OnInputText(text));
         GM.Add<string, string>("AddChatMessage", AddChatMessage);
+        GM.Add<string, string, string, string[]>("AddChatView", AddChatMessageNameAndContent);
     }
 
     void Show()
@@ -44,10 +46,15 @@ public class ChatView : MonoBehaviour
             var user = player.GetData(data.uid);
             if (user == null) continue;
 
-            ChatMessageContent message;
-            message.content = data.content;
-            message.userImage = user.thumbnail;
-            message.userName = user.name;
+            ChatMessageContent message = new ChatMessageContent()
+            {
+                content = data.content,
+                userImage = user.thumbnail,
+                userName = user.name,
+                avatarUrl = "",
+                contentImageUrl = null,
+            };
+
             var leftSide = data.uid != GM.db.rtc.id;
             AddChatView(message, leftSide);
         }
@@ -114,14 +121,33 @@ public class ChatView : MonoBehaviour
 
         SaveMessage(uid, text);
 
-        ChatMessageContent message;
-        message.content = text;
-        message.userImage = user.thumbnail;
-        message.userName = user.name;
+        ChatMessageContent message = new ChatMessageContent()
+        {
+            content = text,
+            userImage = user.thumbnail,
+            userName = user.name,
+            avatarUrl = "",
+            contentImageUrl = null,
+        };
 
         // 他人であれば左に表示する
         var leftSide = uid != GM.db.rtc.id;
         AddMessage(message, leftSide);
+    }
+
+    void AddChatMessageNameAndContent(string name, string avatarUrl, string content, string[] contentImageUrl)
+    {
+        ChatMessageContent message = new ChatMessageContent()
+        {
+            userImage = null,
+            userName = name,
+            content = content,
+            avatarUrl = avatarUrl,
+            contentImageUrl = contentImageUrl,
+        };
+
+        // 他人であれば左に表示する
+        AddMessage(message, true);
     }
 
     private void SaveMessage(string uid, string text)
@@ -140,8 +166,16 @@ public class ChatView : MonoBehaviour
 
     void AddChatView(ChatMessageContent message, bool leftSide = false)
     {
-        var obj = Instantiate(!leftSide ? messagePrefab : messagePrefabLeft, content);
-        obj.SetData(message);
+        try
+        {
+            var obj = Instantiate(leftSide ? messagePrefabLeft : messagePrefab, content);
+            obj.SetData(message);
+
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError(e);
+        }
     }
 
     void AddPlayView(ChatMessageContent message)
@@ -150,6 +184,8 @@ public class ChatView : MonoBehaviour
         obj.SetData(message);
         obj.DestroyDelay(delayTimeSec).Forget();
     }
+
+
 }
 
 public class TextChatUiElements : IMappedObject
