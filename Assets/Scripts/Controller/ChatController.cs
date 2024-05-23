@@ -14,7 +14,7 @@ public class ChatController : MonoBehaviour
 
     private void OnCancel(InputAction.CallbackContext obj)
     {
-        GM.pause = ePause.mode.none;
+        InputController.I.SetMode(InputMode.GameAndUI);
         GM.Msg("CloseChat");
         InputF.action.UI.Cancel.performed -= OnCancel;
     }
@@ -22,7 +22,7 @@ public class ChatController : MonoBehaviour
     private void OnChat(InputAction.CallbackContext obj)
     {
         InputF.action.UI.Cancel.performed += OnCancel;
-        GM.pause = ePause.mode.GameStop;
+        InputController.I.SetMode(InputMode.UIOnly);
         GM.Msg("ShowChat");
     }
 

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// ˆêlÌCamera
+/// ï¿½ï¿½lï¿½ï¿½Camera
 /// </summary>
 [Obsolete]
 public class PlayerCameraController : MonoBehaviour
@@ -42,20 +42,21 @@ public class PlayerCameraController : MonoBehaviour
     private void OnCancel(InputAction.CallbackContext obj)
     {
         Debug.Log("OnCancel");
-        GM.pause = GM.pause == ePause.mode.none?
-            ePause.mode.GameStop:
-            ePause.mode.none;
+        var mode = InputController.I.Mode == InputMode.GameAndUI?
+            InputMode.UIOnly:
+            InputMode.GameAndUI;
+        InputController.I.SetMode(mode);
     }    
 
     private void OnMove(InputAction.CallbackContext contex)
     {
-        if (GM.pause != ePause.mode.none) return;
+        if (InputController.I.Mode != InputMode.GameAndUI) return;
         moveVector = contex.ReadValue<Vector2>();
     }    
     
     private void OnCamera(InputAction.CallbackContext contex)
     {
-        if (GM.pause != ePause.mode.none) return;
+        if (InputController.I.Mode != InputMode.GameAndUI) return;
 
         var rotateVec = contex.ReadValue<Vector2>();
         rotateVec *= cameraSpeed;
@@ -66,7 +67,7 @@ public class PlayerCameraController : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒJƒƒ‰‚ÌŠp“x‚©‚çˆÚ“®ƒxƒNƒgƒ‹‚ğŒvZ
+    /// ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½ÌŠpï¿½xï¿½ï¿½ï¿½ï¿½Ú“ï¿½ï¿½xï¿½Nï¿½gï¿½ï¿½ï¿½ï¿½ï¿½vï¿½Z
     /// </summary>
     Vector3 CalcMovementFromCamera(Vector2 moveInput)
     {        
@@ -76,17 +77,17 @@ public class PlayerCameraController : MonoBehaviour
     }
 
     /// <summary>
-    /// Šp“x‚É§ŒÀ‚ğ‚©‚¯‚é
+    /// ï¿½pï¿½xï¿½Éï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     private void LimitAngle()
     {
-        //0`360 -> -180 ` 180 
+        //0ï¿½`360 -> -180 ï¿½` 180 
         var rot_x = (transform.localRotation.eulerAngles.x > 180f) ?
             transform.localRotation.eulerAngles.x - 360 : transform.localRotation.eulerAngles.x;
         
         var rot_y = transform.localRotation.eulerAngles.y;
         rot_x = Mathf.Clamp(rot_x, -limitAngle, limitAngle);
-        //-180 ` 180 -> 0`360
+        //-180 ï¿½` 180 -> 0ï¿½`360
         rot_x = (rot_x < 0) ?
             rot_x + 360 : rot_x;
 

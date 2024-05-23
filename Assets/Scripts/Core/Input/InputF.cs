@@ -1,36 +1,35 @@
-using DC;
-using System.Collections;
-using System.Collections.Generic;
+using R3;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class InputF : MonoBehaviour
 {
     public static @InputActions action;
+    public InputController InputController = new InputController();
 
     private void Awake()
     {
         action = new @InputActions();
         action.Enable();
+        InputController.OnChangedInputMode.Subscribe(SetOperation);
     }
 
-    public static void SetOperation(ePause.mode mode)
+    private void SetOperation(InputMode inputMode)
     {
-        switch (mode)
+        switch (inputMode)
         {
-            case ePause.mode.none:
-                // GM.Msg("SetOperation", "Game");
-                // action.Edit.Enable();
+            case InputMode.GameAndUI:
                 action.Game.Enable();
                 action.UI.Disable();
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
                 break;
-            case ePause.mode.GameStop:
-                // GM.Msg("SetOperation", "UI");
+            case InputMode.UIOnly:
                 action.UI.Enable();
                 action.Game.Disable();
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
                 break;
-            case ePause.mode.UIStop:
-                // GM.Msg("SetOperation", "Game");
+            case InputMode.GameOnly:
                 action.Game.Enable();
                 action.UI.Disable();
                 break;

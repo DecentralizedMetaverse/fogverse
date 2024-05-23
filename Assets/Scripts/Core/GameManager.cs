@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        GM.pause = ePause.mode.GameStop;
+        InputController.I.SetMode(InputMode.GameAndUI);
 
         InputF.action.Debug.Quit.performed += OnQuit;
         InputF.action.Game.Cancel.performed += OnCancel;
@@ -68,10 +68,6 @@ public class GameManager : MonoBehaviour
     void OnCancel(InputAction.CallbackContext context)
     {
         Debug.Log("OnCancel");
-
-        GM.pause = GM.pause == ePause.mode.none ?
-            ePause.mode.GameStop :
-            ePause.mode.none;
     }
 
     [ContextMenu("Get Name")]

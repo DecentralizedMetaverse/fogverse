@@ -102,7 +102,7 @@ public class LuaManager : MonoBehaviour
     /// <param name="code"></param>
     async UniTask Run(string code, GameObject target)
     {
-        GM.pause = ePause.mode.GameStop;
+        InputController.I.SetMode(InputMode.UIOnly);
         int runId = StartScript(target);
         
         // gameObject.AddComponent<Rigidbody>();
@@ -120,7 +120,7 @@ public class LuaManager : MonoBehaviour
 
         try
         {
-            LuaManager.lua.DoString(code);
+            lua.DoString(code);
         }
         catch (Exception ex)
         {
@@ -128,7 +128,7 @@ public class LuaManager : MonoBehaviour
         }
 
         await UniTask.WaitWhile(() => (runTable.ContainsKey(runId)));
-        GM.pause = ePause.mode.none;
+        InputController.I.SetMode(InputMode.GameAndUI);
     }
 
     /// <summary>

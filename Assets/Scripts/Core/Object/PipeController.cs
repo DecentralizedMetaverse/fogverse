@@ -1,14 +1,10 @@
 using DC;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem.HID;
 using UnityEngine.InputSystem;
-using System;
 
 /// <summary>
-/// Object‚ğ‘I‘ğ‚µ‚ÄAPipe‚ğİ’è‚·‚é
-/// TODO: ‘I‘ğƒ‚[ƒh‚É’Ç‰Á‚·‚é
+/// Objectï¿½ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ÄAPipeï¿½ï¿½İ’è‚·ï¿½ï¿½
+/// TODO: ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½hï¿½É’Ç‰ï¿½ï¿½ï¿½ï¿½ï¿½
 /// </summary>
 public class PipeController : MonoBehaviour
 {
@@ -39,12 +35,12 @@ public class PipeController : MonoBehaviour
     {
         if (!isEnable) return;
 
-        if (GM.pause != ePause.mode.GameStop) return;
+        if (InputController.I.Mode != InputMode.UIOnly) return;
 
         var pos = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (!Physics.Raycast(pos, out RaycastHit hit, 5000)) return;
 
-        // “ñ‚Â–Ú‚ÌObject‚ğæ“¾
+        // ï¿½ï¿½Â–Ú‚ï¿½Objectï¿½ï¿½ï¿½æ“¾
         if (!hit.transform.TryGetComponent(out IPipe targetObj))
         {
             GM.Msg("ShortMessage", "This object is not supported");
@@ -64,7 +60,7 @@ public class PipeController : MonoBehaviour
     }
 
     /// <summary>
-    /// Ú‘±‚ğŠm’è‚·‚é
+    /// ï¿½Ú‘ï¿½ï¿½ï¿½ï¿½mï¿½è‚·ï¿½ï¿½
     /// </summary>
     void SetConnect()
     {
@@ -73,7 +69,7 @@ public class PipeController : MonoBehaviour
     }
 
     /// <summary>
-    /// I—¹ˆ—
+    /// ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     void FinishSearchingPipeObject()
     {

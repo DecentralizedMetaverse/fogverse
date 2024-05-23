@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 /// <summary>
-/// Object�𑀍삷��
+/// Objectを操作する
 /// </summary>
 public class InteractObject : MonoBehaviour
 {
@@ -20,7 +20,7 @@ public class InteractObject : MonoBehaviour
 
     private void OnSubmit(InputAction.CallbackContext context)
     {
-        if (GM.pause != ePause.mode.GameStop) return;
+        if (InputController.I.Mode != InputMode.UIOnly) return;
 
         if (!InputF.action.Game.Sprint.IsPressed()) return;
 
