@@ -80,7 +80,7 @@ internal class CameraZoom : MonoBehaviour
         _framingTransposer.m_CameraDistance = distance;
 
         // 距離によってCameraを切り替える
-        if (distance <= ThirdPersonViewMinDistance)
+        if (!_cameraSwitch.IsSingle && distance <= ThirdPersonViewMinDistance)
         {
             _cameraSwitch.Set(CameraView.FirstPerson);
         }

@@ -4,7 +4,6 @@ using UnityEngine;
 using System.IO;
 
 /// <summary>
-/// IPFS�Ƃ������s���v���O����
 /// </summary>
 public class IpfsManager : MonoBehaviour
 {
@@ -33,7 +32,7 @@ public class IpfsManager : MonoBehaviour
     /// 
     /// </summary>
     /// <param name="filePath"></param>
-    /// <returns>true: ����</returns>
+    /// <returns>true: </returns>
     async UniTask<string> Upload(string filePath)
     {
         Debug.Log($"[IPFS] Upload: {filePath}");

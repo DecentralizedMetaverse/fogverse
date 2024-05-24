@@ -13,10 +13,12 @@ public class MenuController : MonoBehaviour
     {
         if (presenter.IsShowing)
         {
+            InputController.I.SetMode(InputMode.GameAndUI);
             presenter.Close();
         }
         else
         {
+            InputController.I.SetMode(InputMode.UIOnly);
             presenter.Show();
         }
     }

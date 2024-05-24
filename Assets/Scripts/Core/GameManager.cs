@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject debugObj;
     [SerializeField] DB_FunctionList dBFunctionList;
 
+    private SaveData saveData;
+
     void OnDestroy()
     {
         GM.db.End();
@@ -26,6 +28,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        saveData = new SaveData();
         GM.mng = _dbMng;
         GM.db = db;
         GM.db.Init();

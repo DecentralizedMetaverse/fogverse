@@ -1,150 +1,96 @@
-using AnKuchen.KuchenLayout;
-using AnKuchen.Map;
-using Cysharp.Threading.Tasks;
-using DG.Tweening.Plugins.Core.PathCore;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using DC;
+using Teo.AutoReference;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Path = System.IO.Path;
-using AnKuchen.KuchenList;
 
 /// <summary>
-/// File‚ğƒRƒs[‚·‚é
 /// </summary>
-public class ContentImportView : MonoBehaviour
+public class ContentImportView : UIComponent
 {
-    [SerializeField] UICache root;
-    ContentImporterUiElements ui;
+    private const string SaveDataKey = "ContentDirectory";
+    private string contentPath = "";
+
+    [SerializeField] private ButtonLabelView buttonPrefab;
+
+    [Get, SerializeField] private UIEasingAnimationPosition animation;
+
+    [GetInChildren, Name("DirectoryInputField"), SerializeField]
     private TMP_InputField input;
-    string contentPath = "";
 
-    string[] files;
-    string currentPath;
+    [GetInChildren, Name("Content"), SerializeField]
+    private Transform content;
 
-    void Start()
+    [GetInChildren, Name("SubmitButton"), SerializeField]
+    private Button submitButton;
+
+    private string[] files;
+    private string currentPath;
+
+    private void Start()
     {
-        contentPath = $"{Application.dataPath}/{GM.mng.contentPath}";
-        currentPath = contentPath;
-
-        ui = new ContentImporterUiElements(root);
-        input = root.Get<TMP_InputField>("DirectoryInputField");
-        input.text = currentPath;
-
-        var button = root.Get<Button>("SubmitButton");
-        button.onClick.AddListener(() => OnDirectoryChanged());
-
-        var show = root.Get<UI_ShowCloseFade>();
-        GM.Add("ShowContentImporter", () =>
-        {
-            show.active = show.active ? false : true;
-        }, true);
-
+        SaveData.I.TryGetValue(SaveDataKey, out string path);
+        path ??= $"{Application.dataPath}/{GM.mng.contentPath}";
+        currentPath = path;
+        input.text = path;
+        submitButton.onClick.AddListener(OnDirectoryChanged);
     }
 
     /// <summary>
-    /// ƒfƒBƒŒƒNƒgƒŠ[“à‚ÌFileˆê——‚ğæ“¾‚·‚é
     /// </summary>
     /// <param name="input"></param>
-    void OnDirectoryChanged()
+    private void OnDirectoryChanged()
     {
         currentPath = input.text;
         if (!Directory.Exists(currentPath)) return;
 
-        // ƒfƒBƒŒƒNƒgƒŠ“à‚ÌFileˆê——‚ğæ“¾
+        SaveData.I.Set(SaveDataKey, currentPath);
+
         files = Directory.GetFiles(currentPath);
-        using (var editor = ui.ItemList.Edit())
+        content.DestroyChildren();
+
+        var i = 0;
+        foreach (var file in files)
         {
-            //editor.con
-            // Fileˆê——‚ğ•\¦
-            int i = 0;
-            foreach (string file in files)
-            {
-                var i1 = i;
-
-                editor.Contents.Add(new UIFactory<FileButton46UiElements>(button =>
-                {
-                    button.Text.text = Path.GetFileName(file);
-                    button.Button.onClick.AddListener(() => OnSubmit(i1));
-                }
-                ));
-                i++;
-            }
+            var i1 = i;
+            var button = Instantiate(buttonPrefab, content);
+            button.gameObject.SetActive(true);
+            button.Label.text = Path.GetFileName(file);
+            button.Button.onClick.AddListener(() => OnSubmit(i1));
+            i++;
         }
-
-
     }
 
     /// <summary>
-    /// File‘I‘ğ‚Ìˆ—
     /// </summary>
     /// <param name="i"></param>
-    void OnSubmit(int i)
+    private void OnSubmit(int i)
     {
         // Copy file
-        string source = files[i];
-        string destination = $"{contentPath}/{Path.GetFileName(source)}";
+        var source = files[i];
+        var destination = $"{contentPath}/{Path.GetFileName(source)}";
 
-        if (File.Exists(destination)) return;
+        if (!File.Exists(destination))
+        {
+            File.Copy(source, destination);
+        }
 
-        File.Copy(source, destination);
-    }
-}
-
-public class ContentImporterUiElements : IMappedObject
-{
-    public IMapper Mapper { get; private set; }
-    public GameObject Root { get; private set; }
-    public Button SubmitButton { get; private set; }
-    public Button FileButton { get; private set; }
-    public VerticalList<FileButton46UiElements> ItemList { get; private set; }
-
-
-    public ContentImporterUiElements() { }
-    public ContentImporterUiElements(IMapper mapper) { Initialize(mapper); }
-
-    public void Initialize(IMapper mapper)
-    {
-        Mapper = mapper;
-        Root = mapper.Get();
-        SubmitButton = mapper.Get<Button>("SubmitButton");
-        FileButton = mapper.Get<Button>("FileButton");
-        ItemList = new VerticalList<FileButton46UiElements>(mapper.Get<ScrollRect>("Scroll View"), mapper.GetChild<FileButton46UiElements>("FileButton"));
-
-    }
-}
-
-
-
-public class FileButton46UiElements : IMappedObject, IReusableMappedObject
-{
-    public IMapper Mapper { get; private set; }
-    public Button Button { get; private set; }
-    public TMP_Text Text { get; private set; }
-    public GameObject Root { get; private set; }
-
-    public FileButton46UiElements() { }
-    public FileButton46UiElements(IMapper mapper) { Initialize(mapper); }
-
-    public void Initialize(IMapper mapper)
-    {
-        Mapper = mapper;
-        Root = mapper.Get();
-        Button = mapper.Get<Button>();
-        Text = mapper.Get<TMP_Text>("FileText");
+        GM.Msg("GenerateObj", destination);
+        GM.Msg("RegisterObject"); // ã“ã‚Œã‚’å®Ÿè¡Œã™ã‚‹ã‚¿ã‚¤ãƒŸãƒ³ã‚°ã«æ³¨æ„ã€€å…¨MetaFileãŒæ›¸ãå¤‰ã‚ã‚‹
     }
 
-    public void Activate()
+    public override void Show()
     {
+        base.Show();
+        animation.Show();
+        OnDirectoryChanged();
     }
 
-    public void Deactivate()
+    public override void Close()
     {
-        Button.onClick.RemoveAllListeners();
+        base.Close();
+        animation.Close();
     }
 }

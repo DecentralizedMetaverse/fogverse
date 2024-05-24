@@ -1,18 +1,17 @@
-using AnKuchen.KuchenLayout;
-using AnKuchen.Map;
 using DC;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using Teo.AutoReference;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BasicObjectMenuView : MonoBehaviour
+public class BasicObjectMenuView : UIComponent
 {
-    [SerializeField] UICache root;
+    [Get, SerializeField] private UIEasingAnimationPosition animation;
+    [GetInChildren, Name("Content"), SerializeField] private Transform content;
+    [GetInChildren, Name("BasicObjectButton"), SerializeField] private Button buttonPrefab;
     [SerializeField] OjectData[] prefabs;
-    BasicObjectMenuUiElements ui;
     Dictionary<string, GameObject> prefabsDict = new();
 
     [Serializable]
@@ -24,13 +23,14 @@ public class BasicObjectMenuView : MonoBehaviour
 
     void Start()
     {
+        buttonPrefab.gameObject.SetActive(false);
+
         prefabsDict.Clear();
         foreach (var prefab in prefabs)
         {
             prefabsDict.Add(prefab.key, prefab.prefab);
         }
 
-        ui = new BasicObjectMenuUiElements(root);
 
         GM.Add("ShowBasicObjectMenu", Show);
         GM.Add<string, bool>("IsBasicObject", (path) =>
@@ -42,28 +42,30 @@ public class BasicObjectMenuView : MonoBehaviour
         GM.Add<string, Transform>("GenerateBasicObject", GenerateObject);
     }
 
-    void Show()
+    public override void Show()
     {
-        if(ui.toggle.active) { ui.toggle.active = false; return; }
+        base.Show();
+        animation.Show();
 
-        using(var editor = ui.SelectList.Edit())
+        content.DestroyChildren();
+        foreach (var key in prefabsDict.Keys)
         {
-            foreach(var menu in prefabsDict.Keys)
+            var button = Instantiate(buttonPrefab, content);
+            button.gameObject.SetActive(true);
+            button.GetComponentInChildren<TMP_Text>().text = key;
+            button.onClick.AddListener(() =>
             {
-                var button = editor.Create();
-                button.Text.text = menu;
-                var key = menu;
-                button.Button.onClick.RemoveAllListeners(); // TODO: 本来はこの行は不要のはず　確認が必要かも
-                button.Button.onClick.AddListener(() =>
-                {
-                    var transform = GenerateObject(key);
-                    transform.SetParent(GM.db.player.worldRoot);
-                    GM.Msg("RegisterObject");
-                });
-            }
+                var transform = GenerateObject(key);
+                transform.SetParent(GM.db.player.worldRoot);
+                GM.Msg("RegisterObject");
+            });
         }
+    }
 
-        ui.toggle.active = true;
+    public override void Close()
+    {
+        base.Close();
+        animation.Close();
     }
 
     Transform GenerateObject(string key)
@@ -75,43 +77,5 @@ public class BasicObjectMenuView : MonoBehaviour
         objInfo.fileName = key;        
 
         return obj.transform;
-    }
-}
-
-public class BasicObjectMenuUiElements : IMappedObject
-{
-    public IMapper Mapper { get; private set; }
-    public GameObject Root { get; private set; }
-    public UI_ToggleFade toggle { get; private set; }
-    public Layout<BasicObjectButtonUiElements> SelectList { get; private set; }
-
-    public BasicObjectMenuUiElements() { }
-    public BasicObjectMenuUiElements(IMapper mapper) { Initialize(mapper); }
-
-    public void Initialize(IMapper mapper)
-    {
-        Mapper = mapper;
-        Root = mapper.Get();
-        toggle = mapper.Get<UI_ToggleFade>();
-        SelectList = new Layout<BasicObjectButtonUiElements>(mapper.GetChild<BasicObjectButtonUiElements>("BasicObjectButton"));
-    }
-}
-
-public class BasicObjectButtonUiElements : IMappedObject
-{
-    public IMapper Mapper { get; private set; }
-    public GameObject Root { get; private set; }
-    public Button Button { get; private set; }
-    public TMP_Text Text { get; private set; }
-
-    public BasicObjectButtonUiElements() { }
-    public BasicObjectButtonUiElements(IMapper mapper) { Initialize(mapper); }
-
-    public void Initialize(IMapper mapper)
-    {
-        Mapper = mapper;
-        Root = mapper.Get();
-        Button = mapper.Get<Button>();
-        Text = mapper.Get<TMP_Text>("Text");
     }
 }

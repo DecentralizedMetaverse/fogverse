@@ -25,6 +25,4 @@ public class ChatController : MonoBehaviour
         InputController.I.SetMode(InputMode.UIOnly);
         GM.Msg("ShowChat");
     }
-
-    
 }

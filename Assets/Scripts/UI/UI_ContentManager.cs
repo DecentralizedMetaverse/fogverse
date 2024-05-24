@@ -10,7 +10,7 @@ using UnityEngine.UI;
 using AnKuchen.KuchenList;
 
 /// <summary>
-/// Š‚µ‚Ä‚¢‚éContent‚©‚ç¢ŠE‚ÉObject‚ğ”z’u‚·‚éUI
+/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½Contentï¿½ï¿½ï¿½ç¢ï¿½Eï¿½ï¿½Objectï¿½ï¿½zï¿½uï¿½ï¿½ï¿½ï¿½UI
 /// </summary>
 public class UI_ContentManager : MonoBehaviour
 {
@@ -34,11 +34,11 @@ public class UI_ContentManager : MonoBehaviour
     {
         if (ui.ui.active) { ui.ui.active = false; return; }
 
-        // ƒfƒBƒŒƒNƒgƒŠ“à‚ÌFileˆê——‚ğæ“¾
+        // ï¿½fï¿½Bï¿½ï¿½ï¿½Nï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Fileï¿½ê——ï¿½ï¿½ï¿½æ“¾
         files = Directory.GetFiles(contentPath);
         using (var editor = ui.ItemList.Edit())
         {
-            // Fileˆê——‚ğ•\¦
+            // Fileï¿½ê——ï¿½ï¿½\ï¿½ï¿½
             int i = 0;
             foreach (string filePath in files)
             {
@@ -58,13 +58,13 @@ public class UI_ContentManager : MonoBehaviour
 
     void OnSubmit(int i)
     {
-        // Content‚ğWorld‚É¶¬‚·‚é
+        // Contentï¿½ï¿½Worldï¿½Éï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         string source = files[i];
         GM.Msg("GenerateObj", source);
 
-        // ¶¬‚µ‚½Object‚ğİ’èFile‚É•Û‘¶‚·‚é
-        // (’ˆÓ: ‘SObject‚Ìİ’èFile‚ğXV‚·‚é)
-        GM.Msg("RegisterObject");
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Objectï¿½ï¿½İ’ï¿½Fileï¿½É•Û‘ï¿½ï¿½ï¿½ï¿½ï¿½
+        // (ï¿½ï¿½ï¿½ï¿½: ï¿½SObjectï¿½Ìİ’ï¿½Fileï¿½ï¿½ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½)
+        GM.Msg("RegisterObject"); // ã“ã‚Œã‚’å®Ÿè¡Œã™ã‚‹ã‚¿ã‚¤ãƒŸãƒ³ã‚°ã«æ³¨æ„
     }
 
     void OnOpenFolder()

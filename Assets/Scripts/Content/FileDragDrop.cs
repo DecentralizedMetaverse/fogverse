@@ -8,24 +8,24 @@ using System.IO;
 
 public class FileDragDrop : MonoBehaviour
 {
-    string[][] select = new string[][]
+    private readonly string[][] select =
     {
-        new string[]{"Upload", "Cancel", "UploadAll" },
-        new string[]{"Upload", "Cancel" }
+        new[] { "Upload", "Cancel", "UploadAll" },
+        new[] { "Upload", "Cancel" }
     };
 
-    void Start()
-    {        
+    private void Start()
+    {
         UnityDragAndDropHook.InstallHook();
         UnityDragAndDropHook.OnDroppedFiles += OnFiles;
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         UnityDragAndDropHook.UninstallHook();
     }
 
-    async void OnFiles(List<string> aPathNames, POINT aDropPoint)
+    private async void OnFiles(List<string> aPathNames, POINT aDropPoint)
     {
         var result = 0;
         foreach (var contentPath in aPathNames)
@@ -51,14 +51,17 @@ public class FileDragDrop : MonoBehaviour
             GM.Msg("QuestionTitle", "");
 
             // Cancel
-            if (result == 1) { continue; }
+            if (result == 1)
+            {
+                continue;
+            }
 
             // Upload
             Upload(contentPath);
         }
     }
 
-    void Upload(string path)
+    private static void Upload(string path)
     {
         GM.Msg("ShortMessage", path);
         GM.Msg("GenerateObj", path);

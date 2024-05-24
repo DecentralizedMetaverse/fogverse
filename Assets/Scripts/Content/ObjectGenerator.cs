@@ -1,13 +1,8 @@
-
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using DC;
 using UnityEngine;
-using UniGLTF;
-using VRM;
-using DG.Tweening.Plugins.Core.PathCore;
 
 /// <summary>
 /// World空間にObjectを生成する
@@ -21,7 +16,6 @@ public class ObjectGenerator : MonoBehaviour
     [SerializeField] ObjectSSH prefabSSH;
 
     Dictionary<string, Delegate> functions = new(64);
-
 
     void Start()
     {

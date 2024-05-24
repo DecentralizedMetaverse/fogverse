@@ -9,6 +9,9 @@ public class CameraSwitch : MonoBehaviour
     [Get, SerializeField] private CameraManager _cameraManager;
     private CameraManager.CameraViewSettingsElement[] _vcams;
 
+    // Cameraが1つかどうか
+    public bool IsSingle => _vcams.Length == 1;
+
     /// <summary>
     /// カメラ切り替え
     /// </summary>
