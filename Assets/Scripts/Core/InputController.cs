@@ -1,4 +1,5 @@
 using R3;
+using UnityEngine;
 
 public class InputController
 {
@@ -13,6 +14,7 @@ public class InputController
 
     public void SetMode(InputMode inputMode)
     {
+        Debug.Log($"[InputController] SetMode: {inputMode}");
         _onChangedInputMode.OnNext(inputMode);
     }
 }

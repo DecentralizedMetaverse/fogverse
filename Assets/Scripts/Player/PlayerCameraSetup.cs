@@ -1,3 +1,5 @@
+using Cinemachine;
+using DC;
 using MistNet;
 using Teo.AutoReference;
 using UnityEngine;
@@ -5,7 +7,6 @@ using UnityEngine;
 public class PlayerCameraSetup : MonoBehaviour
 {
     [GetInParent,SerializeField] private MistSyncObject syncObject;
-
     private void Start()
     {
         if (!syncObject.IsOwner)

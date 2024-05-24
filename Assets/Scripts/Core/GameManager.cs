@@ -1,14 +1,9 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using System;
-using Cysharp.Threading.Tasks;
-using System.IO;
 using System.Reflection;
-using System.Collections;
-using System.Linq;
 using DC;
+
 /// <summary>
 /// ゲーム管理クラス
 /// TODO: Addメソッドの中身の共通部分を一つにまとめたい
@@ -51,8 +46,6 @@ public class GameManager : MonoBehaviour
         InputController.I.SetMode(InputMode.GameAndUI);
 
         InputF.action.Debug.Quit.performed += OnQuit;
-        InputF.action.Game.Cancel.performed += OnCancel;
-        InputF.action.UI.Cancel.performed += OnCancel;
 
         debugObj.SetActive(GM.mng.visiblePerformance);
 
@@ -63,11 +56,6 @@ public class GameManager : MonoBehaviour
     void OnQuit(InputAction.CallbackContext contex)
     {
         GM.GameQuit();
-    }
-
-    void OnCancel(InputAction.CallbackContext context)
-    {
-        Debug.Log("OnCancel");
     }
 
     [ContextMenu("Get Name")]

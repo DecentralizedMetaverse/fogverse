@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[Obsolete]
 public class CameraController : MonoBehaviour
 {
     [SerializeField] CinemachineVirtualCamera cinemachineVirtualCamera;
@@ -22,7 +23,7 @@ public class CameraController : MonoBehaviour
     }
 
     /// <summary>
-    /// Camera‚Ì‹——£‚ğ•ÏX‚·‚é
+    /// Cameraï¿½Ì‹ï¿½ï¿½ï¿½ï¿½ï¿½ÏXï¿½ï¿½ï¿½ï¿½
     /// </summary>
     /// <param name="context"></param>
     private void OnScroll(InputAction.CallbackContext context)

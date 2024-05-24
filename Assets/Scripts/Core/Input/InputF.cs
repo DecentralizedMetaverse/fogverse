@@ -1,20 +1,22 @@
+using DC;
 using R3;
 using UnityEngine;
 
 public class InputF : MonoBehaviour
 {
     public static @InputActions action;
-    public InputController InputController = new InputController();
+    private readonly InputController inputController = new();
 
     private void Awake()
     {
         action = new @InputActions();
         action.Enable();
-        InputController.OnChangedInputMode.Subscribe(SetOperation);
+        inputController.OnChangedInputMode.Subscribe(SetOperation).AddTo(this);
     }
 
-    private void SetOperation(InputMode inputMode)
+    private static void SetOperation(InputMode inputMode)
     {
+        Debug.Log($"[InputController] SetOperation SetMode: {inputMode}");
         switch (inputMode)
         {
             case InputMode.GameAndUI:
@@ -22,16 +24,19 @@ public class InputF : MonoBehaviour
                 action.UI.Disable();
                 Cursor.visible = false;
                 Cursor.lockState = CursorLockMode.Locked;
+                GM.Msg("SetPauseCamera", false);
                 break;
             case InputMode.UIOnly:
-                action.UI.Enable();
                 action.Game.Disable();
+                action.UI.Enable();
                 Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.None;
+                GM.Msg("SetPauseCamera", true);
                 break;
             case InputMode.GameOnly:
                 action.Game.Enable();
                 action.UI.Disable();
+                GM.Msg("SetPauseCamera", false);
                 break;
         }
     }

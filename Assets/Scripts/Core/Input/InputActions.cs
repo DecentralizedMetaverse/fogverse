@@ -116,6 +116,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Camera"",
+                    ""type"": ""Value"",
+                    ""id"": ""c9288c4b-4c2a-4d2b-a1ae-900f4770c050"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -435,6 +444,72 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Sprint"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""929fce68-9b6c-41f4-9df8-2a913b1c9237"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Camera"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""02ab0342-f368-454b-ae8a-96e84207ef4b"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Camera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""89d0cbc1-819a-4118-82f4-67a790b4b098"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Camera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""8d27619e-20c0-4074-9f00-531aac4c05f5"",
+                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Camera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""709e9149-9ca2-404c-b046-f22e4c8fb95f"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Camera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""61c76e43-d4fe-484a-aace-931cc2f6b914"",
+                    ""path"": ""<Mouse>/delta"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Camera"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1027,6 +1102,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_Game_Cancel = m_Game.FindAction("Cancel", throwIfNotFound: true);
         m_Game_Menu = m_Game.FindAction("Menu", throwIfNotFound: true);
         m_Game_Chat = m_Game.FindAction("Chat", throwIfNotFound: true);
+        m_Game_Camera = m_Game.FindAction("Camera", throwIfNotFound: true);
         // Debug
         m_Debug = asset.FindActionMap("Debug", throwIfNotFound: true);
         m_Debug_Quit = m_Debug.FindAction("Quit", throwIfNotFound: true);
@@ -1116,6 +1192,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Game_Cancel;
     private readonly InputAction m_Game_Menu;
     private readonly InputAction m_Game_Chat;
+    private readonly InputAction m_Game_Camera;
     public struct GameActions
     {
         private @InputActions m_Wrapper;
@@ -1130,6 +1207,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         public InputAction @Cancel => m_Wrapper.m_Game_Cancel;
         public InputAction @Menu => m_Wrapper.m_Game_Menu;
         public InputAction @Chat => m_Wrapper.m_Game_Chat;
+        public InputAction @Camera => m_Wrapper.m_Game_Camera;
         public InputActionMap Get() { return m_Wrapper.m_Game; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1169,6 +1247,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Chat.started += instance.OnChat;
             @Chat.performed += instance.OnChat;
             @Chat.canceled += instance.OnChat;
+            @Camera.started += instance.OnCamera;
+            @Camera.performed += instance.OnCamera;
+            @Camera.canceled += instance.OnCamera;
         }
 
         private void UnregisterCallbacks(IGameActions instance)
@@ -1203,6 +1284,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Chat.started -= instance.OnChat;
             @Chat.performed -= instance.OnChat;
             @Chat.canceled -= instance.OnChat;
+            @Camera.started -= instance.OnCamera;
+            @Camera.performed -= instance.OnCamera;
+            @Camera.canceled -= instance.OnCamera;
         }
 
         public void RemoveCallbacks(IGameActions instance)
@@ -1442,6 +1526,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnCancel(InputAction.CallbackContext context);
         void OnMenu(InputAction.CallbackContext context);
         void OnChat(InputAction.CallbackContext context);
+        void OnCamera(InputAction.CallbackContext context);
     }
     public interface IDebugActions
     {

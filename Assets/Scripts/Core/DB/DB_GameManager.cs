@@ -28,6 +28,7 @@ public class DB_GameManager : ScriptableObject
     public string contentPath = "../content";
     public string avatarPath = "../avatar";
     public string outputPath = "../output";
+    public DeviceMode Device = DeviceMode.Desktop;
 
     //public eScene.Scene scene;
     [Header("Scene Group")]
