@@ -21,6 +21,14 @@ public class ObjectGenerator : MonoBehaviour
     {
         GM.Add<string, Transform>("GenerateObj", Generate);
         AddFunc<string, Transform>(".txt", ObjText);
+        AddFunc<string, Transform>(".md", ObjText);
+        AddFunc<string, Transform>(".html", ObjText);
+        AddFunc<string, Transform>(".json", ObjText);
+        AddFunc<string, Transform>(".yaml", ObjText);
+        AddFunc<string, Transform>(".yml", ObjText);
+        AddFunc<string, Transform>(".ini", ObjText);
+        AddFunc<string, Transform>(".cs", ObjText);
+        AddFunc<string, Transform>(".py", ObjText);
         AddFunc<string, Transform>(".lua", ObjText);
         AddFunc<string, Transform>(".mp4", ObjVideo);
         AddFunc<string, Transform>(".png", ObjImage);
@@ -62,7 +70,7 @@ public class ObjectGenerator : MonoBehaviour
     /// <returns></returns>
     private Vector3 GetPosition()
     {
-        return db.user.position + db.user.forward;
+        return db.user.position + db.user.forward + Vector3.up;
     }
 
     // ------------------------------------------------

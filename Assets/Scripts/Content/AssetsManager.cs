@@ -10,7 +10,7 @@ using UniGLTF;
 using Cysharp.Threading.Tasks;
 using DC;
 
-[Obsolete("íœ—\’è", error: true)]
+[Obsolete("å‰Šé™¤äºˆå®š", error: true)]
 public class AssetsManager : MonoBehaviour
 {
     [SerializeField] DB_User dbUser;
@@ -28,12 +28,12 @@ public class AssetsManager : MonoBehaviour
     const int moveLayer = 6;
 
     /// <summary>
-    /// ƒƒ^ƒf[ƒ^
+    /// ãƒ¡ã‚¿ãƒ‡ãƒ¼ã‚¿
     /// </summary>
     Dictionary<string, MetaDataFile> metaData = new Dictionary<string, MetaDataFile>();
 
     /// <summary>
-    /// World‚ÉŠÖ‚·‚éƒf[ƒ^
+    /// Worldã«é–¢ã™ã‚‹ãƒ‡ãƒ¼ã‚¿
     /// </summary>
     Dictionary<string, MetaDataObject> worldData = new Dictionary<string, MetaDataObject>();
     Dictionary<string, MetaDataObject> nextLoadTargetWorldData = new Dictionary<string, MetaDataObject>();
@@ -42,7 +42,7 @@ public class AssetsManager : MonoBehaviour
     List<string> nextLoadMutiWorldName = new List<string>();
 
     /// <summary>
-    /// Object“Ç‚İ‚İ‚ÌŠÖ”ŒQ
+    /// Objectèª­ã¿è¾¼ã¿ã®é–¢æ•°ç¾¤
     /// </summary>
     /// <param name="objectId"></param>
     /// <param name="metaData"></param>
@@ -51,7 +51,7 @@ public class AssetsManager : MonoBehaviour
 
     private void Awake()
     {
-        //Object“Ç‚İ‚İŠÖ”‚Ì“o˜^
+        //Objectèª­ã¿è¾¼ã¿é–¢æ•°ã®ç™»éŒ²
         Load.Add("world", LoadWorld);
         Load.Add("empty", LoadEmpty);
         Load.Add("object", Load3DModel);
@@ -80,7 +80,7 @@ public class AssetsManager : MonoBehaviour
         }
         else if (data1 == "world.load")
         {
-            //2í—Ş‚Ìƒf[ƒ^‚ğ“Ç‚İ‚Ş
+            //2ç¨®é¡ã®ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã‚€
             var worldDir = (string)data2[0];
             var noClear = (bool)data2[1];
             var parent = data2.Length == 3 ? (string)data2[2] : "";
@@ -89,7 +89,7 @@ public class AssetsManager : MonoBehaviour
         }
         else if (data1 == "world.check")
         {
-            //World‚ğ•Û‚µ‚Ä‚¢‚é‚©Šm”F
+            //Worldã‚’ä¿æŒã—ã¦ã„ã‚‹ã‹ç¢ºèª
             var worldPath = path + (string)data2[0];
             if (!Directory.Exists(worldPath))
             {
@@ -99,8 +99,8 @@ public class AssetsManager : MonoBehaviour
         }
         else if (data1 == "world.request")
         {
-            //Worldƒf[ƒ^‘—M
-            //0: ‘—Mæ‚ÌID
+            //Worldãƒ‡ãƒ¼ã‚¿é€ä¿¡
+            //0: é€ä¿¡å…ˆã®ID
             //1: WorldId
             var worldPath = path + (string)data2[1];
             ZipFile.CreateFromDirectory(worldPath, $"{worldPath}.zip");
@@ -109,10 +109,10 @@ public class AssetsManager : MonoBehaviour
         }
         else if (data1 == "world.receive")
         {
-            //Worldƒf[ƒ^óM
-            //0: ©g‚ÌID
+            //Worldãƒ‡ãƒ¼ã‚¿å—ä¿¡
+            //0: è‡ªèº«ã®ID
             //1: WorldId
-            //2: Worldƒf[ƒ^
+            //2: Worldãƒ‡ãƒ¼ã‚¿
             var worldPath = path + (string)data2[1];
             fg.ConvertToFile(worldPath, (byte[])data2[2]);
             ZipFile.ExtractToDirectory($"{worldPath}.zip", worldPath);
@@ -123,7 +123,7 @@ public class AssetsManager : MonoBehaviour
             var b = bool.Parse(data2[1].ToString());
             if (!gameObjects.ContainsKey(id))
             {
-                GM.Msg("message", $"{id}‚ª‘¶İ‚µ‚Ü‚¹‚ñ");
+                GM.Msg("message", $"{id}ãŒå­˜åœ¨ã—ã¾ã›ã‚“");
                 return;
             }
             gameObjects[id].SetActive(b);
@@ -133,7 +133,7 @@ public class AssetsManager : MonoBehaviour
             var id = (string)data2[0];
             if (!gameObjects.ContainsKey(id))
             {
-                GM.Msg("message", $"{id}‚ª‘¶İ‚µ‚Ü‚¹‚ñ");
+                GM.Msg("message", $"{id}ãŒå­˜åœ¨ã—ã¾ã›ã‚“");
                 return;
             }
 
@@ -143,14 +143,14 @@ public class AssetsManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ‘S‚Ä‚ÌFile‚Ìƒƒ^ƒf[ƒ^‚ğ“Ç‚İ‚Ş
+    /// å…¨ã¦ã®Fileã®ãƒ¡ã‚¿ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã‚€
     /// </summary>
     /// <param name="path"></param>
     void ReadAllMetaData(string path, bool noClear)
     {
         if (!noClear) metaData.Clear();
 
-        //‘SFileæ“¾
+        //å…¨Fileå–å¾—
         var files = Directory.GetFiles(path, "*.yaml");
         foreach (var file in files)
         {
@@ -160,7 +160,7 @@ public class AssetsManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒƒ^ƒf[ƒ^‚ğ“Ç‚İ‚Ş
+    /// ãƒ¡ã‚¿ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã‚€
     /// </summary>
     /// <param name="path"></param>
     void ReadMetaData(string path, bool noClear)
@@ -185,11 +185,11 @@ public class AssetsManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ¢ŠE‚É•K—v‚ÈObject‚ğ‘S‚Ä“Ç‚İ‚Ş
+    /// ä¸–ç•Œã«å¿…è¦ãªObjectã‚’å…¨ã¦èª­ã¿è¾¼ã‚€
     /// </summary>
     void LoadObjectsInWorld(bool noClear, string parent)
     {
-        //íœ
+        //å‰Šé™¤
         if (!noClear)
         {
             worldData.Clear();
@@ -200,7 +200,7 @@ public class AssetsManager : MonoBehaviour
             }
         }
 
-        //Object‚Ìî•ñ‚ğæ“¾
+        //Objectã®æƒ…å ±ã‚’å–å¾—
         foreach (var (objectId, metaData) in nextLoadTargetWorldData)
         {
             if (!Load.ContainsKey(metaData.type)) continue;
@@ -210,19 +210,19 @@ public class AssetsManager : MonoBehaviour
             }
             if (parent != "" && metaData.parent == "")
             {
-                //eObject‚Ìw’è
+                //è¦ªObjectã®æŒ‡å®š
                 var metaDataTemp = metaData;
                 metaDataTemp.parent = parent;
                 worldData[objectId] = metaDataTemp;
             }
-            //í—Ş‚É‰‚¶‚ÄObject‚ğ“Ç‚İ‚İ
+            //ç¨®é¡ã«å¿œã˜ã¦Objectã‚’èª­ã¿è¾¼ã¿
             Load[metaData.type](objectId, metaData);
         }
 
-        //eqŠÖŒW‚Ìİ’è
+        //è¦ªå­é–¢ä¿‚ã®è¨­å®š
         SetParent();
 
-        //‘¼‚ÌWorld‚ğ“Ç‚İ‚Ş
+        //ä»–ã®Worldã‚’èª­ã¿è¾¼ã‚€
         for (int i = 0; i < nextLoadMutiWorldName.Count; i++)
         {
             var worldName = nextLoadMutiWorldName[i];
@@ -236,7 +236,7 @@ public class AssetsManager : MonoBehaviour
 
     //=====================================================    
     /// <summary>
-    /// e‚ğİ’è‚·‚é
+    /// è¦ªã‚’è¨­å®šã™ã‚‹
     /// </summary>
     void SetParent()
     {
@@ -255,7 +255,7 @@ public class AssetsManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Object‚Ìƒƒ^ƒf[ƒ^‚ğæ“¾
+    /// Objectã®ãƒ¡ã‚¿ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—
     /// </summary>
     /// <param name="node"></param>
     void ReadObjectMetaData(YamlNode node, string worldDir, bool noClear = false)
@@ -296,7 +296,7 @@ public class AssetsManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Object‚ğ•Û‘¶‚·‚é
+    /// Objectã‚’ä¿å­˜ã™ã‚‹
     /// </summary>
     /// <param name="key"></param>
     void WriteToObjectMetaData(string key)
@@ -368,7 +368,7 @@ public class AssetsManager : MonoBehaviour
         var pathObj = $"{worldPath[objectId]}/{metaData.file}";
         if (!File.Exists(pathObj))
         {
-            GM.Msg("message", $"{metaData.file}‚ª‘¶İ‚µ‚Ü‚¹‚ñ");
+            GM.Msg("message", $"{metaData.file}ãŒå­˜åœ¨ã—ã¾ã›ã‚“");
             return;
         }
 
@@ -394,13 +394,13 @@ public class AssetsManager : MonoBehaviour
             {
                 if (child.gameObject.GetComponent<MeshFilter>())
                 {
-                    var collider = child.gameObject.AddComponent<MeshCollider>(); //Õ“Ë”»’è‚Ìİ’è
+                    var collider = child.gameObject.AddComponent<MeshCollider>(); //è¡çªåˆ¤å®šã®è¨­å®š
                     if (metaData.move) collider.convex = true;
                 }
             }
             catch
             {
-                GM.Msg("message", "Collider‚Ìİ’è‚É¸”s‚µ‚Ü‚µ‚½");
+                GM.Msg("message", "Colliderã®è¨­å®šã«å¤±æ•—ã—ã¾ã—ãŸ");
             }
         }
         SetGameObject(objectId, metaData, obj);
@@ -461,12 +461,12 @@ public class AssetsManager : MonoBehaviour
         var exe = obj.GetComponent<EventObject>();
         var data = JsonUtility.FromJson<CustomDataScript>(metaData.custom);
 
-        //ƒXƒNƒŠƒvƒg“à—e
+        //ã‚¹ã‚¯ãƒªãƒ—ãƒˆå†…å®¹
         var txt = File.ReadAllText($"{worldPath[objectId]}/{metaData.file}");
         exe.luaScript = new TextAsset(txt);
         exe.hintText = data.hint;
 
-        //Às•û–@
+        //å®Ÿè¡Œæ–¹æ³•
         if (data.exe == "none") exe.type = eYScript.exeType.none;
         else if (data.exe == "key") exe.type = eYScript.exeType.interact;
         else if (data.exe == "hit") exe.type = eYScript.exeType.hit;
