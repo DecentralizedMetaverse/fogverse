@@ -25,6 +25,7 @@ public class InputF : MonoBehaviour
                 Cursor.visible = false;
                 Cursor.lockState = CursorLockMode.Locked;
                 GM.Msg("SetPauseCamera", false);
+                GM.Msg("SetEnableMove", true);
                 break;
             case InputMode.UIOnly:
                 action.Game.Disable();
@@ -32,11 +33,13 @@ public class InputF : MonoBehaviour
                 Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.None;
                 GM.Msg("SetPauseCamera", true);
+                GM.Msg("SetEnableMove", false);
                 break;
             case InputMode.GameOnly:
                 action.Game.Enable();
                 action.UI.Disable();
                 GM.Msg("SetPauseCamera", false);
+                GM.Msg("SetEnableMove", true);
                 break;
         }
     }

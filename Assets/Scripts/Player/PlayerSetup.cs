@@ -1,8 +1,10 @@
 using Cysharp.Threading.Tasks;
+using DC;
 using MistNet;
 using StarterAssets;
 using Teo.AutoReference;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerSetup : MonoBehaviour
 {
@@ -11,6 +13,7 @@ public class PlayerSetup : MonoBehaviour
     [Get, SerializeField] private Animator animator;
     [Get, SerializeField] private ThirdPersonController thirdPersonController;
     [Get, SerializeField] private MistSyncObject syncObject;
+    [Get,SerializeField] private PlayerInput input;
 
     private async void Start()
     {
@@ -22,6 +25,8 @@ public class PlayerSetup : MonoBehaviour
             thirdPersonController.enabled = false;
             return;
         }
+
+        GM.Add<bool>("SetEnableMove", (value) => input.enabled = value);
 
         dbPlayer.user = transform;
         if (dbPlayer.worldRoot == null)

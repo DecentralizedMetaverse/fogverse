@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Component‚ğObject‚É’Ç‰Á‚·‚é
+/// Componentã‚’Objectã«è¿½åŠ ã™ã‚‹
 /// </summary>
 public class ComponentManagerView : MonoBehaviour
 {
@@ -30,12 +30,12 @@ public class ComponentManagerView : MonoBehaviour
         
         contentPath = $"{Application.dataPath}/{GM.mng.contentPath}";
 
-        // ŠeUI‚Ìæ“¾
+        // å„UIã®å–å¾—
         ui = new ContentManagerUiElements(root);
         var button = root.Get<Button>("SubmitButton");
         button.onClick.AddListener(() => OnOpenFolder());
 
-        // custom‰æ–Ê
+        // customç”»é¢
         var customSubmitButton = root.Get<Button>("CustomSubmitButton");
         customSubmitButton.onClick.AddListener(() => OnSubmitCustom());
 
@@ -48,9 +48,9 @@ public class ComponentManagerView : MonoBehaviour
     }    
 
     /// <summary>
-    /// UI‚Ì•\¦    
+    /// UIã®è¡¨ç¤º    
     /// </summary>
-    /// <param name="target">Component‚Ì’Ç‰Áæ</param>
+    /// <param name="target">Componentã®è¿½åŠ å…ˆ</param>
     void Show(Transform target)
     {
         if (ui.ui.active) { ui.ui.active = false; return; }
@@ -64,7 +64,7 @@ public class ComponentManagerView : MonoBehaviour
 
         using (var editor = ui.ItemList.Edit())
         {
-            // Fileˆê——‚ğ•\¦
+            // Fileä¸€è¦§ã‚’è¡¨ç¤º
             int i = 0;
             foreach (string file in files)
             {
@@ -89,7 +89,7 @@ public class ComponentManagerView : MonoBehaviour
 
     void OnSubmit(int i)
     {
-        // Content‚ğWorld‚É¶¬‚·‚é
+        // Contentã‚’Worldã«ç”Ÿæˆã™ã‚‹
         source = files[i];
         customWindow.active = true;
     }
@@ -101,7 +101,7 @@ public class ComponentManagerView : MonoBehaviour
     }
 
     /// <summary>
-    /// Custom Data‚ÌŒˆ’è
+    /// Custom Dataã®æ±ºå®š
     /// </summary>
     void OnSubmitCustom()
     {
@@ -112,8 +112,8 @@ public class ComponentManagerView : MonoBehaviour
 
         GM.Msg("GenerateComponent", source, target, custom);
         
-        // ¶¬‚µ‚½Object‚ğİ’èFile‚É•Û‘¶‚·‚é
-        // (’ˆÓ: ‘SObject‚Ìİ’èFile‚ğXV‚·‚é)
+        // ç”Ÿæˆã—ãŸObjectã‚’è¨­å®šFileã«ä¿å­˜ã™ã‚‹
+        // (æ³¨æ„: å…¨Objectã®è¨­å®šFileã‚’æ›´æ–°ã™ã‚‹)
         GM.Msg("RegisterObject");
         
         GM.Msg("ShortMessage", "Added Component");

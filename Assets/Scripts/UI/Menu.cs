@@ -1,3 +1,4 @@
+using System;
 using AnKuchen.KuchenLayout;
 using AnKuchen.Map;
 using DC;
@@ -7,6 +8,7 @@ using UnityEngine.UI;
 /// <summary>
 /// Main Menu
 /// </summary>
+[Obsolete]
 public class Menu : MonoBehaviour
 {
     [SerializeField] bool show;

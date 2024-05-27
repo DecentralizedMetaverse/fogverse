@@ -252,6 +252,7 @@ MonoBehaviour:
   animator: {fileID: 8604744008393073923}
   thirdPersonController: {fileID: 3080969492105078216}
   syncObject: {fileID: 7890854545125365410}
+  input: {fileID: 3080969492105078223}
 --- !u!114 &3080969492105078216 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4416926081852918490, guid: 64dce48905ffd9b4293e595fa6941544,
@@ -262,6 +263,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 26e54e5a728a9234ab24fcf1460ed8a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3080969492105078223 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4416926081852918493, guid: 64dce48905ffd9b4293e595fa6941544,
+    type: 3}
+  m_PrefabInstance: {fileID: 1697258596372147986}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3080969492105078211}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!4 &7221476202023279775 stripped
@@ -437,17 +450,17 @@ PrefabInstance:
     - target: {fileID: 3543989731240526917, guid: a3d5449e707948d468e93db3a0d01ff0,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.2344394
+      value: 4.2756376
       objectReference: {fileID: 0}
     - target: {fileID: 3543989731240526917, guid: a3d5449e707948d468e93db3a0d01ff0,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 8.176077
+      value: 8.315211
       objectReference: {fileID: 0}
     - target: {fileID: 3543989731240526917, guid: a3d5449e707948d468e93db3a0d01ff0,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -5.9845533
+      value: -5.7924433
       objectReference: {fileID: 0}
     - target: {fileID: 3543989731240526917, guid: a3d5449e707948d468e93db3a0d01ff0,
         type: 3}
@@ -531,7 +544,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_RecenterTarget: 0
   m_VerticalAxis:
-    Value: 42.852062
+    Value: 43.94926
     m_SpeedMode: 1
     m_MaxSpeed: 0.1
     m_AccelTime: 0.1
@@ -555,7 +568,7 @@ MonoBehaviour:
     m_LegacyHeadingDefinition: -1
     m_LegacyVelocityFilterStrength: -1
   m_HorizontalAxis:
-    Value: -35.281754
+    Value: -36.43254
     m_SpeedMode: 1
     m_MaxSpeed: 0.1
     m_AccelTime: 0.1

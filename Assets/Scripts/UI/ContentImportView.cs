@@ -12,6 +12,7 @@ public class ContentImportView : UIComponent
 {
     private const string SaveDataKey = "ContentDirectory";
     private string contentPath = "";
+    private const string DriveRoot = "DriveRoot";
 
     [SerializeField] private ButtonLabelView buttonPrefab;
 
@@ -23,10 +24,11 @@ public class ContentImportView : UIComponent
     [GetInChildren, Name("Content"), SerializeField]
     private Transform content;
 
-    [GetInChildren, Name("SubmitButton"), SerializeField]
-    private Button submitButton;
+    [GetInChildren, Name("OpenFolderButton"), SerializeField]
+    private Button openFolderButton;
 
     private string[] files;
+    private string[] directories;
     private string currentPath;
 
     private void Start()
@@ -35,7 +37,13 @@ public class ContentImportView : UIComponent
         path ??= $"{Application.dataPath}/{GM.mng.contentPath}";
         currentPath = path;
         input.text = path;
-        submitButton.onClick.AddListener(OnDirectoryChanged);
+        input.onEndEdit.AddListener(_ => OnDirectoryChanged());
+        openFolderButton.onClick.AddListener(OpenFolder);
+    }
+
+    private void OpenFolder()
+    {
+        System.Diagnostics.Process.Start(currentPath);
     }
 
     /// <summary>
@@ -44,23 +52,86 @@ public class ContentImportView : UIComponent
     private void OnDirectoryChanged()
     {
         currentPath = input.text;
-        if (!Directory.Exists(currentPath)) return;
-
-        SaveData.I.Set(SaveDataKey, currentPath);
-
-        files = Directory.GetFiles(currentPath);
-        content.DestroyChildren();
-
-        var i = 0;
-        foreach (var file in files)
+        if (currentPath == DriveRoot || currentPath == "")
         {
-            var i1 = i;
-            var button = Instantiate(buttonPrefab, content);
-            button.gameObject.SetActive(true);
-            button.Label.text = Path.GetFileName(file);
-            button.Button.onClick.AddListener(() => OnSubmit(i1));
-            i++;
+            // Display drives
+            content.DestroyChildren();
+            var drives = Directory.GetLogicalDrives();
+            foreach (var drive in drives)
+            {
+                var driveName = drive;
+                var driveButton = Instantiate(buttonPrefab, content);
+                driveButton.gameObject.SetActive(true);
+                driveButton.Label.text = drive;
+                driveButton.Button.onClick.AddListener(() => OnDriveSelected(driveName));
+            }
         }
+        else if (Directory.Exists(currentPath))
+        {
+            SaveData.I.Set(SaveDataKey, currentPath);
+
+            content.DestroyChildren();
+
+            files = Directory.GetFiles(currentPath);
+            directories = Directory.GetDirectories(currentPath);
+
+            // Add parent directory button
+            var parentButton = Instantiate(buttonPrefab, content);
+            parentButton.gameObject.SetActive(true);
+            parentButton.Label.text = ".. (Parent Directory)";
+            parentButton.Button.onClick.AddListener(OnParentDirectorySelected);
+
+            // Add directory buttons
+            var i = 0;
+            foreach (var directory in directories)
+            {
+                var dirIndex = i;
+                var directoryButton = Instantiate(buttonPrefab, content);
+                directoryButton.gameObject.SetActive(true);
+                directoryButton.Label.text = Path.GetFileName(directory);
+                directoryButton.Button.onClick.AddListener(() => OnDirectorySelected(dirIndex));
+                i++;
+            }
+
+            // Add file buttons
+            foreach (var file in files)
+            {
+                var fileIndex = i;
+                var fileButton = Instantiate(buttonPrefab, content);
+                fileButton.gameObject.SetActive(true);
+                fileButton.Label.text = Path.GetFileName(file);
+                fileButton.Button.onClick.AddListener(() => OnSubmit(fileIndex));
+                i++;
+            }
+        }
+    }
+
+    private void OnParentDirectorySelected()
+    {
+        if (currentPath == DriveRoot || Directory.GetParent(currentPath) == null)
+        {
+            currentPath = DriveRoot;
+        }
+        else
+        {
+            currentPath = Directory.GetParent(currentPath)?.FullName;
+        }
+        input.text = currentPath;
+        OnDirectoryChanged();
+    }
+
+    private void OnDirectorySelected(int i)
+    {
+        currentPath = directories[i];
+        input.text = currentPath;
+        OnDirectoryChanged();
+    }
+
+    private void OnDriveSelected(string drive)
+    {
+        currentPath = drive;
+        input.text = currentPath;
+        OnDirectoryChanged();
     }
 
     /// <summary>
@@ -69,7 +140,7 @@ public class ContentImportView : UIComponent
     private void OnSubmit(int i)
     {
         // Copy file
-        var source = files[i];
+        var source = files[i - directories.Length];
         var destination = $"{contentPath}/{Path.GetFileName(source)}";
 
         if (!File.Exists(destination))
@@ -85,6 +156,7 @@ public class ContentImportView : UIComponent
     {
         base.Show();
         animation.Show();
+        currentPath = DriveRoot;
         OnDirectoryChanged();
     }
 

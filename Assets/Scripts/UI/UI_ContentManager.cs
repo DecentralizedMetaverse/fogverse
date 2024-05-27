@@ -1,3 +1,4 @@
+using System;
 using AnKuchen.KuchenLayout;
 using AnKuchen.Map;
 using System.Collections;
@@ -12,6 +13,7 @@ using AnKuchen.KuchenList;
 /// <summary>
 /// �������Ă���Content���琢�E��Object��z�u����UI
 /// </summary>
+[Obsolete]
 public class UI_ContentManager : MonoBehaviour
 {
     [SerializeField] UICache root;
