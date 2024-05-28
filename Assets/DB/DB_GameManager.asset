@@ -23,6 +23,7 @@ MonoBehaviour:
   contentPath: ../content
   avatarPath: ../avatar
   outputPath: ../output
+  Device: 0
   firstScene: 2
   data:
   - groupName: Manager
@@ -36,6 +37,7 @@ MonoBehaviour:
     - ManagerLate
     - UI
     - UIChat
+    - RTCUI
   - groupName: Test
     scene:
     - {fileID: 102900000, guid: 2451d0cf9a5206b4bad1416df800e051, type: 3}

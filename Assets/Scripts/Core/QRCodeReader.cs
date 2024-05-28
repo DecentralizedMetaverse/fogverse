@@ -1,51 +1,49 @@
 using Cysharp.Threading.Tasks;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using DC;
+using Teo.AutoReference;
 using UnityEngine;
 using UnityEngine.UI;
 using ZXing;
 
 /// <summary>
-/// QRƒR[ƒh‚ğƒXƒLƒƒƒ“‚·‚éƒvƒƒOƒ‰ƒ€
+/// QRã‚³ãƒ¼ãƒ‰ã‚’ã‚¹ã‚­ãƒ£ãƒ³ã™ã‚‹ãƒ—ãƒ­ã‚°ãƒ©ãƒ 
 /// </summary>
-public class QRCodeReader : MonoBehaviour
+public class QRCodeReader : UIComponent
 {
-    [SerializeField] UI_ShowCloseFade ui;
-    [SerializeField] RawImage rawImage;
-    WebCamTexture camTexture;
+    [Get, SerializeField] private UIEasingAnimationPosition animation;
+    [SerializeField] private RawImage rawImage;
+    private WebCamTexture camTexture;
     private bool selectCameraOpen;
 
-    void Start()
+    private void Start()
     {
         foreach (var d in WebCamTexture.devices)
         {
             print(d.name);
         }
         GM.Add<UniTask<string>>("ReadQRCode", ReadQRCode);
-        GM.Add("ShowQRCodeReader", ShowQRCodeReader);
+        GM.Add("ShowQRCodeReader", Show);
     }
 
-    void ShowQRCodeReader()
+    public override void Show()
     {
-        if (selectCameraOpen) return;
-        if (!ui.active)
-        {
-            ReadQRCode().Forget();
-        }
-        else
-        {
-            camTexture.Stop();
-            ui.active = false;
-        }
+        base.Show();
+        animation.Show();
+        ReadQRCode().Forget();
     }
 
-    async UniTask<string> ReadQRCode()
+    public override void Close()
     {
-        // Camera‚ğ‘I‘ğ‚·‚é
+        base.Close();
+        animation.Close();
+        camTexture.Stop();
+    }
+
+    private async UniTask<string> ReadQRCode()
+    {
+        // Cameraã‚’é¸æŠã™ã‚‹
         selectCameraOpen = true;
-        string[] cameraNames = new string[WebCamTexture.devices.Length+1];
+        var cameraNames = new string[WebCamTexture.devices.Length+1];
         var i = 0;
         cameraNames[i++] = "Cancel";
         foreach (var d in WebCamTexture.devices)
@@ -58,9 +56,7 @@ public class QRCodeReader : MonoBehaviour
 
         if (result == 0) { return ""; }
 
-        ui.active = true;
-
-        // Camera‚ğŠJ‚­
+        // Cameraã‚’é–‹ã
         camTexture = new WebCamTexture(cameraNames[result]);
         
         rawImage.texture = camTexture;
@@ -68,7 +64,7 @@ public class QRCodeReader : MonoBehaviour
         return await GetCodeContent();
     }
 
-    async UniTask<string> GetCodeContent()
+    private async UniTask<string> GetCodeContent()
     {
         var result = "";
 
@@ -82,7 +78,7 @@ public class QRCodeReader : MonoBehaviour
                 print(result);
                 camTexture.Stop();
 
-                // Content‚ÌDownload‚ğs‚¤
+                // Contentã®Downloadã‚’è¡Œã†
                 await GM.Msg<UniTask<string>>("DownloadContent", result);
                 return result;
             }
@@ -91,7 +87,7 @@ public class QRCodeReader : MonoBehaviour
         }
     }
 
-    string ReadCode(WebCamTexture texture)
+    private string ReadCode(WebCamTexture texture)
     {
         var reader = new BarcodeReader();
         var rawRGB = texture.GetPixels32();
