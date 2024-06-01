@@ -10,13 +10,15 @@ using R3;
 /// </summary>
 internal class CameraZoom : MonoBehaviour
 {
-    private static readonly float ThirdPersonViewMaxDistance = 10.0f;
-    private static readonly float ThirdPersonViewMinDistance = 0.5f; // Cameraを切り替える閾値としても使用する
-    private static readonly float ThirdPersonViewScrollDivide = 1.0f / 360f; // Scrollの感度
+    private const float ThirdPersonViewMaxDistance = 10.0f;
+    private const float ThirdPersonViewMinDistance = 0.5f; // Cameraを切り替える閾値としても使用する
+    private const float ThirdPersonViewScrollDivide = 1.0f / 360f; // Scrollの感度
 
-    private static readonly float FirstPersonViewScrollDivide = 0.0005f; // Scrollの感度
-    private static readonly float FirstPersonViewMaxVerticalFOV = 60.0f;
-    private static readonly float FirstPersonViewMinVerticalFOV = 1.0f;
+    private const float FirstPersonViewScrollDivide = 0.0005f; // Scrollの感度
+    private const float FirstPersonViewMaxVerticalFOV = 60.0f;
+    private const float FirstPersonViewMinVerticalFOV = 1.0f;
+
+    private const float Damping = 1.0f;
 
     [Get, SerializeField] private CameraManager _cameraManager;
 
@@ -40,12 +42,21 @@ internal class CameraZoom : MonoBehaviour
         {
             _cinemachineVirtualCamera.m_Lens.FieldOfView = FirstPersonViewMaxVerticalFOV;
             _framingTransposer.m_CameraDistance = ThirdPersonViewMinDistance + 0.1f; // 少し距離を戻してから距離変更に移行
+            SetDamping(Damping);
         }
         else
         {
             _framingTransposer.m_CameraDistance = 0;
             SetFirstPersonViewFOV(0);
+            SetDamping(0);
         }
+    }
+
+    private void SetDamping(float value)
+    {
+        _framingTransposer.m_XDamping = value;
+        _framingTransposer.m_YDamping = value;
+        _framingTransposer.m_ZDamping = value;
     }
 
     private void OnDestroy()
