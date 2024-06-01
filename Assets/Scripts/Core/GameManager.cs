@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] DB_FunctionList dBFunctionList;
 
     private SaveData saveData;
+    private PersonViewController personViewController = new PersonViewController();
 
     void OnDestroy()
     {

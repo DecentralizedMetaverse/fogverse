@@ -6,12 +6,15 @@ using Teo.AutoReference;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// OnlinePlayerの初期設定
+/// </summary>
 public class PlayerSetup : MonoBehaviour
 {
     [SerializeField] private DB_Player dbPlayer;
     [Get, SerializeField] private MistAnimator mistAnimator;
     [Get, SerializeField] private Animator animator;
-    [Get, SerializeField] private ThirdPersonController thirdPersonController;
+    [Get, SerializeField] private MovementController thirdPersonController;
     [Get, SerializeField] private MistSyncObject syncObject;
     [Get,SerializeField] private PlayerInput input;
 

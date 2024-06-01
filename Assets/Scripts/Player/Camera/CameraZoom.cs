@@ -1,8 +1,8 @@
-using System.Linq;
 using Cinemachine;
 using Teo.AutoReference;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using R3;
 
 /// <summary>
 /// [Mobile][Desktop] Camera Zoom
@@ -19,18 +19,33 @@ internal class CameraZoom : MonoBehaviour
     private static readonly float FirstPersonViewMinVerticalFOV = 1.0f;
 
     [Get, SerializeField] private CameraManager _cameraManager;
-    [Get, SerializeField] private CameraSwitch _cameraSwitch;
 
     private CinemachineInputProvider _inputProvider;
     private CinemachineFramingTransposer _framingTransposer; // 距離変更用
+    private CinemachineVirtualCamera _cinemachineVirtualCamera;
     private bool _isMoving;
-    private CameraManager.CameraViewSettingsElement[] _vcams;
 
     private void Start()
     {
         InputF.action.Game.Scroll.performed += OnScroll;
-        _vcams = _cameraManager.Vcams;
-        SetFramingTransposer(_vcams.FirstOrDefault(x => x.View == CameraView.ThirdPerson)?.VirtualCamera);
+
+        SetFramingTransposer(_cameraManager.VirtualCamera);
+
+        PersonViewController.I.OnChangedCameraView.Subscribe(SetCameraView).AddTo(this);
+    }
+
+    private void SetCameraView(CameraView cameraView)
+    {
+        if (cameraView == CameraView.ThirdPerson)
+        {
+            _cinemachineVirtualCamera.m_Lens.FieldOfView = FirstPersonViewMaxVerticalFOV;
+            _framingTransposer.m_CameraDistance = ThirdPersonViewMinDistance + 0.1f; // 少し距離を戻してから距離変更に移行
+        }
+        else
+        {
+            _framingTransposer.m_CameraDistance = 0;
+            SetFirstPersonViewFOV(0);
+        }
     }
 
     private void OnDestroy()
@@ -40,8 +55,8 @@ internal class CameraZoom : MonoBehaviour
 
     private void SetFramingTransposer(CinemachineVirtualCameraBase vcam)
     {
-        var cameraComponent =
-            (vcam as CinemachineVirtualCamera)?.GetCinemachineComponent(CinemachineCore.Stage.Body);
+        _cinemachineVirtualCamera = vcam as CinemachineVirtualCamera;
+        var cameraComponent = _cinemachineVirtualCamera?.GetCinemachineComponent(CinemachineCore.Stage.Body);
         if (cameraComponent is CinemachineFramingTransposer component)
         {
             _framingTransposer = component;
@@ -57,13 +72,15 @@ internal class CameraZoom : MonoBehaviour
 
     private void SetZoom(float value)
     {
-        if (_cameraManager.CurrentCameraView == CameraView.FirstPerson)
-        {
-            SetFirstPersonViewDistance(value);
-        }
-        else if (_cameraManager.CurrentCameraView == CameraView.ThirdPerson)
+        var distance = _framingTransposer.m_CameraDistance;
+
+        if (distance > ThirdPersonViewMinDistance)
         {
             SetThirdPersonViewDistance(value);
+        }
+        else
+        {
+            SetFirstPersonViewFOV(value);
         }
     }
 
@@ -77,10 +94,10 @@ internal class CameraZoom : MonoBehaviour
         Debug.Log(distance);
         _framingTransposer.m_CameraDistance = distance;
 
-        // 距離によってCameraを切り替える
-        if (!_cameraSwitch.IsSingle && distance <= ThirdPersonViewMinDistance)
+        // 距離が0になったらFOVを変更する
+        if (distance <= ThirdPersonViewMinDistance)
         {
-            _cameraSwitch.Set(CameraView.FirstPerson);
+            PersonViewController.I.SetCameraView(CameraView.FirstPerson);
         }
     }
 
@@ -88,24 +105,21 @@ internal class CameraZoom : MonoBehaviour
     /// NOTE: 厳密にはFOVを変更する
     /// </summary>
     /// <param name="addValue"></param>
-    private void SetFirstPersonViewDistance(float addValue)
+    private void SetFirstPersonViewFOV(float addValue)
     {
-        var virtualCamera = _vcams.FirstOrDefault(x => x.View == CameraView.FirstPerson)?.VirtualCamera;
-        var cinemachineVirtualCamera = virtualCamera as CinemachineVirtualCamera;
-        if (cinemachineVirtualCamera == null) return;
+        if (_cinemachineVirtualCamera == null) return;
 
-        var fov = cinemachineVirtualCamera.m_Lens.FieldOfView;
+        var fov = _cinemachineVirtualCamera.m_Lens.FieldOfView;
         // FOVが小さくなるほど変更量が小さくなるように調整
         var adjustmentFactor = fov * FirstPersonViewScrollDivide;
         fov -= addValue * adjustmentFactor;
-        fov = Mathf.Clamp(fov, FirstPersonViewMinVerticalFOV,
-            FirstPersonViewMaxVerticalFOV + 1); // 初期値が60であり、下の条件で3人称に切り替わってしまうため+1する
-        cinemachineVirtualCamera.m_Lens.FieldOfView = fov;
+        fov = Mathf.Clamp(fov, FirstPersonViewMinVerticalFOV, FirstPersonViewMaxVerticalFOV + 1); // 初期値が60であり、下の条件で3人称に切り替わってしまうため+1する
+        _cinemachineVirtualCamera.m_Lens.FieldOfView = fov;
 
-        // 距離によってCameraを切り替える
+        // FOVが最大値に達したら距離による変更に戻る
         if (fov > FirstPersonViewMaxVerticalFOV)
         {
-            _cameraSwitch.Set(CameraView.ThirdPerson);
+            PersonViewController.I.SetCameraView(CameraView.ThirdPerson);
         }
     }
 }
