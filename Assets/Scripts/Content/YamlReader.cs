@@ -5,7 +5,7 @@ using UnityEngine;
 using YamlDotNet.Serialization;
 
 /// <summary>
-/// YamlFile“Ç‚İ‘‚«
+/// YamlFileèª­ã¿æ›¸ã
 /// </summary>
 public class YamlReader : MonoBehaviour
 {
@@ -35,10 +35,10 @@ public class YamlReader : MonoBehaviour
     }
 
     /// <summary>
-    /// Yaml‘‚«‚İ
+    /// Yamlæ›¸ãè¾¼ã¿
     /// </summary>
     /// <param name="data"></param>
-    /// <returns>•Û‘¶‚µ‚½FileƒpƒX</returns>
+    /// <returns>ä¿å­˜ã—ãŸFileãƒ‘ã‚¹</returns>
     void Write(string path, Dictionary<string, object> data)
     {
         var serializer = new SerializerBuilder().Build();

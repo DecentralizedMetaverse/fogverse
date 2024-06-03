@@ -4,6 +4,7 @@ using UnityEngine;
 using System.IO;
 
 /// <summary>
+/// TODO: 実験のためにLinuxに対応させたい
 /// </summary>
 public class IpfsManager : MonoBehaviour
 {

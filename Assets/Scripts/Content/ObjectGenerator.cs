@@ -14,7 +14,7 @@ public class ObjectGenerator : MonoBehaviour
     [SerializeField] VideoObject prefabVideo;
     [SerializeField] GameObject prefabUnknown;
     [SerializeField] ObjectSSH prefabSSH;
-
+    [SerializeField] ObjectGltf prefabGltf;
     Dictionary<string, Delegate> functions = new(64);
 
     void Start()
@@ -35,6 +35,8 @@ public class ObjectGenerator : MonoBehaviour
         AddFunc<string, Transform>(".vrm", ObjVRM);
         AddFunc<string, Transform>(".ssh", ObjSSH);
         AddFunc<string, Transform>(".obj", Obj);
+        AddFunc<string, Transform>(".gltf", ObjGltf);
+        AddFunc<string, Transform>(".glb", ObjGltf);
     }
 
     /// <summary>
@@ -43,6 +45,7 @@ public class ObjectGenerator : MonoBehaviour
     /// <param name="path"></param>
     Transform Generate(string path)
     {
+        Debug.Log($"[ObjectGenerator] Generate: {path}");
         var extension = System.IO.Path.GetExtension(path);
         if (!functions.ContainsKey(extension))
         {
@@ -134,7 +137,16 @@ public class ObjectGenerator : MonoBehaviour
         //objLoader = new ObjeLoader
         SetObjectInfo(path, obj);
         return obj.transform;
-    }    
+    }
+
+    Transform ObjGltf(string path)
+    {
+        var fullPath = Path.GetFullPath(path);
+        var obj = Instantiate(prefabGltf);
+        SetObjectInfo(path, obj.gameObject);
+        obj.SetData(path);
+        return obj.transform;
+    }
 
     //-----------------------------------------
 

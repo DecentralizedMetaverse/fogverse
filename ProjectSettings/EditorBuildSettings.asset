@@ -21,8 +21,11 @@ EditorBuildSettings:
     path: Assets/Scenes/World.unity
     guid: 457cfb6c16ba7784ebf48c8466b1b1fd
   - enabled: 1
-    path: Assets/Scenes/ManagerLate.unity
+    path: Assets/Scenes/RealtimeLayer.unity
     guid: a0e98b790b12f414eb5ccc5c3c9c3aa1
+  - enabled: 1
+    path: Assets/Scenes/ContentLayer.unity
+    guid: 0f694251b9436dc48bd090435b98ac40
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: b666bd782d55e794192fefa8c962724a,
       type: 2}

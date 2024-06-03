@@ -102,7 +102,6 @@ internal class CameraZoom : MonoBehaviour
         var distance = _framingTransposer.m_CameraDistance;
         distance -= addValue * ThirdPersonViewScrollDivide;
         distance = Mathf.Clamp(distance, ThirdPersonViewMinDistance, ThirdPersonViewMaxDistance);
-        Debug.Log(distance);
         _framingTransposer.m_CameraDistance = distance;
 
         // 距離が0になったらFOVを変更する
