@@ -139,6 +139,11 @@ public class ObjectGenerator : MonoBehaviour
         return obj.transform;
     }
 
+    /// <summary>
+    /// TODO: Componentの記録がまだ終わっていない
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
     Transform ObjGltf(string path)
     {
         var fullPath = Path.GetFullPath(path);
