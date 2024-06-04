@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using System.Collections;
 using System.Collections.Generic;
 using DC;
 using UnityEngine;
@@ -60,14 +59,15 @@ public class MetaRegister : MonoBehaviour
     /// YamlにObjectの内容を書き出す
     /// </summary>
     /// <param name="fileName"></param>
-    /// <param name="transform"></param>
+    /// <param name="targetTransform"></param>
     /// <returns></returns>
-    async UniTask<string> CreateYamlObjectData(string fileName, Transform transform, List<string> objs)
+    async UniTask<string> CreateYamlObjectData(string fileName, Transform targetTransform, List<string> objs)
     {
         // Upload the file to IPFS
         var cid = "";
         if (fileName != "")
         {
+            // BasicObjectは基本図形 (Cube, Sphere, etc.)
             if (GM.Msg<bool>("IsBasicObject", fileName))
             {
                 // TODO: 確認
@@ -79,32 +79,44 @@ public class MetaRegister : MonoBehaviour
             }
         }
 
-        Dictionary<string, object> data = new();
-        data.Add("name", transform.gameObject.name);
-        data.Add("cid", cid);
+        var objType = "";
+        if (targetTransform.TryGetComponent(out ObjectBase objInfo))
+        {
+            // World読み込みの際にTextやImageやAudioなどを適用するために使用
+            objType = objInfo.ObjType;
+        }
+
+        Dictionary<string, object> metaData = new()
+        {
+            { "name", targetTransform.gameObject.name },
+            { "cid", cid },
+            { "type", objType }
+        };
 
         // Transform
-        Dictionary<string, string> location = new();
-        location.Add("position", transform.position.ToSplitString());
-        location.Add("rotation", transform.rotation.eulerAngles.ToSplitString());
-        location.Add("scale", transform.localScale.ToSplitString());
-        data.Add("transform", location);
-        
+        Dictionary<string, string> location = new()
+        {
+            { "position", targetTransform.position.ToSplitString() },
+            { "rotation", targetTransform.rotation.eulerAngles.ToSplitString() },
+            { "scale", targetTransform.localScale.ToSplitString() }
+        };
+        metaData.Add("transform", location);
+
         // Child Objects
-        data.Add("objs", objs);
+        metaData.Add("objs", objs);
 
         // Components
         List<string> comps = new(64);
-        foreach (var comp in transform.GetComponents<Component>())
+        foreach (var comp in targetTransform.GetComponents<Component>())
         {
+            // TODO: Componentの保存方法を検討しなおす
             var componentCID = await CreateYamlComponentData(comp.fileName, comp.custom);
             comps.Add(componentCID);
         }
-        data.Add("components", comps);
-
+        metaData.Add("components", comps);
 
         // Fileの書き出し
-        var metaCID = await WriteMeta(data);
+        var metaCID = await WriteMeta(metaData);
 
         return metaCID;
     }
@@ -119,11 +131,13 @@ public class MetaRegister : MonoBehaviour
     {
         // IPFSに登録
         var fileCID = await GM.Msg<UniTask<string>>("IPFSUpload", path);
-        var fileName = System.IO.Path.GetFileName(path);
+        var fileName = Path.GetFileName(path);
         
-        Dictionary<string, object> data = new();
-        data.Add("name", fileName);
-        data.Add("cid", fileCID);
+        Dictionary<string, object> data = new()
+        {
+            { "name", fileName },
+            { "cid", fileCID }
+        };
 
         // MetaFileの書き出し
         var metaCID = await WriteMeta(data);
@@ -139,8 +153,8 @@ public class MetaRegister : MonoBehaviour
     async UniTask<string> WriteMeta(Dictionary<string, object> yamlData)
     {
         // 仮のFileを作成
-        Guid guid = Guid.NewGuid();
-        string guidString = guid.ToString();
+        var guid = Guid.NewGuid();
+        var guidString = guid.ToString();
 
         var path = $"{Application.dataPath}/{GM.mng.metaPath}/{guidString}.yaml";
         GM.Msg("WriteYaml", path, yamlData);
@@ -155,7 +169,7 @@ public class MetaRegister : MonoBehaviour
         var outputPath = $"{Application.dataPath}/{GM.mng.metaPath}/{cid}.yaml";
         GM.Msg("WriteYaml", outputPath, yamlData);
 
-        return System.IO.Path.GetFileNameWithoutExtension(outputPath);
+        return Path.GetFileNameWithoutExtension(outputPath);
     }
 
     /// <summary>
@@ -168,7 +182,7 @@ public class MetaRegister : MonoBehaviour
     {
         // IPFSに登録
         var fileCID = await GM.Msg<UniTask<string>>("IPFSUpload", path);
-        var fileName = System.IO.Path.GetFileName(path);
+        var fileName = Path.GetFileName(path);
         Dictionary<string, object> data = new();
         data.Add("name", fileName);
         data.Add("cid", fileCID);

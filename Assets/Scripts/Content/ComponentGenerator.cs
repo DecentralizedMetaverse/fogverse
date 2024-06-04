@@ -8,7 +8,7 @@ using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// Component‚ğ¶¬‚µObject‚É’Ç‰Á‚·‚é
+/// Componentã‚’ç”Ÿæˆã—Objectã«è¿½åŠ ã™ã‚‹
 /// </summary>
 public class ComponentGenerator : MonoBehaviour
 {
@@ -22,7 +22,7 @@ public class ComponentGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// Component¶¬
+    /// Componentç”Ÿæˆ
     /// </summary>
     /// <param name="path"></param>
     /// <param name="root"></param>
@@ -33,7 +33,7 @@ public class ComponentGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// ‘Î‰‚·‚éŠg’£q‚ÌƒŠƒXƒg‚ğ•Ô‚·
+    /// å¯¾å¿œã™ã‚‹æ‹¡å¼µå­ã®ãƒªã‚¹ãƒˆã‚’è¿”ã™
     /// </summary>
     /// <returns></returns>
     string[] GetComponentExtensions()
@@ -42,7 +42,7 @@ public class ComponentGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// ŠÖ”‚ğ“o˜^‚·‚é
+    /// é–¢æ•°ã‚’ç™»éŒ²ã™ã‚‹
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="key"></param>

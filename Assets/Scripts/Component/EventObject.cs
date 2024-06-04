@@ -1,6 +1,4 @@
 using Cysharp.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
 using DC;
 using UnityEngine;
 
@@ -13,7 +11,7 @@ public class EventObject : Component, ExeEvent
     public TextAsset luaScript;
 
     [System.NonSerialized]
-    string _code;    // RunTime“Ç‚İ‚İ—p
+    string _code;    // RunTimeèª­ã¿è¾¼ã¿ç”¨
     public string code
     {
         get
@@ -49,7 +47,7 @@ public class EventObject : Component, ExeEvent
     }
 
     /// <summary>
-    /// Œˆ’èƒL[Às
+    /// æ±ºå®šã‚­ãƒ¼å®Ÿè¡Œ
     /// </summary>
     /// <param name="vec"></param>
     async void ExeEvent.SubmitRun(Vector3 vec)
@@ -62,7 +60,7 @@ public class EventObject : Component, ExeEvent
     }
 
     /// <summary>
-    /// ÚGÀs
+    /// æ¥è§¦å®Ÿè¡Œ
     /// </summary>
     void ExeEvent.EnterRun()
     {

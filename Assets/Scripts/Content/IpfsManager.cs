@@ -13,7 +13,7 @@ public class IpfsManager : MonoBehaviour
     {
         GM.Add<string, UniTask<string>>("IPFSUpload", Upload);
         GM.Add<string, string, UniTask<bool>>("IPFSDownload", Download);
-        GM.Add<UniTask<string>>("IPFSInit", Init);
+        GM.Add("IPFSInit", Init);
     }
 
     private async UniTask<string> Init()

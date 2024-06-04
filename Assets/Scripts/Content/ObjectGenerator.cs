@@ -46,13 +46,17 @@ public class ObjectGenerator : MonoBehaviour
     Transform Generate(string path)
     {
         Debug.Log($"[ObjectGenerator] Generate: {path}");
-        var extension = System.IO.Path.GetExtension(path);
+        var extension = Path.GetExtension(path);
         if (!functions.ContainsKey(extension))
         {
+            // 未知の拡張子の場合はUnknownObjectを生成
             return CreateObject(path, prefabUnknown).transform;
         }
 
         var transform = (Transform)functions[extension].DynamicInvoke(path);
+        // ワールド読み込みの際に生成できるように、Objectの種類を記録
+        transform.GetComponent<ObjectBase>().ObjType = extension;
+
         return transform;
     }
 

@@ -44,9 +44,9 @@ public class ObjectSSH : ObjectBase
         pass = data["password"].ToString();
         
         
-        // SSHƒNƒ‰ƒCƒAƒ“ƒg‚Ìì¬
+        // SSHã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã®ä½œæˆ
         client = new SshClient(host, port, user, pass);
-        // SSHƒT[ƒo[‚ÉÚ‘±
+        // SSHã‚µãƒ¼ãƒãƒ¼ã«æ¥ç¶š
         try
         {
             client.Connect();
@@ -68,16 +68,16 @@ public class ObjectSSH : ObjectBase
 
     private void OnDestroy()
     {
-        // SSHƒT[ƒo[‚©‚çØ’f
+        // SSHã‚µãƒ¼ãƒãƒ¼ã‹ã‚‰åˆ‡æ–­
         client.Disconnect();
     }
 
     void OnSubmit(string command)
     {
-        // ƒRƒ}ƒ“ƒh‚ÌÀs
+        // ã‚³ãƒãƒ³ãƒ‰ã®å®Ÿè¡Œ
         using (var cmd = client.CreateCommand(input.text))
         {
-            // ƒRƒ}ƒ“ƒh‚Ìo—Í‚ğæ“¾
+            // ã‚³ãƒãƒ³ãƒ‰ã®å‡ºåŠ›ã‚’å–å¾—
             var result = cmd.Execute();
             output.text = $"{output.text}{input.text}\n{result}";
             input.text = "";
