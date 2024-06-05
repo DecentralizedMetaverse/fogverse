@@ -60,6 +60,7 @@ public class IpfsManager : MonoBehaviour
         Debug.Log($"[IPFS] Download: {cid} {filePath}");
         var ret = await GM.Msg<UniTask<string>>("Exe", $"\"{IpfsPath}\"", $"get {cid} -o \"{filePath}.enc\"");
         
+
         if (!GM.Msg<bool>("DecryptFile", $"{filePath}.enc")) return false;
         File.Delete($"{filePath}.enc"); // File�폜
 

@@ -1,16 +1,12 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography;
-using System.Text;
 using Cysharp.Threading.Tasks;
 using DC;
 using UnityEngine;
 
 /// <summary>
-/// File‚ÌˆÃ†‰»‚ğs‚¤
+/// Fileã®æš—å·åŒ–ã‚’è¡Œã†
 /// </summary>
 public class FileCrypto : MonoBehaviour
 {
@@ -31,7 +27,7 @@ public class FileCrypto : MonoBehaviour
     }
 
     /// <summary>
-    /// ˆÃ†‰»
+    /// æš—å·åŒ–
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
@@ -42,12 +38,12 @@ public class FileCrypto : MonoBehaviour
 
     bool EncryptFileWithPassword(string path, string password)
     {
-        // File‚Ì“à—e‚ğƒoƒCƒg”z—ñ‚Æ‚µ‚Ä“Ç‚İ‚Ş
+        // Fileã®å†…å®¹ã‚’ãƒã‚¤ãƒˆé…åˆ—ã¨ã—ã¦èª­ã¿è¾¼ã‚€
         byte[] inputBytes = File.ReadAllBytes(path);
 
         byte[] encryptedData = Encrypt(inputBytes, password, salt);
 
-        // ˆÃ†‰»‚³‚ê‚½ƒf[ƒ^‚ğ•Ê‚ÌFile‚É‘‚«‚ŞiŠg’£q‚Í.enc‚É‚·‚éj
+        // æš—å·åŒ–ã•ã‚ŒãŸãƒ‡ãƒ¼ã‚¿ã‚’åˆ¥ã®Fileã«æ›¸ãè¾¼ã‚€ï¼ˆæ‹¡å¼µå­ã¯.encã«ã™ã‚‹ï¼‰
         var newFileName = path + ".enc";
         File.WriteAllBytes(newFileName, encryptedData);
 
@@ -55,7 +51,7 @@ public class FileCrypto : MonoBehaviour
     }
 
     /// <summary>
-    /// •œ†‰»
+    /// å¾©å·åŒ–
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
@@ -66,15 +62,15 @@ public class FileCrypto : MonoBehaviour
 
     bool DecryptFileWithPassword(string path, string password)
     {
-        // o—Í‚·‚éFile–¼
+        // å‡ºåŠ›ã™ã‚‹Fileå
         string outputFileName = path.Substring(0, path.LastIndexOf('.'));
 
-        // ˆÃ†‰»‚³‚ê‚½File‚©‚çƒ\ƒ‹ƒg‚Æƒf[ƒ^‚ğ“Ç‚İ‚Ş
+        // æš—å·åŒ–ã•ã‚ŒãŸFileã‹ã‚‰ã‚½ãƒ«ãƒˆã¨ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã‚€
         byte[] encryptedData = File.ReadAllBytes(path);
 
         byte[] decryptedData = Decrypt(encryptedData, password, salt);
 
-        // •œ†‰»‚³‚ê‚½ƒf[ƒ^‚ğ•Ê‚ÌFile‚É‘‚«‚Ş
+        // å¾©å·åŒ–ã•ã‚ŒãŸãƒ‡ãƒ¼ã‚¿ã‚’åˆ¥ã®Fileã«æ›¸ãè¾¼ã‚€
         File.WriteAllBytes(outputFileName, decryptedData);
 
         return true;
@@ -86,11 +82,11 @@ public class FileCrypto : MonoBehaviour
 
         while (IsFileLocked(path))
         {
-            // File‚ªg—p’†
+            // FileãŒä½¿ç”¨ä¸­
             await UniTask.Yield();
         }
         
-        // ˆÃ†‰»‚³‚ê‚½File‚©‚çData‚ğ“Ç‚İ‚Ş
+        // æš—å·åŒ–ã•ã‚ŒãŸFileã‹ã‚‰Dataã‚’èª­ã¿è¾¼ã‚€
         var encryptedData = File.ReadAllBytes(path);
 
         return Decrypt(encryptedData, password, salt);
@@ -124,24 +120,24 @@ public class FileCrypto : MonoBehaviour
         byte[] key = keyDerive.GetBytes(32);
         byte[] iv = keyDerive.GetBytes(16);
 
-        // AESˆÃ†‰»Object‚ğì‚é
+        // AESæš—å·åŒ–Objectã‚’ä½œã‚‹
         Aes aes = Aes.Create();
 
-        // ˆÃ†‰»‚³‚ê‚½ƒf[ƒ^‚ğŠi”[‚·‚éƒoƒCƒg”z—ñ‚ğì‚é
+        // æš—å·åŒ–ã•ã‚ŒãŸãƒ‡ãƒ¼ã‚¿ã‚’æ ¼ç´ã™ã‚‹ãƒã‚¤ãƒˆé…åˆ—ã‚’ä½œã‚‹
         byte[] encryptedData;
 
-        // ˆÃ†‰»ƒXƒgƒŠ[ƒ€‚ğì‚é
+        // æš—å·åŒ–ã‚¹ãƒˆãƒªãƒ¼ãƒ ã‚’ä½œã‚‹
         using (MemoryStream ms = new MemoryStream())
         {
-            // ms.Write(salt, 0, salt.Length); // ƒ\ƒ‹ƒg‚ğ‘‚«‚Ş
+            // ms.Write(salt, 0, salt.Length); // ã‚½ãƒ«ãƒˆã‚’æ›¸ãè¾¼ã‚€
 
             using (CryptoStream cs = new CryptoStream(ms, aes.CreateEncryptor(key, iv), CryptoStreamMode.Write))
             {
-                cs.Write(inputBytes, 0, inputBytes.Length); // ƒf[ƒ^‚ğ‘‚«‚Ş
-                cs.FlushFinalBlock(); // ÅIƒuƒƒbƒN‚Ìˆ—
+                cs.Write(inputBytes, 0, inputBytes.Length); // ãƒ‡ãƒ¼ã‚¿ã‚’æ›¸ãè¾¼ã‚€
+                cs.FlushFinalBlock(); // æœ€çµ‚ãƒ–ãƒ­ãƒƒã‚¯ã®å‡¦ç†
             }
 
-            encryptedData = ms.ToArray(); // ˆÃ†‰»‚³‚ê‚½ƒf[ƒ^‚ğæ“¾‚·‚é
+            encryptedData = ms.ToArray(); // æš—å·åŒ–ã•ã‚ŒãŸãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
         }
 
         return encryptedData;
@@ -153,18 +149,18 @@ public class FileCrypto : MonoBehaviour
         //byte[] data = new byte[encryptedData.Length - salt.Length];
         //Array.Copy(encryptedData, salt.Length, data, 0, data.Length);
 
-        // ƒpƒXƒ[ƒh‚Æƒ\ƒ‹ƒg‚©‚çRfc2898DeriveBytesObject‚ğì‚é
+        // ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã¨ã‚½ãƒ«ãƒˆã‹ã‚‰Rfc2898DeriveBytesObjectã‚’ä½œã‚‹
         Rfc2898DeriveBytes keyDerive = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256);
         byte[] key = keyDerive.GetBytes(32);
         byte[] iv = keyDerive.GetBytes(16);
 
-        // AesObject‚ğì‚é
+        // AesObjectã‚’ä½œã‚‹
         Aes aes = Aes.Create();
 
-        // •œ†‰»‚³‚ê‚½ƒf[ƒ^‚ğŠi”[‚·‚éƒoƒCƒg”z—ñ‚ğì‚é
+        // å¾©å·åŒ–ã•ã‚ŒãŸãƒ‡ãƒ¼ã‚¿ã‚’æ ¼ç´ã™ã‚‹ãƒã‚¤ãƒˆé…åˆ—ã‚’ä½œã‚‹
         byte[] decryptedData = null;
 
-        // •œ†‰»ƒXƒgƒŠ[ƒ€‚ğì‚é
+        // å¾©å·åŒ–ã‚¹ãƒˆãƒªãƒ¼ãƒ ã‚’ä½œã‚‹
         try
         {
             using (MemoryStream ms = new MemoryStream())
@@ -172,11 +168,11 @@ public class FileCrypto : MonoBehaviour
                 using (CryptoStream cs = new CryptoStream(ms,
                     aes.CreateDecryptor(key, iv), CryptoStreamMode.Write))
                 {
-                    cs.Write(encryptedData, 0, encryptedData.Length); // ƒf[ƒ^‚ğ‘‚«‚Ş
-                    cs.FlushFinalBlock(); // ÅIƒuƒƒbƒN‚Ìˆ—
+                    cs.Write(encryptedData, 0, encryptedData.Length); // ãƒ‡ãƒ¼ã‚¿ã‚’æ›¸ãè¾¼ã‚€
+                    cs.FlushFinalBlock(); // æœ€çµ‚ãƒ–ãƒ­ãƒƒã‚¯ã®å‡¦ç†
                 }
 
-                decryptedData = ms.ToArray(); // •œ†‰»‚³‚ê‚½ƒf[ƒ^‚ğæ“¾‚·‚é
+                decryptedData = ms.ToArray(); // å¾©å·åŒ–ã•ã‚ŒãŸãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
             }
         }
         catch (Exception e)

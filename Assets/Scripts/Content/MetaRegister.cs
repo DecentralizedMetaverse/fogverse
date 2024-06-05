@@ -132,6 +132,8 @@ public class MetaRegister : MonoBehaviour
         // IPFSに登録
         var fileCID = await GM.Msg<UniTask<string>>("IPFSUpload", path);
         var fileName = Path.GetFileName(path);
+
+        Debug.Log($"[Content] Upload: {fileName} {fileCID}");
         
         Dictionary<string, object> data = new()
         {

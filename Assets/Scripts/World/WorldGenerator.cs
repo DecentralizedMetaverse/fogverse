@@ -1,13 +1,8 @@
 using Cysharp.Threading.Tasks;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using DC;
 using UnityEngine;
-using System.Security.Cryptography;
-using System.Linq;
 using Newtonsoft.Json;
 
 /// <summary>
@@ -16,14 +11,12 @@ using Newtonsoft.Json;
 public class WorldGenerator : MonoBehaviour
 {
     [SerializeField] DB_Player db;
-    string path = "";
 
     Dictionary<string, Transform> worldContent = new(1024);
     Dictionary<string, Dictionary<string, object>> metaObjs = new(1024);
 
     private void Awake()
     {
-        path = Constants.AvatarPath;
         GM.Add<string, UniTask>("GenerateWorld", GenerateWorldAsync);
         GM.Add<string, UniTask<string>>("DownloadContent", DownloadContent);
         GM.Add<string, Transform, UniTask<Transform>>("GenerateObjectByCID", GenerateByCID);
@@ -59,9 +52,12 @@ public class WorldGenerator : MonoBehaviour
         // generate object
         var fileCID = metaData["cid"].ToString();
 
+        Debug.Log($"[Debug][Content][0] GenerateByCID: {fileCID}");
+
         Transform transform;
         if (GM.Msg<bool>("IsBasicObject", fileCID))
         {
+            Debug.Log($"[Content] BasicObject: {fileCID}");
             // 基本Object (Cube, Sphere, Plane, etc.)である場合
             // TODO: 確認
             transform = GM.Msg<Transform>("GenerateBasicObject", fileCID);
@@ -69,9 +65,12 @@ public class WorldGenerator : MonoBehaviour
         }
         else
         {
+            Debug.Log($"[Content] Object: {fileCID}");
             // それ以外のObjectである場合
             transform = await GenerateObject(parent, metaData, fileCID);
         }
+
+        Debug.Log($"[Debug][Content][1] GenerateByCID: {fileCID}");
 
         // download child object
         foreach (var obj in (List<object>)metaData["objs"])
@@ -96,7 +95,7 @@ public class WorldGenerator : MonoBehaviour
     /// <returns></returns>
     private async UniTask<string> DownloadMetaFile(string cid)
     {
-        var filePath = $"{path}/{cid}.yaml";
+        var filePath = string.Format(Constants.MetaPath, $"{cid}.yaml");
 
         if (!File.Exists(filePath))
         {
@@ -119,7 +118,7 @@ public class WorldGenerator : MonoBehaviour
         Transform generateContent;
         var objType = metaData["type"].ToString();
 
-        if (fileCID == "")
+        if (string.IsNullOrEmpty(fileCID))
         {
             var obj = new GameObject();
             generateContent = obj.transform;
@@ -221,9 +220,10 @@ public class WorldGenerator : MonoBehaviour
 
     private async UniTask<Dictionary<string, object>> GetMetaData(string cid)
     {
-        if (metaObjs.ContainsKey(cid))
+        Debug.Log($"[Content] GetMetaData: {cid}");
+        if (metaObjs.TryGetValue(cid, out var metaData))
         {
-            return metaObjs[cid];
+            return metaData;
         }
 
         // metaFileDownload        

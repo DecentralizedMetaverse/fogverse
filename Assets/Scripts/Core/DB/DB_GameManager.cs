@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,37 +8,33 @@ using UnityEngine;
 /// </summary>
 [CreateAssetMenu(fileName = "DB_GameManager", menuName = "DB/DB_GameManager")]
 public class DB_GameManager : ScriptableObject
-{    
-    [Header("Debugging Options")]
-    public bool visiblePerformance;
+{
+    [Header("Debugging Options")] public bool visiblePerformance;
     public bool visibleLog;
     public bool startWorldPosition = true;
     public bool bgmOff = true;
-    
-    [Header("Debugging Authentication")] 
-    public string userName;
+
+    [Header("Debugging Authentication")] public string userName;
     public string password;
     public bool skipSignInScreen = true;
 
-    [Header("Other")]
-    public string outputPath = "../output";
+    [Header("Other")] public string outputPath = "../output";
     public DeviceMode Device = DeviceMode.Desktop;
 
     //public eScene.Scene scene;
-    [Header("Scene Group")]
-    public eScene.Scene firstScene;
+    [Header("Scene Group")] public eScene.Scene firstScene;
     public List<DB_GameManagerE> data = new(10);
 
 #if UNITY_EDITOR
     public void SetSceneName()
     {
         // Sceneの名前を取得する
-        foreach(var d in data)
+        foreach (var d in data)
         {
             var count = d.scene.Count;
             d.sceneName = new string[count];
-            
-            for(int i = 0; i < d.scene.Count; i++)
+
+            for (int i = 0; i < d.scene.Count; i++)
             {
                 d.sceneName[i] = d.scene[i].name;
             }
@@ -69,4 +62,3 @@ public class DB_GameManagerE
 #endif
     [HideInInspector] public string[] sceneName;
 }
-
