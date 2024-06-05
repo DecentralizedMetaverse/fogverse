@@ -10,14 +10,14 @@ using System.IO;
 /// </summary>
 public class MetaRegister : MonoBehaviour
 {
-    [SerializeField] DB_Player db;
+    [SerializeField] private DB_Player db;
 
-    void Start()
+    private void Start()
     {
         GM.Add("RegisterObject", RegisterObject);
     }
 
-    async void RegisterObject()
+    private async void RegisterObject()
     {
         var cid = await UpdateMeta(db.worldRoot);
         GM.Msg("UpdateWorldID", cid);
@@ -26,23 +26,23 @@ public class MetaRegister : MonoBehaviour
     /// <summary>
     /// MetaFileを作成する
     /// </summary>
-    /// <param name="transform"></param>
+    /// <param name="targetTransform"></param>
     /// <returns></returns>
-    async UniTask<string> UpdateMeta(Transform transform)
+    private async UniTask<string> UpdateMeta(Transform targetTransform)
     {
         List<string> objs = new();
 
         // does this have a file?
         var fileName = "";
         
-        if (transform.TryGetComponent(out ObjectBase objBase))
+        if (targetTransform.TryGetComponent(out ObjectBase objBase))
         {
             fileName = objBase.fileName;
         }
         else
         {
             // 子階層にアクセス
-            foreach (Transform child in transform)
+            foreach (Transform child in targetTransform)
             {
                 var childMetaCID = await UpdateMeta(child);
                 objs.Add(childMetaCID);
@@ -50,7 +50,7 @@ public class MetaRegister : MonoBehaviour
         }
 
         // MetaFileの作成
-        var metaCID = await CreateYamlObjectData(fileName, transform, objs);
+        var metaCID = await CreateYamlObjectData(fileName, targetTransform, objs);
         
         return metaCID;
     }
@@ -61,7 +61,7 @@ public class MetaRegister : MonoBehaviour
     /// <param name="fileName"></param>
     /// <param name="targetTransform"></param>
     /// <returns></returns>
-    async UniTask<string> CreateYamlObjectData(string fileName, Transform targetTransform, List<string> objs)
+    private async UniTask<string> CreateYamlObjectData(string fileName, Transform targetTransform, List<string> objs)
     {
         // Upload the file to IPFS
         var cid = "";
@@ -127,7 +127,7 @@ public class MetaRegister : MonoBehaviour
     /// <param name="path"></param>
     /// <param name="transform"></param>
     /// <returns></returns>
-    async UniTask<string> CreateYamlAndUploadContent(string path)
+    private async UniTask<string> CreateYamlAndUploadContent(string path)
     {
         // IPFSに登録
         var fileCID = await GM.Msg<UniTask<string>>("IPFSUpload", path);
@@ -152,7 +152,7 @@ public class MetaRegister : MonoBehaviour
     /// </summary>
     /// <param name="yamlData"></param>
     /// <returns>保存したFileパス</returns>
-    async UniTask<string> WriteMeta(Dictionary<string, object> yamlData)
+    private static async UniTask<string> WriteMeta(Dictionary<string, object> yamlData)
     {
         // 仮のFileを作成
         var guid = Guid.NewGuid();
@@ -180,7 +180,7 @@ public class MetaRegister : MonoBehaviour
     /// <param name="path"></param>
     /// <param name="custom"></param>
     /// <returns></returns>
-    async UniTask<string> CreateYamlComponentData(string path, Dictionary<string, object> custom)
+    private static async UniTask<string> CreateYamlComponentData(string path, Dictionary<string, object> custom)
     {
         // IPFSに登録
         var fileCID = await GM.Msg<UniTask<string>>("IPFSUpload", path);

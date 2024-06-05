@@ -4,3 +4,12 @@ public enum DeviceMode
     VR,
     Mobile
 }
+
+public enum OS
+{
+    Windows,
+    Mac,
+    Linux,
+    Android,
+    iOS
+}

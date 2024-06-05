@@ -21,6 +21,8 @@ public class DB_GameManager : ScriptableObject
     [Header("Other")] public string outputPath = "../output";
     public DeviceMode Device = DeviceMode.Desktop;
 
+    public OS OS = OS.Windows;
+
     //public eScene.Scene scene;
     [Header("Scene Group")] public eScene.Scene firstScene;
     public List<DB_GameManagerE> data = new(10);
@@ -45,11 +47,35 @@ public class DB_GameManager : ScriptableObject
     public void Init()
     {
         CreateDirectory($"{Application.dataPath}/{outputPath}");
+        SetOS();
     }
 
     void CreateDirectory(string path)
     {
         if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+    }
+
+    private void SetOS()
+    {
+        switch (Application.platform)
+        {
+            case RuntimePlatform.WindowsPlayer:
+                OS = OS.Windows;
+                break;
+            case RuntimePlatform.OSXPlayer:
+                OS = OS.Mac;
+                break;
+            case RuntimePlatform.LinuxPlayer:
+                OS = OS.Linux;
+                break;
+            case RuntimePlatform.Android:
+                OS = OS.Android;
+                break;
+            case RuntimePlatform.IPhonePlayer:
+                OS = OS.iOS;
+                break;
+        }
+        Debug.Log($"[GM] OS: {OS}");
     }
 }
 
