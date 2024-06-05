@@ -84,3 +84,5 @@ content/
 UserSettings/
 
 IoTRegister/__pycache__
+
+.fw/

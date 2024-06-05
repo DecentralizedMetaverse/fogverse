@@ -1,0 +1,701 @@
+// File: ./main.go
+package main
+
+import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"crypto/sha1"
+	"encoding/hex"
+	"fmt"
+	"fw/ipfs"
+	"io"
+	"os"
+	"path/filepath"
+	"strconv"
+)
+
+type Command struct {
+	Name string
+	Args []string
+}
+
+type CommandHandler func(args []string)
+
+var key []byte
+
+func main() {
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: fw <command>")
+		os.Exit(1)
+	}
+
+	cmd := Command{
+		Name: os.Args[1],
+		Args: os.Args[2:],
+	}
+
+	commandHandler := map[string]CommandHandler{
+		"init":         handleInit,   // create directory
+		"create":       handleCreate, // create world
+		"switch":       nil,          // switch world
+		"get":          nil,          // get world binary data
+		"get-raw":      nil,
+		"put":          handlePut,         // put world binary data
+		"set-password": handleSetPassword, // set encryption password
+		"cat":          handleCat,         // view encrypted file content
+	}
+
+	if handler, found := commandHandler[cmd.Name]; found {
+		handler(cmd.Args)
+	} else {
+		fmt.Printf("Unknown command: %s\n", cmd.Name)
+		os.Exit(1)
+	}
+}
+
+func handleSetPassword(args []string) {
+	if len(args) < 1 {
+		fmt.Println("Usage: fw set-password <password>")
+		os.Exit(1)
+	}
+
+	password := args[0]
+	hashedPassword := sha1.Sum([]byte(password))
+	key = hashedPassword[:]
+
+	err := os.WriteFile(".fw/password", []byte(hex.EncodeToString(key)), 0644)
+	if err != nil {
+		fmt.Printf("Error saving password: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("Password set successfully.")
+}
+
+func loadPassword() error {
+	data, err := os.ReadFile(".fw/password")
+	if err != nil {
+		return err
+	}
+
+	key, err = hex.DecodeString(string(data))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func handlePut(args []string) {
+	if len(args) < 10 {
+		fmt.Println("Usage: fw put <file> <x> <y> <z> <rx> <ry> <rz> <sx> <sy> <sz>")
+		os.Exit(1)
+	}
+
+	err := loadPassword()
+	if err != nil {
+		fmt.Printf("Error loading password: %v\n", err)
+		os.Exit(1)
+	}
+
+	filePath := args[0]
+	x, err := strconv.ParseFloat(args[1], 64)
+	if err != nil {
+		fmt.Printf("Invalid x coordinate: %v\n", err)
+		os.Exit(1)
+	}
+	y, err := strconv.ParseFloat(args[2], 64)
+	if err != nil {
+		fmt.Printf("Invalid y coordinate: %v\n", err)
+		os.Exit(1)
+	}
+	z, err := strconv.ParseFloat(args[3], 64)
+	if err != nil {
+		fmt.Printf("Invalid z coordinate: %v\n", err)
+		os.Exit(1)
+	}
+	rx, err := strconv.ParseFloat(args[4], 64)
+	if err != nil {
+		fmt.Printf("Invalid rx rotation: %v\n", err)
+		os.Exit(1)
+	}
+	ry, err := strconv.ParseFloat(args[5], 64)
+	if err != nil {
+		fmt.Printf("Invalid ry rotation: %v\n", err)
+		os.Exit(1)
+	}
+	rz, err := strconv.ParseFloat(args[6], 64)
+	if err != nil {
+		fmt.Printf("Invalid rz rotation: %v\n", err)
+		os.Exit(1)
+	}
+	sx, err := strconv.ParseFloat(args[7], 64)
+	if err != nil {
+		fmt.Printf("Invalid sx scale: %v\n", err)
+		os.Exit(1)
+	}
+	sy, err := strconv.ParseFloat(args[8], 64)
+	if err != nil {
+		fmt.Printf("Invalid sy scale: %v\n", err)
+		os.Exit(1)
+	}
+	sz, err := strconv.ParseFloat(args[9], 64)
+	if err != nil {
+		fmt.Printf("Invalid sz scale: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Putting world binary data from %s with coordinates (%f, %f, %f), rotation (%f, %f, %f), scale (%f, %f, %f)\n", filePath, x, y, z, rx, ry, rz, sx, sy, sz)
+
+	// ファイルを開く
+	file, err := os.Open(filePath)
+	if err != nil {
+		fmt.Printf("Error opening file %s: %v\n", filePath, err)
+		os.Exit(1)
+	}
+	defer file.Close()
+
+	// SHA-1ハッシュを計算しながらファイルを読み取る
+	hasher := sha1.New()
+	if _, err := io.Copy(hasher, file); err != nil {
+		fmt.Printf("Error calculating SHA-1 hash: %v\n", err)
+		os.Exit(1)
+	}
+
+	hash := hasher.Sum(nil)
+	hashStr := fmt.Sprintf("%x", hash)
+
+	// オブジェクトディレクトリに保存するパスを作成
+	objectPath := filepath.Join(".fw", "objects", hashStr)
+
+	// 同じファイルが既に保存されている場合は処理を終了
+	if _, err := os.Stat(objectPath); err == nil {
+		fmt.Printf("File already exists as %s\n", objectPath)
+	}
+
+	// ファイルを再度開き直してオブジェクトディレクトリにコピーし、暗号化
+	file.Seek(0, 0)
+	encryptedData, err := encryptFile(file)
+	if err != nil {
+		fmt.Printf("Error encrypting file: %v\n", err)
+		os.Exit(1)
+	}
+
+	err = os.WriteFile(objectPath, encryptedData, 0644)
+	if err != nil {
+		fmt.Printf("Error creating encrypted object file %s: %v\n", objectPath, err)
+		os.Exit(1)
+	}
+
+	// メタデータファイルの作成と暗号化
+	metaDataPath := objectPath + ".meta"
+	metaDataContent := fmt.Sprintf("file: %s\ncid: %s\nx: %f\ny: %f\nz: %f\nrx: %f\nry: %f\nrz: %f\nsx: %f\nsy: %f\nsz: %f\n", filePath, hashStr, x, y, z, rx, ry, rz, sx, sy, sz)
+
+	encryptedMetaData, err := encryptData([]byte(metaDataContent))
+	if err != nil {
+		fmt.Printf("Error encrypting metadata: %v\n", err)
+		os.Exit(1)
+	}
+
+	err = os.WriteFile(metaDataPath, encryptedMetaData, 0644)
+	if err != nil {
+		fmt.Printf("Error creating metadata file %s: %v\n", metaDataPath, err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("File saved as %s\n", objectPath)
+	fmt.Printf("Metadata saved as %s\n", metaDataPath)
+}
+
+func handleCat(args []string) {
+	if len(args) < 1 {
+		fmt.Println("Usage: fw cat <file-hash>")
+		os.Exit(1)
+	}
+
+	err := loadPassword()
+	if err != nil {
+		fmt.Printf("Error loading password: %v\n", err)
+		os.Exit(1)
+	}
+
+	fileHash := args[0]
+	objectPath := filepath.Join(".fw", "objects", fileHash)
+	metaDataPath := objectPath + ".meta"
+
+	encryptedData, err := os.ReadFile(objectPath)
+	if err != nil {
+		fmt.Printf("Error reading file %s: %v\n", objectPath, err)
+		os.Exit(1)
+	}
+
+	decryptedData, err := decryptData(encryptedData)
+	if err != nil {
+		fmt.Printf("Error decrypting file %s: %v\n", objectPath, err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Decrypted file content:\n%s\n", string(decryptedData))
+
+	encryptedMetaData, err := os.ReadFile(metaDataPath)
+	if err != nil {
+		fmt.Printf("Error reading metadata file %s: %v\n", metaDataPath, err)
+		os.Exit(1)
+	}
+
+	decryptedMetaData, err := decryptData(encryptedMetaData)
+	if err != nil {
+		fmt.Printf("Error decrypting metadata file %s: %v\n", metaDataPath, err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Decrypted metadata content:\n%s\n", string(decryptedMetaData))
+}
+
+func encryptFile(file *os.File) ([]byte, error) {
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return nil, err
+	}
+
+	plainData := make([]byte, fileInfo.Size())
+	if _, err := file.Read(plainData); err != nil {
+		return nil, err
+	}
+
+	return encryptData(plainData)
+}
+
+func encryptData(plainData []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, err
+	}
+
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+		return nil, err
+	}
+
+	return gcm.Seal(nonce, nonce, plainData, nil), nil
+}
+
+func decryptData(encryptedData []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, err
+	}
+
+	nonceSize := gcm.NonceSize()
+	if len(encryptedData) < nonceSize {
+		return nil, fmt.Errorf("ciphertext too short")
+	}
+
+	nonce, ciphertext := encryptedData[:nonceSize], encryptedData[nonceSize:]
+	return gcm.Open(nil, nonce, ciphertext, nil)
+}
+
+func handleInit(args []string) {
+
+	// IPFSの初期化
+	err := ipfs.InitIPFS()
+	if err != nil {
+		fmt.Printf("Error initializing IPFS: %v\n", err)
+		os.Exit(1)
+	}
+
+	// fwが既にあれば、中断
+	if _, err := os.Stat(".fw"); err == nil {
+		fmt.Println(".fw repository already exists.")
+		return
+	}
+
+	fmt.Println(".fw repository initialized.")
+
+	directories := []string{
+		".fw",
+		".fw/objects",
+		".fw/worlds",
+		".fw/worlds/heads",
+		".fw/worlds/tags",
+	}
+
+	files := map[string]string{
+		".fw/HEAD":        "ref: refs/heads/master\n",
+		".fw/config":      "[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = false\n",
+		".fw/description": "Unnamed repository; edit this file 'description' to name the repository.\n",
+	}
+
+	for _, dir := range directories {
+		err := os.MkdirAll(dir, 0755)
+		if err != nil {
+			fmt.Printf("Error creating directory %s: %v\n", dir, err)
+			os.Exit(1)
+		}
+	}
+
+	for file, content := range files {
+		err := os.WriteFile(file, []byte(content), 0644)
+		if err != nil {
+			fmt.Printf("Error creating file %s: %v\n", file, err)
+			os.Exit(1)
+		}
+	}
+}
+
+func handleCreate(args []string) {
+	fmt.Println("Creating new world...")
+}
+
+
+// File: ./ipfs\ipfs_installer.go
+package ipfs
+
+import (
+	"archive/tar"
+	"archive/zip"
+	"compress/gzip"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
+)
+
+const (
+	ipfsVersionsUrl     = "https://dist.ipfs.tech/kubo/versions"
+	ipfsZipPath         = "ipfs.zip"
+	ipfsTarGzPath       = "ipfs.tar.gz"
+	ipfsPath            = "ipfs"
+	ipfsVersionFilePath = "ipfs_version.txt"
+)
+
+var (
+	savePath              = filepath.Join("..", ipfsPath)
+	ipfsDownloadUrlFormat string
+	ipfsExecutablePath    string
+)
+
+func init() {
+	switch runtime.GOOS {
+	case "windows":
+		ipfsDownloadUrlFormat = "https://dist.ipfs.tech/kubo/%s/kubo_%s_windows-amd64.zip"
+		ipfsExecutablePath = filepath.Join(savePath, "kubo", "ipfs.exe")
+	case "linux":
+		ipfsDownloadUrlFormat = "https://dist.ipfs.tech/kubo/%s/kubo_%s_linux-amd64.tar.gz"
+		ipfsExecutablePath = filepath.Join(savePath, "kubo", "ipfs")
+	case "darwin":
+		ipfsDownloadUrlFormat = "https://dist.ipfs.tech/kubo/%s/kubo_%s_darwin-amd64.tar.gz"
+		ipfsExecutablePath = filepath.Join(savePath, "kubo", "ipfs")
+	default:
+		fmt.Println("Unsupported OS")
+		os.Exit(1)
+	}
+}
+
+func InstallIPFS() {
+	installedVersion := getInstalledVersion()
+	latestVersion, err := getLatestStableVersion()
+	if err != nil {
+		fmt.Println("[IPFS] Failed to get the latest version:", err)
+		return
+	}
+
+	if !isIpfsInstalled() || installedVersion != latestVersion {
+		if err := downloadIpfs(latestVersion); err != nil {
+			fmt.Println("[IPFS] Failed to download IPFS:", err)
+			return
+		}
+		saveInstalledVersion(latestVersion)
+		fmt.Println("[IPFS] IPFS installation complete.")
+	} else {
+		fmt.Println("[IPFS] Already installed.")
+	}
+}
+
+func isIpfsInstalled() bool {
+	if _, err := os.Stat(ipfsExecutablePath); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+func getInstalledVersion() string {
+	versionFilePath := filepath.Join(savePath, ipfsVersionFilePath)
+	if _, err := os.Stat(versionFilePath); os.IsNotExist(err) {
+		return ""
+	}
+	version, err := ioutil.ReadFile(versionFilePath)
+	if err != nil {
+		fmt.Println("[IPFS] Failed to read installed version:", err)
+		return ""
+	}
+	return strings.TrimSpace(string(version))
+}
+
+func saveInstalledVersion(version string) {
+	versionFilePath := filepath.Join(savePath, ipfsVersionFilePath)
+	err := ioutil.WriteFile(versionFilePath, []byte(version), 0644)
+	if err != nil {
+		fmt.Println("[IPFS] Failed to save installed version:", err)
+	}
+}
+
+func getLatestStableVersion() (string, error) {
+	fmt.Println("[IPFS] Getting latest stable version...")
+	resp, err := http.Get(ipfsVersionsUrl)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	versions := strings.Split(string(body), "\n")
+	for i := len(versions) - 1; i >= 0; i-- {
+		version := strings.TrimSpace(versions[i])
+		if version != "" && !strings.Contains(version, "-rc") {
+			return version, nil
+		}
+	}
+	return "", fmt.Errorf("no stable version found")
+}
+
+func downloadIpfs(version string) error {
+	downloadUrl := fmt.Sprintf(ipfsDownloadUrlFormat, version, version)
+	var filePath string
+	if runtime.GOOS == "windows" {
+		filePath = ipfsZipPath
+	} else {
+		filePath = ipfsTarGzPath
+	}
+	zipPath := filepath.Join(".", filePath)
+
+	fmt.Println("[IPFS] Downloading IPFS", version, "...")
+	resp, err := http.Get(downloadUrl)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	out, err := os.Create(zipPath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		return err
+	}
+	fmt.Println("[IPFS] IPFS downloaded.")
+
+	if err := os.MkdirAll(savePath, 0755); err != nil {
+		return err
+	}
+
+	fmt.Println("[IPFS] Extracting IPFS...")
+	if runtime.GOOS == "windows" {
+		err = unzip(zipPath, savePath)
+	} else {
+		err = untar(zipPath, savePath)
+	}
+	if err != nil {
+		return err
+	}
+	fmt.Println("[IPFS] IPFS extracted.")
+
+	os.Remove(zipPath)
+
+	return nil
+}
+
+func unzip(src, dest string) error {
+	r, err := zip.OpenReader(src)
+	if err != nil {
+		return err
+	}
+	defer r.Close()
+
+	for _, f := range r.File {
+		fpath := filepath.Join(dest, f.Name)
+
+		if f.FileInfo().IsDir() {
+			os.MkdirAll(fpath, os.ModePerm)
+			continue
+		}
+
+		if err := os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
+			return err
+		}
+
+		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+		if err != nil {
+			return err
+		}
+
+		rc, err := f.Open()
+		if err != nil {
+			return err
+		}
+
+		_, err = io.Copy(outFile, rc)
+
+		outFile.Close()
+		rc.Close()
+
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func untar(src, dest string) error {
+	file, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	gzr, err := gzip.NewReader(file)
+	if err != nil {
+		return err
+	}
+	defer gzr.Close()
+
+	tr := tar.NewReader(gzr)
+	for {
+		header, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+
+		target := filepath.Join(dest, header.Name)
+		switch header.Typeflag {
+		case tar.TypeDir:
+			if err := os.MkdirAll(target, os.ModePerm); err != nil {
+				return err
+			}
+		case tar.TypeReg:
+			if err := os.MkdirAll(filepath.Dir(target), os.ModePerm); err != nil {
+				return err
+			}
+			outFile, err := os.Create(target)
+			if err != nil {
+				return err
+			}
+			if _, err := io.Copy(outFile, tr); err != nil {
+				outFile.Close()
+				return err
+			}
+			outFile.Close()
+		}
+	}
+	return nil
+}
+
+
+// File: ./ipfs\ipfs_interface.go
+package ipfs
+
+import (
+	"fmt"
+	"io/ioutil"
+	"os"
+	"os/exec"
+	"strings"
+)
+
+const ipfsPath = "/path/to/ipfs" // IPFS実行ファイルのパスを設定してください
+
+func main() {
+	// Example usage
+	if err := InitIPFS(); err != nil {
+		fmt.Println("[IPFS] Init error:", err)
+	}
+
+	cid, err := Upload("/path/to/file")
+	if err != nil {
+		fmt.Println("[IPFS] Upload error:", err)
+	} else {
+		fmt.Println("[IPFS] Uploaded with CID:", cid)
+	}
+
+	if err := Download(cid, "/path/to/downloaded/file"); err != nil {
+		fmt.Println("[IPFS] Download error:", err)
+	} else {
+		fmt.Println("[IPFS] Downloaded successfully")
+	}
+}
+
+func InitIPFS() error {
+	fmt.Println("[IPFS] Init")
+	if _, err := os.Stat(ipfsPath); os.IsNotExist(err) {
+		// installを開始する
+		await InstallIPFS()
+		return fmt.Errorf("[IPFS] Not installed")
+	}
+
+	cmd := exec.Command(ipfsPath, "init")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("[IPFS] Init error: %v, %s", err, string(output))
+	}
+
+	fmt.Println("[IPFS] Init output:", string(output))
+	return nil
+}
+
+func Upload(filePath string) (string, error) {
+	fmt.Println("[IPFS] Upload:", filePath)
+
+	cmd := exec.Command(ipfsPath, "add", filePath)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("[IPFS] Add error: %v, %s", err, string(output))
+	}
+
+	words := strings.Split(string(output), " ")
+	if len(words) <= 1 {
+		return "", fmt.Errorf("[IPFS] Unexpected add output: %s", string(output))
+	}
+
+	return words[1], nil
+}
+
+func Download(cid, filePath string) error {
+	fmt.Println("[IPFS] Download:", cid, filePath)
+
+	cmd := exec.Command(ipfsPath, "get", cid, "-o", filePath)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("[IPFS] Get error: %v, %s", err, string(output))
+	}
+
+	fmt.Println("[IPFS] Get output:", string(output))
+
+	return nil
+}
+
+
