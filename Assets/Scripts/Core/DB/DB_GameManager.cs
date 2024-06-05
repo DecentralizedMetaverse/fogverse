@@ -24,9 +24,6 @@ public class DB_GameManager : ScriptableObject
     public bool skipSignInScreen = true;
 
     [Header("Other")]
-    public string metaPath = "../meta";
-    public string contentPath = "../content";
-    public string avatarPath = "../avatar";
     public string outputPath = "../output";
     public DeviceMode Device = DeviceMode.Desktop;
 
@@ -54,9 +51,6 @@ public class DB_GameManager : ScriptableObject
 
     public void Init()
     {
-        CreateDirectory($"{Application.dataPath}/{metaPath}");
-        CreateDirectory($"{Application.dataPath}/{contentPath}");
-        CreateDirectory($"{Application.dataPath}/{avatarPath}");
         CreateDirectory($"{Application.dataPath}/{outputPath}");
     }
 

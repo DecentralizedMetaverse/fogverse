@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using JetBrains.Annotations;
 using DC;
 using System;
 
@@ -44,6 +42,7 @@ public class Evaluation : MonoBehaviour
 
     private void Update()
     {
+        return; // TODO:
         time += Time.deltaTime;
         if (time < intervalTimeSec) return;
         time = 0;
@@ -54,7 +53,7 @@ public class Evaluation : MonoBehaviour
         data.Add(currentData);
         // currentData = new EvaluationData();
 
-        // ping‚Ì‘—M
+        // pingï¿½Ì‘ï¿½ï¿½M
         if (GM.db.rtc.peers.Count == 0) return;
         sendPingTime = DateTime.Now;
         GM.Msg("RTCSendAll", sendPingData);
@@ -62,7 +61,7 @@ public class Evaluation : MonoBehaviour
     }
 
     /// <summary>
-    /// TODO: Šm”F‚ª•K—v
+    /// TODO: ï¿½mï¿½Fï¿½ï¿½ï¿½Kï¿½v
     /// </summary>
     /// <param name="data"></param>
     /// <param name="sourceId"></param>

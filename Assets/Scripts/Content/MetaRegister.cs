@@ -156,17 +156,17 @@ public class MetaRegister : MonoBehaviour
         var guid = Guid.NewGuid();
         var guidString = guid.ToString();
 
-        var path = $"{Application.dataPath}/{GM.mng.metaPath}/{guidString}.yaml";
-        GM.Msg("WriteYaml", path, yamlData);
+        var metaPath = string.Format(Constants.MetaPath, $"{guidString}.yaml");
+        GM.Msg("WriteYaml", metaPath, yamlData);
 
         // IPFSへ登録
-        var cid = await GM.Msg<UniTask<string>>("IPFSUpload", path);
+        var cid = await GM.Msg<UniTask<string>>("IPFSUpload", metaPath);
 
         // TMPFileの削除
-        File.Delete(path);
+        File.Delete(metaPath);
 
         // 書き出し
-        var outputPath = $"{Application.dataPath}/{GM.mng.metaPath}/{cid}.yaml";
+        var outputPath = string.Format(Constants.MetaPath, $"{cid}.yaml");
         GM.Msg("WriteYaml", outputPath, yamlData);
 
         return Path.GetFileNameWithoutExtension(outputPath);

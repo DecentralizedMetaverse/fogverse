@@ -24,7 +24,7 @@ public class AvatarView : UIComponent
 
     private void Start()
     {
-        avatarPath = $"{Application.dataPath}/{GM.mng.avatarPath}";
+        avatarPath = Constants.AvatarPath;
         submitButton.onClick.AddListener(OnOpenFolder);
         avatarButtonPrefab.gameObject.SetActive(false);
     }

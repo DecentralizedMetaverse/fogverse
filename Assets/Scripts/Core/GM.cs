@@ -1,4 +1,3 @@
-
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using System;
@@ -22,6 +21,7 @@ namespace DC
         public static DB db;
         public static DB_GameManager mng;
         static Dictionary<string, List<Delegate>> functions = new();
+
         // static List<string> userFunctions = new();
 
         /// <summary>

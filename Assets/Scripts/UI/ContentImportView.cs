@@ -11,7 +11,6 @@ using Path = System.IO.Path;
 public class ContentImportView : UIComponent
 {
     private const string SaveDataKey = "ContentDirectory";
-    private static readonly string contentPath = $"{Application.dataPath}/../content/";
     private const string DriveRoot = "DriveRoot";
 
     [SerializeField] private ButtonLabelView buttonPrefab;
@@ -34,7 +33,8 @@ public class ContentImportView : UIComponent
     private void Start()
     {
         SaveData.I.TryGetValue(SaveDataKey, out string path);
-        path ??= $"{Application.dataPath}/{GM.mng.contentPath}";
+        path ??= string.Format(Constants.ContentPath, "");
+        Debug.Log($"[Debug][ContentImportView] Start: {path}");
         currentPath = path;
         input.text = path;
         input.onEndEdit.AddListener(_ => OnDirectoryChanged());
@@ -142,7 +142,8 @@ public class ContentImportView : UIComponent
         // Copy file
         var source = files[i - directories.Length];
         Debug.Log($"[ContentImportView] OnSubmit: {source}");
-        var destination = $"{contentPath}/{Path.GetFileName(source)}";
+        // var destination = $"{Constants.ContentPath}/{Path.GetFileName(source)}";
+        var destination = string.Format(Constants.ContentPath, Path.GetFileName(source));
 
         if (!File.Exists(destination))
         {

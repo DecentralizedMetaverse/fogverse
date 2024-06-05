@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using B83.Win32;
@@ -8,7 +7,7 @@ using System.IO;
 
 public class FileDragDrop : MonoBehaviour
 {
-    private readonly string[][] select =
+    private readonly string[][] _select =
     {
         new[] { "Upload", "Cancel", "UploadAll" },
         new[] { "Upload", "Cancel" }
@@ -41,11 +40,11 @@ public class FileDragDrop : MonoBehaviour
             GM.Msg("QuestionTitle", Path.GetFileName(contentPath));
             if (aPathNames.Count > 1)
             {
-                result = await GM.Msg<UniTask<int>>("Question", (object)select[0]);
+                result = await GM.Msg<UniTask<int>>("Question", (object)_select[0]);
             }
             else
             {
-                result = await GM.Msg<UniTask<int>>("Question", (object)select[1]);
+                result = await GM.Msg<UniTask<int>>("Question", (object)_select[1]);
             }
 
             GM.Msg("QuestionTitle", "");

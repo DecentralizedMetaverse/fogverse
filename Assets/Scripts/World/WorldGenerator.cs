@@ -23,7 +23,7 @@ public class WorldGenerator : MonoBehaviour
 
     private void Awake()
     {
-        path = $"{Application.dataPath}/{GM.mng.metaPath}";
+        path = Constants.AvatarPath;
         GM.Add<string, UniTask>("GenerateWorld", GenerateWorldAsync);
         GM.Add<string, UniTask<string>>("DownloadContent", DownloadContent);
         GM.Add<string, Transform, UniTask<Transform>>("GenerateObjectByCID", GenerateByCID);
@@ -116,18 +116,18 @@ public class WorldGenerator : MonoBehaviour
     async UniTask<Transform> GenerateObject(Transform parent, Dictionary<string, object> metaData, string fileCID)
     {
         Debug.Log($"[Content] GenerateObject: {metaData["name"]}");
-        Transform transform;
+        Transform generateContent;
         var objType = metaData["type"].ToString();
 
-        if (fileCID != "")
+        if (fileCID == "")
         {
-            // ContentのmetaFileをDownloadしObject生成
-            transform = await GenerateContent(fileCID);
+            var obj = new GameObject();
+            generateContent = obj.transform;
         }
         else
         {
-            GameObject obj = new GameObject();
-            transform = obj.transform;
+            // ContentのmetaFileをDownloadし、Object生成
+            generateContent = await GenerateContent(fileCID);
         }
 
         var objName = metaData["name"].ToString();
@@ -135,22 +135,40 @@ public class WorldGenerator : MonoBehaviour
         var json = JsonConvert.SerializeObject(metaData["transform"]);
         var objTransform = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
 
-        SetTransform(transform.gameObject, parent, objName, objTransform);
-        return transform;
+        SetTransform(generateContent.gameObject, parent, objName, objTransform);
+        return generateContent;
+    }
+
+    /// <summary>
+    /// ContentをDownloadし、World空間に配置する
+    /// </summary>
+    /// <param name="cid"></param>
+    /// <returns></returns>
+    async UniTask<Transform> GenerateContent(string cid)
+    {
+        // ContentをDownload
+        var filePath = await DownloadContent(cid);
+
+        Debug.Log($"[Content] Generate Object: {filePath}");
+
+        // World空間に配置
+        var generateContent = GM.Msg<Transform>("GenerateObj", filePath);
+
+        return generateContent;
     }
 
     async UniTask GenerateComponent(Transform root, string metaCID)
     {
         Debug.Log($"[Content] GenerateComponent: {metaCID}");
-        var data = await GetMetaData(metaCID);
+        var metaData = await GetMetaData(metaCID);
 
         // ContentをDownload
-        var fileCID = data["cid"].ToString();
-        var fileName = data["name"].ToString();
-        var filePath = $"{Application.dataPath}/{GM.mng.contentPath}/{fileName}";
+        var fileCID = metaData["cid"].ToString();
+        var fileName = metaData["name"].ToString();
+        var filePath = string.Format(Constants.ContentPath, fileName);
         await GM.Msg<UniTask<bool>>("IPFSDownload", fileCID, filePath);
 
-        var json = JsonConvert.SerializeObject(data["custom"]);
+        var json = JsonConvert.SerializeObject(metaData["custom"]);
         var custom = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
         GM.Msg("GenerateComponent", filePath, root, custom);
     }
@@ -169,24 +187,6 @@ public class WorldGenerator : MonoBehaviour
         obj.transform.localPosition = objTransform["position"].ToVector3();
         obj.transform.localRotation = Quaternion.Euler(objTransform["rotation"].ToVector3());
         obj.transform.localScale = objTransform["scale"].ToVector3();
-    }
-
-    /// <summary>
-    /// ContentをDownloadし、World空間に配置する
-    /// </summary>
-    /// <param name="cid"></param>
-    /// <returns></returns>
-    async UniTask<Transform> GenerateContent(string cid)
-    {
-        // ContentをDownload
-        var filePath = await DownloadContent(cid);
-
-        Debug.Log($"[Content] Generate Object: {filePath}");
-
-        // World空間に配置
-        var transform = GM.Msg<Transform>("GenerateObj", filePath);
-
-        return transform;
     }
 
     /// <summary>
@@ -212,7 +212,7 @@ public class WorldGenerator : MonoBehaviour
         // ContentDownload
         var fileCID = metaData["cid"].ToString();
         var fileName = metaData["name"].ToString();
-        var filePath = $"{Application.dataPath}/{GM.mng.contentPath}/{fileName}";
+        var filePath = string.Format(Constants.ContentPath, fileName);
         await GM.Msg<UniTask<bool>>("IPFSDownload", fileCID, filePath);
 
         GM.Msg("ShortMessage", $"Downloaded {fileName}");

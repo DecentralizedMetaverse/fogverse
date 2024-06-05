@@ -5,17 +5,19 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Teo.AutoReference;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
 /// ComponentをObjectに追加する
+/// TODO: 破壊的な変更中　新しいUIシステムに変更中
 /// </summary>
 public class ComponentManagerView : MonoBehaviour
 {
     [SerializeField] UICache root;
-    ContentManagerUiElements ui;
+    [Get, SerializeField] private UIEasingAnimationScale animation;
     private string contentPath;
     private string[] files;
     
@@ -27,11 +29,10 @@ public class ComponentManagerView : MonoBehaviour
     void Start()
     {
         GM.Add<Transform>("ShowImportScript", Show);
-        
-        contentPath = $"{Application.dataPath}/{GM.mng.contentPath}";
+
+        contentPath = Constants.ContentPath;
 
         // 各UIの取得
-        ui = new ContentManagerUiElements(root);
         var button = root.Get<Button>("SubmitButton");
         button.onClick.AddListener(() => OnOpenFolder());
 
@@ -53,7 +54,7 @@ public class ComponentManagerView : MonoBehaviour
     /// <param name="target">Componentの追加先</param>
     void Show(Transform target)
     {
-        if (ui.ui.active) { ui.ui.active = false; return; }
+        animation.Show();
 
         this.target = target;
 
@@ -62,24 +63,22 @@ public class ComponentManagerView : MonoBehaviour
 
         files = Directory.GetFiles(contentPath, pattern);
 
-        using (var editor = ui.ItemList.Edit())
-        {
-            // File一覧を表示
-            int i = 0;
-            foreach (string file in files)
-            {
-                var i1 = i;
-                editor.Contents.Add(new UIFactory<FileButtonUiElements>(button =>
-                {
-                    button.Text.text = Path.GetFileName(file);
-                    button.Button.onClick.AddListener(() => OnSubmit(i1));
-
-                }));
-                i++;
-            }
-        }
-
-        ui.ui.active = true;
+        // using (var editor = ui.ItemList.Edit())
+        // {
+        //     // File一覧を表示
+        //     int i = 0;
+        //     foreach (string file in files)
+        //     {
+        //         var i1 = i;
+        //         editor.Contents.Add(new UIFactory<FileButtonUiElements>(button =>
+        //         {
+        //             button.Text.text = Path.GetFileName(file);
+        //             button.Button.onClick.AddListener(() => OnSubmit(i1));
+        //
+        //         }));
+        //         i++;
+        //     }
+        // }
     }
 
     void OnOpenFolder()
@@ -96,7 +95,7 @@ public class ComponentManagerView : MonoBehaviour
     
     private void OnClose()
     {
-        ui.ui.active = false;
+        animation.Close();
         customWindow.active = false;
     }
 
@@ -105,7 +104,7 @@ public class ComponentManagerView : MonoBehaviour
     /// </summary>
     void OnSubmitCustom()
     {
-        ui.ui.active = false;
+        animation.Close();
         customWindow.active = false;
 
         var custom = GM.Msg<Dictionary<string, object>>("ReadYamlText", custonInputField.text);

@@ -17,14 +17,14 @@ public class AvatarModel : MonoBehaviour
     }       
 
     /// <summary>
-    /// Avatar‚ğIPFS‚ÉUpload‚·‚é
+    /// Avatarï¿½ï¿½IPFSï¿½ï¿½Uploadï¿½ï¿½ï¿½ï¿½
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
     async UniTask<string> UploadAvatar(string path)
     {
         var fileName = Path.GetFileName(path);
-        var avatarPath = $"{GM.mng.avatarPath}/{fileName}";
+        var avatarPath = string.Format(Constants.AvatarPath, fileName);
         
         // Copy
         File.Copy(path, avatarPath, true);
@@ -41,14 +41,13 @@ public class AvatarModel : MonoBehaviour
     }
 
     /// <summary>
-    /// IPFS‚©‚çDownload‚ğs‚¤
+    /// IPFSï¿½ï¿½ï¿½ï¿½Downloadï¿½ï¿½ï¿½sï¿½ï¿½
     /// </summary>
     /// <param name="cid"></param>
     /// <returns></returns>
     async UniTask<GameObject> DownloadAvatar(string cid)
     {
-        var avatarPath = $"{GM.mng.avatarPath}/{cid}";
-        var encryptAvatarPath = $"{GM.mng.avatarPath}/{cid}.enc";
+        var encryptAvatarPath = string.Format(Constants.AvatarPath, $"{cid}.enc");
 
         // Download from IPFS
         var result = await GM.Msg<UniTask<bool>>("IPFSDownload", cid, encryptAvatarPath);
