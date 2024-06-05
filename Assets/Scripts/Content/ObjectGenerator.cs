@@ -56,6 +56,8 @@ public class ObjectGenerator : MonoBehaviour
         var transform = (Transform)functions[extension].DynamicInvoke(path);
         // ワールド読み込みの際に生成できるように、Objectの種類を記録
         transform.GetComponent<ObjectBase>().ObjType = extension;
+        Debug.Log($"[Debug] path: {path}");
+        transform.GetComponent<ObjectBase>().fileName = path;
 
         return transform;
     }

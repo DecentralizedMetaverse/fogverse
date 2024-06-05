@@ -120,11 +120,13 @@ public class WorldGenerator : MonoBehaviour
 
         if (string.IsNullOrEmpty(fileCID))
         {
+            Debug.Log($"[Content] GenerateObject: {metaData["name"]} is file empty");
             var obj = new GameObject();
             generateContent = obj.transform;
         }
         else
         {
+            Debug.Log($"[Content] GenerateObject: {metaData["name"]} is file not empty");
             // ContentのmetaFileをDownloadし、Object生成
             generateContent = await GenerateContent(fileCID);
         }
@@ -211,6 +213,7 @@ public class WorldGenerator : MonoBehaviour
         // ContentDownload
         var fileCID = metaData["cid"].ToString();
         var fileName = metaData["name"].ToString();
+        Debug.Log($"[Debug][Content] DownloadContent fileName: {fileName}");
         var filePath = string.Format(Constants.ContentPath, fileName);
         await GM.Msg<UniTask<bool>>("IPFSDownload", fileCID, filePath);
 
