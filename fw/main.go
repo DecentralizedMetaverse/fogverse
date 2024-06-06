@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 type Command struct {
@@ -39,7 +40,7 @@ func main() {
 		"init":         handleInit,   // create directory
 		"create":       handleCreate, // create world
 		"switch":       nil,          // switch world
-		"get":          nil,          // get world binary data
+		"get":          handleGet,    // get world binary data
 		"get-raw":      nil,
 		"put":          handlePut,         // put world binary data
 		"set-password": handleSetPassword, // set encryption password
@@ -49,14 +50,14 @@ func main() {
 	if handler, found := commandHandler[cmd.Name]; found {
 		handler(cmd.Args)
 	} else {
-		fmt.Printf("[FW] Unknown command: %s\n", cmd.Name)
+		fmt.Printf("[World] Unknown command: %s\n", cmd.Name)
 		os.Exit(1)
 	}
 }
 
 func handleSetPassword(args []string) {
 	if len(args) < 1 {
-		fmt.Println("[FW] Usage: fw set-password <password>")
+		fmt.Println("[World] Usage: fw set-password <password>")
 		os.Exit(1)
 	}
 
@@ -66,11 +67,11 @@ func handleSetPassword(args []string) {
 
 	err := os.WriteFile(".fw/password", []byte(hex.EncodeToString(key)), 0644)
 	if err != nil {
-		fmt.Printf("[FW] Error saving password: %v\n", err)
+		fmt.Printf("[World] Error saving password: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Println("[FW] Password set successfully.")
+	fmt.Println("[World] Password set successfully.")
 }
 
 func loadPassword() error {
@@ -87,75 +88,162 @@ func loadPassword() error {
 	return nil
 }
 
+func handleInit(args []string) {
+
+	// Initialize IPFS
+	err := ipfs.InitIPFS()
+	if err != nil {
+		fmt.Printf("[World] Error initializing IPFS: %v\n", err)
+		os.Exit(1)
+	}
+
+	// If .fw already exists, exit
+	if _, err := os.Stat(".fw"); err == nil {
+		fmt.Println("[World] .fw repository already exists.")
+		return
+	}
+
+	fmt.Println("[World] .fw repository initialized.")
+
+	directories := []string{
+		".fw",
+		".fw/objects",
+		".fw/worlds",
+		".fw/worlds/heads",
+		".fw/worlds/tags",
+		".fw/content",
+	}
+
+	files := map[string]string{
+		".fw/HEAD":        "ref: refs/heads/master\n",
+		".fw/config":      "[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = false\n",
+		".fw/description": "Unnamed repository; edit this file 'description' to name the repository.\n",
+	}
+
+	for _, dir := range directories {
+		absDir, err := filepath.Abs(dir)
+		if err != nil {
+			fmt.Printf("[World] Error creating directory %s: %v\n", dir, err)
+			os.Exit(1)
+		}
+		err = os.MkdirAll(absDir, 0755)
+		if err != nil {
+			fmt.Printf("[World] Error creating directory %s: %v\n", absDir, err)
+			os.Exit(1)
+		}
+	}
+
+	for file, content := range files {
+		absFile, err := filepath.Abs(file)
+		if err != nil {
+			fmt.Printf("[World] Error creating file %s: %v\n", file, err)
+			os.Exit(1)
+		}
+		err = os.WriteFile(absFile, []byte(content), 0644)
+		if err != nil {
+			fmt.Printf("[World] Error creating file %s: %v\n", absFile, err)
+			os.Exit(1)
+		}
+	}
+}
+
+func handleCreate(args []string) {
+	if len(args) < 1 {
+		fmt.Println("[World] Usage: fw create <world-name>")
+		os.Exit(1)
+	}
+
+	worldName := args[0]
+
+	fmt.Println("[World] Creating new world...")
+	// .fw/worlds/ に新しくfileを作成
+	// file名はguidで生成する
+	// guidはsha256で生成する
+	guid, err := NewUUID()
+	if err != nil {
+		fmt.Printf("[World] Error generating GUID: %v\n", err)
+		os.Exit(1)
+	}
+
+	// guidを使ってファイルを作成
+	worldPath := filepath.Join(".fw", "worlds", guid)
+	worldMeta := fmt.Sprintf("name: %s\ncid: %s\n", worldName, "")
+	err = os.WriteFile(worldPath, []byte(worldMeta), 0644)
+	if err != nil {
+		fmt.Printf("[World] Error creating world file %s: %v\n", worldPath, err)
+		os.Exit(1)
+	}
+}
+
 func handlePut(args []string) {
 	if len(args) < 10 {
-		fmt.Println("[FW] Usage: fw put <file> <x> <y> <z> <rx> <ry> <rz> <sx> <sy> <sz>")
+		fmt.Println("[World] Usage: fw put <file> <x> <y> <z> <rx> <ry> <rz> <sx> <sy> <sz>")
 		os.Exit(1)
 	}
 
 	err := loadPassword()
 	if err != nil {
-		fmt.Printf("[FW] Error loading password: %v\n", err)
+		fmt.Printf("[World] Error loading password: %v\n", err)
 		os.Exit(1)
 	}
 
 	filePath, err := filepath.Abs(args[0])
 	if err != nil {
-		fmt.Printf("[FW] Invalid file path: %v\n", err)
+		fmt.Printf("[World] Invalid file path: %v\n", err)
 		os.Exit(1)
 	}
 	x, err := strconv.ParseFloat(args[1], 64)
 	if err != nil {
-		fmt.Printf("[FW] Invalid x coordinate: %v\n", err)
+		fmt.Printf("[World] Invalid x coordinate: %v\n", err)
 		os.Exit(1)
 	}
 	y, err := strconv.ParseFloat(args[2], 64)
 	if err != nil {
-		fmt.Printf("[FW] Invalid y coordinate: %v\n", err)
+		fmt.Printf("[World] Invalid y coordinate: %v\n", err)
 		os.Exit(1)
 	}
 	z, err := strconv.ParseFloat(args[3], 64)
 	if err != nil {
-		fmt.Printf("[FW] Invalid z coordinate: %v\n", err)
+		fmt.Printf("[World] Invalid z coordinate: %v\n", err)
 		os.Exit(1)
 	}
 	rx, err := strconv.ParseFloat(args[4], 64)
 	if err != nil {
-		fmt.Printf("[FW] Invalid rx rotation: %v\n", err)
+		fmt.Printf("[World] Invalid rx rotation: %v\n", err)
 		os.Exit(1)
 	}
 	ry, err := strconv.ParseFloat(args[5], 64)
 	if err != nil {
-		fmt.Printf("[FW] Invalid ry rotation: %v\n", err)
+		fmt.Printf("[World] Invalid ry rotation: %v\n", err)
 		os.Exit(1)
 	}
 	rz, err := strconv.ParseFloat(args[6], 64)
 	if err != nil {
-		fmt.Printf("[FW] Invalid rz rotation: %v\n", err)
+		fmt.Printf("[World] Invalid rz rotation: %v\n", err)
 		os.Exit(1)
 	}
 	sx, err := strconv.ParseFloat(args[7], 64)
 	if err != nil {
-		fmt.Printf("[FW] Invalid sx scale: %v\n", err)
+		fmt.Printf("[World] Invalid sx scale: %v\n", err)
 		os.Exit(1)
 	}
 	sy, err := strconv.ParseFloat(args[8], 64)
 	if err != nil {
-		fmt.Printf("[FW] Invalid sy scale: %v\n", err)
+		fmt.Printf("[World] Invalid sy scale: %v\n", err)
 		os.Exit(1)
 	}
 	sz, err := strconv.ParseFloat(args[9], 64)
 	if err != nil {
-		fmt.Printf("[FW] Invalid sz scale: %v\n", err)
+		fmt.Printf("[World] Invalid sz scale: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("[FW] Putting world binary data from %s with coordinates (%f, %f, %f), rotation (%f, %f, %f), scale (%f, %f, %f)\n", filePath, x, y, z, rx, ry, rz, sx, sy, sz)
+	fmt.Printf("[World] Putting world binary data from %s with coordinates (%f, %f, %f), rotation (%f, %f, %f), scale (%f, %f, %f)\n", filePath, x, y, z, rx, ry, rz, sx, sy, sz)
 
 	// Open the file
 	file, err := os.Open(filePath)
 	if err != nil {
-		fmt.Printf("[FW] Error opening file %s: %v\n", filePath, err)
+		fmt.Printf("[World] Error opening file %s: %v\n", filePath, err)
 		os.Exit(1)
 	}
 	defer file.Close()
@@ -163,7 +251,7 @@ func handlePut(args []string) {
 	// Create GUID
 	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
-		fmt.Printf("[FW] Error hashing file: %v\n", err)
+		fmt.Printf("[World] Error hashing file: %v\n", err)
 		os.Exit(1)
 	}
 	guid := hex.EncodeToString(hash.Sum(nil))
@@ -171,26 +259,26 @@ func handlePut(args []string) {
 	// Get file content
 	_, err = file.Seek(0, 0)
 	if err != nil {
-		fmt.Printf("[FW] Error seeking file: %v\n", err)
+		fmt.Printf("[World] Error seeking file: %v\n", err)
 		os.Exit(1)
 	}
 	byteArray, err := io.ReadAll(file)
 	if err != nil {
-		fmt.Printf("[FW] Error reading file: %v\n", err)
+		fmt.Printf("[World] Error reading file: %v\n", err)
 		os.Exit(1)
 	}
 
 	// Compress file
 	compressedData, err := compressData(byteArray)
 	if err != nil {
-		fmt.Printf("[FW] Error compressing file: %v\n", err)
+		fmt.Printf("[World] Error compressing file: %v\n", err)
 		os.Exit(1)
 	}
 
 	// Encrypt file
 	encryptedData, err := encryptData(compressedData)
 	if err != nil {
-		fmt.Printf("[FW] Error encrypting file: %v\n", err)
+		fmt.Printf("[World] Error encrypting file: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -200,21 +288,21 @@ func handlePut(args []string) {
 	// Save the file
 	err = os.WriteFile(objectPath, encryptedData, 0644)
 	if err != nil {
-		fmt.Printf("[FW] Error saving file %s: %v\n", objectPath, err)
+		fmt.Printf("[World] Error saving file %s: %v\n", objectPath, err)
 		os.Exit(1)
 	}
 
 	// Upload to IPFS
 	cid, err := ipfs.Upload(objectPath)
 	if err != nil {
-		fmt.Printf("[FW] Error uploading file to IPFS: %v\n", err)
+		fmt.Printf("[World] Error uploading file to IPFS: %v\n", err)
 		os.Exit(1)
 	}
 
 	// Rename file GUID -> CID
 	err = os.Rename(objectPath, filepath.Join(".fw", "objects", cid))
 	if err != nil {
-		fmt.Printf("[FW] Error renaming file: %v\n", err)
+		fmt.Printf("[World] Error renaming file: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -224,14 +312,14 @@ func handlePut(args []string) {
 	// Compress metadata
 	compressedMetaData, err := compressData([]byte(metaDataContent))
 	if err != nil {
-		fmt.Printf("[FW] Error compressing metadata: %v\n", err)
+		fmt.Printf("[World] Error compressing metadata: %v\n", err)
 		os.Exit(1)
 	}
 
 	// Encrypt metadata
 	encryptedMetaData, err := encryptData(compressedMetaData)
 	if err != nil {
-		fmt.Printf("[FW] Error encrypting metadata: %v\n", err)
+		fmt.Printf("[World] Error encrypting metadata: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -239,37 +327,37 @@ func handlePut(args []string) {
 	metaDataPath := filepath.Join(".fw", "objects", guid)
 	err = os.WriteFile(metaDataPath, encryptedMetaData, 0644)
 	if err != nil {
-		fmt.Printf("[FW] Error creating metadata file %s: %v\n", metaDataPath, err)
+		fmt.Printf("[World] Error creating metadata file %s: %v\n", metaDataPath, err)
 		os.Exit(1)
 	}
 
 	// Upload metadata to IPFS
 	metaCid, err := ipfs.Upload(metaDataPath)
 	if err != nil {
-		fmt.Printf("[FW] Error uploading metadata to IPFS: %v\n", err)
+		fmt.Printf("[World] Error uploading metadata to IPFS: %v\n", err)
 		os.Exit(1)
 	}
 
 	// Rename metadata GUID -> CID
 	err = os.Rename(metaDataPath, filepath.Join(".fw", "objects", metaCid))
 	if err != nil {
-		fmt.Printf("[FW] Error renaming metadata file: %v\n", err)
+		fmt.Printf("[World] Error renaming metadata file: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("[FW] File saved as %s\n", filepath.Join(".fw", "objects", cid))
-	fmt.Printf("[FW] Metadata saved as %s\n", filepath.Join(".fw", "objects", metaCid))
+	fmt.Printf("[World] File saved as %s\n", filepath.Join(".fw", "objects", cid))
+	fmt.Printf("[World] Metadata saved as %s\n", filepath.Join(".fw", "objects", metaCid))
 }
 
 func handleCat(args []string) {
 	if len(args) < 1 {
-		fmt.Println("[FW] Usage: fw cat <file-hash>")
+		fmt.Println("[World] Usage: fw cat <file-hash>")
 		os.Exit(1)
 	}
 
 	err := loadPassword()
 	if err != nil {
-		fmt.Printf("[FW] Error loading password: %v\n", err)
+		fmt.Printf("[World] Error loading password: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -279,25 +367,126 @@ func handleCat(args []string) {
 	// Read the encrypted data from the file
 	encryptedData, err := os.ReadFile(objectPath)
 	if err != nil {
-		fmt.Printf("[FW] Error reading file %s: %v\n", objectPath, err)
+		fmt.Printf("[World] Error reading file %s: %v\n", objectPath, err)
 		os.Exit(1)
 	}
 
 	// Decrypt the data
 	decryptedData, err := decryptData(encryptedData)
 	if err != nil {
-		fmt.Printf("[FW] Error decrypting file %s: %v\n", objectPath, err)
+		fmt.Printf("[World] Error decrypting file %s: %v\n", objectPath, err)
 		os.Exit(1)
 	}
 
 	// Decompress the data
 	decompressedData, err := decompressData(decryptedData)
 	if err != nil {
-		fmt.Printf("[FW] Error decompressing file %s: %v\n", objectPath, err)
+		fmt.Printf("[World] Error decompressing file %s: %v\n", objectPath, err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("[FW] Decrypted and decompressed file content:\n%s\n", string(decompressedData))
+	fmt.Printf("[World] Decrypted and decompressed file content:\n%s\n", string(decompressedData))
+}
+
+func handleGet(args []string) {
+	if len(args) < 1 {
+		fmt.Println("[World] Usage: fw get <cid>")
+		os.Exit(1)
+	}
+
+	err := loadPassword()
+	if err != nil {
+		fmt.Printf("[World] Error loading password: %v\n", err)
+		os.Exit(1)
+	}
+
+	cid := args[0]
+	metaDataPath := filepath.Join(".fw", "objects", cid)
+
+	// Download metadata from IPFS
+	err = ipfs.Download(cid, metaDataPath)
+	if err != nil {
+		fmt.Printf("[World] Error downloading metadata: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Read the encrypted metadata
+	encryptedMetaData, err := os.ReadFile(metaDataPath)
+	if err != nil {
+		fmt.Printf("[World] Error reading metadata %s: %v\n", metaDataPath, err)
+		os.Exit(1)
+	}
+
+	// Decrypt metadata
+	decryptedMetaData, err := decryptData(encryptedMetaData)
+	if err != nil {
+		fmt.Printf("[World] Error decrypting metadata %s: %v\n", metaDataPath, err)
+		os.Exit(1)
+	}
+
+	// Decompress metadata
+	decompressedMetaData, err := decompressData(decryptedMetaData)
+	if err != nil {
+		fmt.Printf("[World] Error decompressing metadata %s: %v\n", metaDataPath, err)
+		os.Exit(1)
+	}
+
+	// Parse metadata content to get the file CID
+	metaDataContent := string(decompressedMetaData)
+	var fileCid, fileName string
+	lines := strings.Split(metaDataContent, "\n")
+	for _, line := range lines {
+		if strings.HasPrefix(line, "file: ") {
+			fileName = strings.TrimPrefix(line, "file: ")
+		} else if strings.HasPrefix(line, "cid: ") {
+			fileCid = strings.TrimPrefix(line, "cid: ")
+		}
+	}
+
+	if fileCid == "" {
+		fmt.Printf("[World] Error: File CID not found in metadata %s\n", metaDataPath)
+		os.Exit(1)
+	}
+
+	// Download the file from IPFS
+	filePath := filepath.Join(".fw/content", filepath.Base(fileName))
+	fmt.Println("[World] Downloading file from IPFS..." + filePath)
+	err = ipfs.Download(fileCid, filePath)
+	if err != nil {
+		fmt.Printf("[World] Error downloading file from IPFS: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Read the encrypted file data
+	encryptedFileData, err := os.ReadFile(filePath)
+	if err != nil {
+		fmt.Printf("[World] Error reading file %s: %v\n", filePath, err)
+		os.Exit(1)
+	}
+
+	// Decrypt the file data
+	decryptedFileData, err := decryptData(encryptedFileData)
+	if err != nil {
+		fmt.Printf("[World] Error decrypting file %s: %v\n", filePath, err)
+		os.Exit(1)
+	}
+
+	// Decompress the file data
+	decompressedFileData, err := decompressData(decryptedFileData)
+	if err != nil {
+		fmt.Printf("[World] Error decompressing file %s: %v\n", filePath, err)
+		os.Exit(1)
+	}
+
+	// Save the decompressed data to the content folder
+	//contentFilePath := filepath.Join("content", filepath.Base(fileName))
+	err = os.WriteFile(filePath, decompressedFileData, 0644)
+	if err != nil {
+		fmt.Printf("[World] Error saving decompressed file %s: %v\n", filePath, err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("[World] File downloaded, decrypted, and saved to %s\n", filePath)
 }
 
 func encryptFile(file *os.File) ([]byte, error) {
@@ -344,7 +533,7 @@ func decryptData(encryptedData []byte) ([]byte, error) {
 
 	nonceSize := gcm.NonceSize()
 	if len(encryptedData) < nonceSize {
-		return nil, fmt.Errorf("[FW] ciphertext too short")
+		return nil, fmt.Errorf("[World] ciphertext too short")
 	}
 
 	nonce, ciphertext := encryptedData[:nonceSize], encryptedData[nonceSize:]
@@ -378,66 +567,4 @@ func decompressData(data []byte) ([]byte, error) {
 		return nil, err
 	}
 	return decompressedData.Bytes(), nil
-}
-
-func handleInit(args []string) {
-
-	// Initialize IPFS
-	err := ipfs.InitIPFS()
-	if err != nil {
-		fmt.Printf("[FW] Error initializing IPFS: %v\n", err)
-		os.Exit(1)
-	}
-
-	// If .fw already exists, exit
-	if _, err := os.Stat(".fw"); err == nil {
-		fmt.Println("[FW] .fw repository already exists.")
-		return
-	}
-
-	fmt.Println("[FW] .fw repository initialized.")
-
-	directories := []string{
-		".fw",
-		".fw/objects",
-		".fw/worlds",
-		".fw/worlds/heads",
-		".fw/worlds/tags",
-	}
-
-	files := map[string]string{
-		".fw/HEAD":        "ref: refs/heads/master\n",
-		".fw/config":      "[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = false\n",
-		".fw/description": "Unnamed repository; edit this file 'description' to name the repository.\n",
-	}
-
-	for _, dir := range directories {
-		absDir, err := filepath.Abs(dir)
-		if err != nil {
-			fmt.Printf("[FW] Error creating directory %s: %v\n", dir, err)
-			os.Exit(1)
-		}
-		err = os.MkdirAll(absDir, 0755)
-		if err != nil {
-			fmt.Printf("[FW] Error creating directory %s: %v\n", absDir, err)
-			os.Exit(1)
-		}
-	}
-
-	for file, content := range files {
-		absFile, err := filepath.Abs(file)
-		if err != nil {
-			fmt.Printf("[FW] Error creating file %s: %v\n", file, err)
-			os.Exit(1)
-		}
-		err = os.WriteFile(absFile, []byte(content), 0644)
-		if err != nil {
-			fmt.Printf("[FW] Error creating file %s: %v\n", absFile, err)
-			os.Exit(1)
-		}
-	}
-}
-
-func handleCreate(args []string) {
-	fmt.Println("[FW] Creating new world...")
 }
