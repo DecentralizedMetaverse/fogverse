@@ -5,7 +5,6 @@ import (
 	"compress/gzip"
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -205,8 +204,6 @@ func handlePut(args []string) {
 		os.Exit(1)
 	}
 
-	return
-
 	// Upload to IPFS
 	cid, err := ipfs.Upload(objectPath)
 	if err != nil {
@@ -278,35 +275,29 @@ func handleCat(args []string) {
 
 	fileHash := args[0]
 	objectPath := filepath.Join(".fw", "objects", fileHash)
-	metaDataPath := objectPath + ".meta"
 
+	// Read the encrypted data from the file
 	encryptedData, err := os.ReadFile(objectPath)
 	if err != nil {
 		fmt.Printf("[FW] Error reading file %s: %v\n", objectPath, err)
 		os.Exit(1)
 	}
 
+	// Decrypt the data
 	decryptedData, err := decryptData(encryptedData)
 	if err != nil {
 		fmt.Printf("[FW] Error decrypting file %s: %v\n", objectPath, err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("[FW] Decrypted file content:\n%s\n", string(decryptedData))
-
-	encryptedMetaData, err := os.ReadFile(metaDataPath)
+	// Decompress the data
+	decompressedData, err := decompressData(decryptedData)
 	if err != nil {
-		fmt.Printf("[FW] Error reading metadata file %s: %v\n", metaDataPath, err)
+		fmt.Printf("[FW] Error decompressing file %s: %v\n", objectPath, err)
 		os.Exit(1)
 	}
 
-	decryptedMetaData, err := decryptData(encryptedMetaData)
-	if err != nil {
-		fmt.Printf("[FW] Error decrypting metadata file %s: %v\n", metaDataPath, err)
-		os.Exit(1)
-	}
-
-	fmt.Printf("[FW] Decrypted metadata content:\n%s\n", string(decryptedMetaData))
+	fmt.Printf("[FW] Decrypted and decompressed file content:\n%s\n", string(decompressedData))
 }
 
 func encryptFile(file *os.File) ([]byte, error) {
@@ -334,10 +325,8 @@ func encryptData(plainData []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	nonce := make([]byte, gcm.NonceSize())
-	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		return nil, err
-	}
+	hash := sha256.Sum256(plainData)
+	nonce := hash[:gcm.NonceSize()]
 
 	return gcm.Seal(nonce, nonce, plainData, nil), nil
 }
