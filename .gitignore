@@ -78,7 +78,7 @@ Assets/output.log
 .idea/
 MistNet/logs/
 Assets/ipfs/
-ipfs/
+/ipfs/
 meta/
 content/
 UserSettings/
