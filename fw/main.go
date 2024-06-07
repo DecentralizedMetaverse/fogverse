@@ -29,6 +29,10 @@ type WorldData struct {
 	Name string   `yaml:"name"`
 	CID  []string `yaml:"cid"`
 }
+type HeadData struct {
+	CurrentWorld string `yaml:"currentWorld"`
+	Guid         string `yaml:"guid"`
+}
 
 var key []byte
 
@@ -46,10 +50,11 @@ func main() {
 	commandHandler := map[string]CommandHandler{
 		"init":         handleInit,        // create directory
 		"switch":       handleSwitch,      // create world
-		"get":          handleGet,         // get world binary data
+		"get":          handleGet,         // metacidからファイルを取得
 		"put":          handlePut,         // put world binary data
 		"set-password": handleSetPassword, // set encryption password
 		"cat":          handleCat,         // view encrypted file content
+		"get-world":    handleGetWorldCID, // get world data
 	}
 
 	if handler, found := commandHandler[cmd.Name]; found {
@@ -58,6 +63,78 @@ func main() {
 		fmt.Printf("[World] Unknown command: %s\n", cmd.Name)
 		os.Exit(1)
 	}
+}
+
+func handleGetWorldCID(args []string) {
+	// worldのcidを取得する
+	// guid fileをipfsに保存し、そのcidを返す
+	// head fileからguidを取得
+	headPath := filepath.Join(".fw", "HEAD")
+	headData, err := os.ReadFile(headPath)
+	if err != nil {
+		fmt.Printf("[World] Error reading HEAD: %v\n", err)
+		os.Exit(1)
+	}
+	// yaml読み込み
+	// guid取得
+	var headYamlData HeadData
+	err = yaml.Unmarshal(headData, &headYamlData)
+	if err != nil {
+		fmt.Printf("[World] Error parsing HEAD: %v\n", err)
+		os.Exit(1)
+	}
+	guid := headYamlData.Guid
+	filePath := filepath.Join(".fw", "worlds", guid)
+
+	file, err := os.Open(filePath)
+	if err != nil {
+		fmt.Printf("[World] Error opening file %s: %v\n", filePath, err)
+		os.Exit(1)
+	}
+	defer file.Close()
+
+	hash, err := generateFileHash(file)
+	if err != nil {
+		fmt.Printf("[World] Error hashing file: %v\n", err)
+		os.Exit(1)
+	}
+
+	byteArray, err := readFile(file)
+	if err != nil {
+		fmt.Printf("[World] Error reading file: %v\n", err)
+		os.Exit(1)
+	}
+
+	compressedData, err := compressData(byteArray)
+	if err != nil {
+		fmt.Printf("[World] Error compressing file: %v\n", err)
+		os.Exit(1)
+	}
+
+	if err := loadPassword(); err != nil {
+		fmt.Printf("[World] Error loading password: %v\n", err)
+		os.Exit(1)
+	}
+
+	encryptedData, err := encryptData(compressedData)
+	if err != nil {
+		fmt.Printf("[World] Error encrypting file: %v\n", err)
+		os.Exit(1)
+	}
+
+	objectPath := filepath.Join(".fw", "objects", hash)
+	if err := saveFile(objectPath, encryptedData); err != nil {
+		fmt.Printf("[World] Error saving file %s: %v\n", objectPath, err)
+		os.Exit(1)
+	}
+
+	cid, err := ipfs.Upload(objectPath)
+	if err != nil {
+		fmt.Printf("[World] Error uploading file to IPFS: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("[World] World data uploaded to IPFS with CID: %s\n", cid)
 }
 
 func handleSetPassword(args []string) {
