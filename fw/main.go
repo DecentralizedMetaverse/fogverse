@@ -94,8 +94,6 @@ func loadPassword() error {
 }
 
 func handleInit(args []string) {
-
-	// If .fw already exists, exit
 	if _, err := os.Stat(".fw"); err == nil {
 		fmt.Println("[World] .fw repository already exists.")
 		return
@@ -119,6 +117,17 @@ func handleInit(args []string) {
 		".fw/description": "Unnamed repository; edit this file 'description' to name the repository.\n",
 	}
 
+	createDirectories(directories)
+	createFiles(files)
+
+	err := ipfs.InitIPFS()
+	if err != nil {
+		fmt.Printf("[World] Error initializing IPFS: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func createDirectories(directories []string) {
 	for _, dir := range directories {
 		absDir, err := filepath.Abs(dir)
 		if err != nil {
@@ -131,7 +140,9 @@ func handleInit(args []string) {
 			os.Exit(1)
 		}
 	}
+}
 
+func createFiles(files map[string]string) {
 	for file, content := range files {
 		absFile, err := filepath.Abs(file)
 		if err != nil {
@@ -143,13 +154,6 @@ func handleInit(args []string) {
 			fmt.Printf("[World] Error creating file %s: %v\n", absFile, err)
 			os.Exit(1)
 		}
-	}
-
-	// Initialize IPFS
-	err := ipfs.InitIPFS()
-	if err != nil {
-		fmt.Printf("[World] Error initializing IPFS: %v\n", err)
-		os.Exit(1)
 	}
 }
 
@@ -163,39 +167,14 @@ func handleSwitch(args []string) {
 
 	fmt.Println("[World] Creating new world...")
 
-	// 既にあるか調べる
 	worldListPath := filepath.Join(".fw", "world_list")
-
-	// file読み込み
-	worldListData, err := os.ReadFile(worldListPath)
+	worldDict, err := loadWorldList(worldListPath)
 	if err != nil {
 		fmt.Printf("[World] Error reading world list: %v\n", err)
 		os.Exit(1)
 	}
 
-	// yamlで読み込む
-	worldList := strings.Split(string(worldListData), "\n")
-	worldDict := make(map[string]string)
-	for _, line := range worldList {
-		if line == "" {
-			continue
-		}
-		kv := strings.Split(line, ": ")
-		worldDict[kv[0]] = kv[1]
-	}
-
-	// keyに同じworldNameがあるか
-	worldGuid, exists := worldDict[worldName]
-
-	// headにcurrentWorldを設定
-	headPath := filepath.Join(".fw", "HEAD")
-	err = os.WriteFile(headPath, []byte(fmt.Sprintf("currentWorld: %s\nguid: %s\n", worldName, worldGuid)), 0644)
-	if err != nil {
-		fmt.Printf("[World] Error updating HEAD: %v\n", err)
-		return
-	}
-
-	if exists {
+	if _, exists := worldDict[worldName]; exists {
 		fmt.Printf("[World] Error: World %s already exists\n", worldName)
 		os.Exit(1)
 	}
@@ -206,30 +185,63 @@ func handleSwitch(args []string) {
 		os.Exit(1)
 	}
 
-	guidStr := guid.String()
-
-	err = os.WriteFile(headPath, []byte(fmt.Sprintf("currentWorld: %s\nguid: %s\n", worldName, guidStr)), 0644)
+	worldGuid := guid.String()
+	err = updateHead(worldName, worldGuid)
 	if err != nil {
 		fmt.Printf("[World] Error updating HEAD: %v\n", err)
-		return
-	}
-
-	// guidを使ってファイルを作成
-	worldPath := filepath.Join(".fw", "worlds", guidStr)
-	worldMeta := fmt.Sprintf("name: %s\ncid: %s\n", worldName, "")
-	err = os.WriteFile(worldPath, []byte(worldMeta), 0644)
-	if err != nil {
-		fmt.Printf("[World] Error creating world file %s: %v\n", worldPath, err)
 		os.Exit(1)
 	}
 
-	// world_listに追加
-	worldDict[worldName] = guidStr
+	err = createWorldFile(worldName, worldGuid)
+	if err != nil {
+		fmt.Printf("[World] Error creating world file: %v\n", err)
+		os.Exit(1)
+	}
+
+	worldDict[worldName] = worldGuid
+	err = saveWorldList(worldListPath, worldDict)
+	if err != nil {
+		fmt.Printf("[World] Error updating world list: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func loadWorldList(worldListPath string) (map[string]string, error) {
+	worldListData, err := os.ReadFile(worldListPath)
+	if err != nil {
+		return nil, err
+	}
+
+	worldList := strings.Split(string(worldListData), "\n")
+	worldDict := make(map[string]string)
+	for _, line := range worldList {
+		if line == "" {
+			continue
+		}
+		kv := strings.Split(line, ": ")
+		worldDict[kv[0]] = kv[1]
+	}
+	return worldDict, nil
+}
+
+func updateHead(worldName, worldGuid string) error {
+	headPath := filepath.Join(".fw", "HEAD")
+	headContent := fmt.Sprintf("currentWorld: %s\nguid: %s\n", worldName, worldGuid)
+	return os.WriteFile(headPath, []byte(headContent), 0644)
+}
+
+func createWorldFile(worldName, worldGuid string) error {
+	worldPath := filepath.Join(".fw", "worlds", worldGuid)
+	worldMeta := fmt.Sprintf("name: %s\ncid: %s\n", worldName, "")
+	return os.WriteFile(worldPath, []byte(worldMeta), 0644)
+}
+
+func saveWorldList(worldListPath string, worldDict map[string]string) error {
 	var newWorldData []byte
 	for k, v := range worldDict {
 		newWorldData = append(newWorldData, []byte(fmt.Sprintf("%s: %s\n", k, v))...)
 	}
-	err = os.WriteFile(worldListPath, newWorldData, 0644)
+	return os.WriteFile(worldListPath, newWorldData, 0644)
 }
 
 func handlePut(args []string) {
@@ -249,13 +261,10 @@ func handlePut(args []string) {
 		os.Exit(1)
 	}
 
-	coords := make([]float64, 9)
-	for i := 1; i <= 9; i++ {
-		coords[i-1], err = strconv.ParseFloat(args[i], 64)
-		if err != nil {
-			fmt.Printf("[World] Invalid input %s: %v\n", args[i], err)
-			os.Exit(1)
-		}
+	coords, err := parseCoordinates(args[1:])
+	if err != nil {
+		fmt.Printf("[World] Invalid input: %v\n", err)
+		os.Exit(1)
 	}
 
 	fmt.Printf("[World] Putting world binary data from %s with coordinates (%f, %f, %f), rotation (%f, %f, %f), scale (%f, %f, %f)\n",
@@ -268,19 +277,13 @@ func handlePut(args []string) {
 	}
 	defer file.Close()
 
-	hash := sha256.New()
-	if _, err := io.Copy(hash, file); err != nil {
+	hash, err := generateFileHash(file)
+	if err != nil {
 		fmt.Printf("[World] Error hashing file: %v\n", err)
 		os.Exit(1)
 	}
-	guid := hex.EncodeToString(hash.Sum(nil))
 
-	if _, err := file.Seek(0, 0); err != nil {
-		fmt.Printf("[World] Error seeking file: %v\n", err)
-		os.Exit(1)
-	}
-
-	byteArray, err := io.ReadAll(file)
+	byteArray, err := readFile(file)
 	if err != nil {
 		fmt.Printf("[World] Error reading file: %v\n", err)
 		os.Exit(1)
@@ -298,8 +301,8 @@ func handlePut(args []string) {
 		os.Exit(1)
 	}
 
-	objectPath := filepath.Join(".fw", "objects", guid)
-	if err := os.WriteFile(objectPath, encryptedData, 0644); err != nil {
+	objectPath := filepath.Join(".fw", "objects", hash)
+	if err := saveFile(objectPath, encryptedData); err != nil {
 		fmt.Printf("[World] Error saving file %s: %v\n", objectPath, err)
 		os.Exit(1)
 	}
@@ -310,28 +313,20 @@ func handlePut(args []string) {
 		os.Exit(1)
 	}
 
-	if err := os.Rename(objectPath, filepath.Join(".fw", "objects", cid)); err != nil {
+	if err := renameFile(objectPath, filepath.Join(".fw", "objects", cid)); err != nil {
 		fmt.Printf("[World] Error renaming file: %v\n", err)
 		os.Exit(1)
 	}
 
-	metaDataContent := fmt.Sprintf("file: %s\ncid: %s\nx: %f\ny: %f\nz: %f\nrx: %f\nry: %f\nrz: %f\nsx: %f\nsy: %f\nsz: %f\n",
-		filePath, cid, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7], coords[8])
-
-	compressedMetaData, err := compressData([]byte(metaDataContent))
+	metaDataContent := generateMetaDataContent(filePath, cid, coords)
+	encryptedMetaData, err := encryptAndCompressMetaData(metaDataContent)
 	if err != nil {
-		fmt.Printf("[World] Error compressing metadata: %v\n", err)
+		fmt.Printf("[World] Error processing metadata: %v\n", err)
 		os.Exit(1)
 	}
 
-	encryptedMetaData, err := encryptData(compressedMetaData)
-	if err != nil {
-		fmt.Printf("[World] Error encrypting metadata: %v\n", err)
-		os.Exit(1)
-	}
-
-	metaDataPath := filepath.Join(".fw", "objects", guid)
-	if err := os.WriteFile(metaDataPath, encryptedMetaData, 0644); err != nil {
+	metaDataPath := filepath.Join(".fw", "objects", hash)
+	if err := saveFile(metaDataPath, encryptedMetaData); err != nil {
 		fmt.Printf("[World] Error creating metadata file %s: %v\n", metaDataPath, err)
 		os.Exit(1)
 	}
@@ -342,7 +337,7 @@ func handlePut(args []string) {
 		os.Exit(1)
 	}
 
-	if err := os.Rename(metaDataPath, filepath.Join(".fw", "objects", metaCid)); err != nil {
+	if err := renameFile(metaDataPath, filepath.Join(".fw", "objects", metaCid)); err != nil {
 		fmt.Printf("[World] Error renaming metadata file: %v\n", err)
 		os.Exit(1)
 	}
@@ -350,51 +345,94 @@ func handlePut(args []string) {
 	fmt.Printf("[World] File saved as %s\n", filepath.Join(".fw", "objects", cid))
 	fmt.Printf("[World] Metadata saved as %s\n", filepath.Join(".fw", "objects", metaCid))
 
-	headPath := filepath.Join(".fw", "HEAD")
-	headData, err := os.ReadFile(headPath)
+	err = updateWorldData(metaCid)
 	if err != nil {
-		fmt.Printf("[World] Error reading HEAD: %v\n", err)
-		os.Exit(1)
-	}
-
-	headLines := strings.Split(string(headData), "\n")
-	var worldGuid string
-	for _, line := range headLines {
-		if strings.HasPrefix(line, "guid: ") {
-			worldGuid = strings.TrimPrefix(line, "guid: ")
-		}
-	}
-
-	worldDataPath := filepath.Join(".fw", "worlds", worldGuid)
-	worldDataStr, err := os.ReadFile(worldDataPath)
-	if err != nil {
-		fmt.Printf("[World] Error reading world data: %v\n", err)
-		os.Exit(1)
-	}
-
-	var worldData WorldData
-	err = yaml.Unmarshal(worldDataStr, &worldData)
-	if err != nil {
-		fmt.Printf("[World] Error parsing world data: %v\n", err)
-		os.Exit(1)
-	}
-
-	worldData.CID = append(worldData.CID, metaCid)
-
-	// 構造体を再度YAMLにマーシャルする
-	newWorldData, err := yaml.Marshal(&worldData)
-	if err != nil {
-		fmt.Printf("[World] Error marshaling world data: %v\n", err)
-		os.Exit(1)
-	}
-
-	// YAMLデータをファイルに書き込む
-	if err := os.WriteFile(worldDataPath, newWorldData, 0644); err != nil {
 		fmt.Printf("[World] Error updating world data: %v\n", err)
 		os.Exit(1)
 	}
 
 	fmt.Println("[World] World data updated successfully.")
+}
+
+func generateFileHash(file *os.File) (string, error) {
+	hash := sha256.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return "", err
+	}
+	if _, err := file.Seek(0, 0); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(hash.Sum(nil)), nil
+}
+
+func readFile(file *os.File) ([]byte, error) {
+	return io.ReadAll(file)
+}
+
+func saveFile(path string, data []byte) error {
+	return os.WriteFile(path, data, 0644)
+}
+
+func renameFile(oldPath, newPath string) error {
+	return os.Rename(oldPath, newPath)
+}
+
+func generateMetaDataContent(filePath, cid string, coords []float64) string {
+	return fmt.Sprintf("file: %s\ncid: %s\nx: %f\ny: %f\nz: %f\nrx: %f\nry: %f\nrz: %f\nsx: %f\nsy: %f\nsz: %f\n",
+		filePath, cid, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7], coords[8])
+}
+
+func encryptAndCompressMetaData(metaDataContent string) ([]byte, error) {
+	compressedMetaData, err := compressData([]byte(metaDataContent))
+	if err != nil {
+		return nil, err
+	}
+
+	return encryptData(compressedMetaData)
+}
+
+func updateWorldData(metaCid string) error {
+	headPath := filepath.Join(".fw", "HEAD")
+	headData, err := os.ReadFile(headPath)
+	if err != nil {
+		return err
+	}
+
+	worldGuid, err := extractWorldGuid(headData)
+	if err != nil {
+		return err
+	}
+
+	worldDataPath := filepath.Join(".fw", "worlds", worldGuid)
+	worldDataStr, err := os.ReadFile(worldDataPath)
+	if err != nil {
+		return err
+	}
+
+	var worldData WorldData
+	err = yaml.Unmarshal(worldDataStr, &worldData)
+	if err != nil {
+		return err
+	}
+
+	worldData.CID = append(worldData.CID, metaCid)
+
+	newWorldData, err := yaml.Marshal(&worldData)
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(worldDataPath, newWorldData, 0644)
+}
+
+func extractWorldGuid(headData []byte) (string, error) {
+	headLines := strings.Split(string(headData), "\n")
+	for _, line := range headLines {
+		if strings.HasPrefix(line, "guid: ") {
+			return strings.TrimPrefix(line, "guid: "), nil
+		}
+	}
+	return "", fmt.Errorf("world GUID not found")
 }
 
 func handleCat(args []string) {
@@ -412,21 +450,18 @@ func handleCat(args []string) {
 	fileHash := args[0]
 	objectPath := filepath.Join(".fw", "objects", fileHash)
 
-	// Read the encrypted data from the file
 	encryptedData, err := os.ReadFile(objectPath)
 	if err != nil {
 		fmt.Printf("[World] Error reading file %s: %v\n", objectPath, err)
 		os.Exit(1)
 	}
 
-	// Decrypt the data
 	decryptedData, err := decryptData(encryptedData)
 	if err != nil {
 		fmt.Printf("[World] Error decrypting file %s: %v\n", objectPath, err)
 		os.Exit(1)
 	}
 
-	// Decompress the data
 	decompressedData, err := decompressData(decryptedData)
 	if err != nil {
 		fmt.Printf("[World] Error decompressing file %s: %v\n", objectPath, err)
@@ -451,36 +486,72 @@ func handleGet(args []string) {
 	cid := args[0]
 	metaDataPath := filepath.Join(".fw", "objects", cid)
 
-	// Download metadata from IPFS
 	err = ipfs.Download(cid, metaDataPath)
 	if err != nil {
 		fmt.Printf("[World] Error downloading metadata: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Read the encrypted metadata
 	encryptedMetaData, err := os.ReadFile(metaDataPath)
 	if err != nil {
 		fmt.Printf("[World] Error reading metadata %s: %v\n", metaDataPath, err)
 		os.Exit(1)
 	}
 
-	// Decrypt metadata
 	decryptedMetaData, err := decryptData(encryptedMetaData)
 	if err != nil {
 		fmt.Printf("[World] Error decrypting metadata %s: %v\n", metaDataPath, err)
 		os.Exit(1)
 	}
 
-	// Decompress metadata
 	decompressedMetaData, err := decompressData(decryptedMetaData)
 	if err != nil {
 		fmt.Printf("[World] Error decompressing metadata %s: %v\n", metaDataPath, err)
 		os.Exit(1)
 	}
 
-	// Parse metadata content to get the file CID
 	metaDataContent := string(decompressedMetaData)
+	fileCid, fileName, err := extractFileDetailsFromMetaData(metaDataContent)
+	if err != nil {
+		fmt.Printf("[World] Error extracting file details from metadata %s: %v\n", metaDataPath, err)
+		os.Exit(1)
+	}
+
+	filePath := filepath.Join(".fw", "content", filepath.Base(fileName))
+	err = ipfs.Download(fileCid, filePath)
+	if err != nil {
+		fmt.Printf("[World] Error downloading file from IPFS: %v\n", err)
+		os.Exit(1)
+	}
+
+	encryptedFileData, err := os.ReadFile(filePath)
+	if err != nil {
+		fmt.Printf("[World] Error reading file %s: %v\n", filePath, err)
+		os.Exit(1)
+	}
+
+	decryptedFileData, err := decryptData(encryptedFileData)
+	if err != nil {
+		fmt.Printf("[World] Error decrypting file %s: %v\n", filePath, err)
+		os.Exit(1)
+	}
+
+	decompressedFileData, err := decompressData(decryptedFileData)
+	if err != nil {
+		fmt.Printf("[World] Error decompressing file %s: %v\n", filePath, err)
+		os.Exit(1)
+	}
+
+	err = saveFile(filePath, decompressedFileData)
+	if err != nil {
+		fmt.Printf("[World] Error saving decompressed file %s: %v\n", filePath, err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("[World] File downloaded, decrypted, and saved to %s\n", filePath)
+}
+
+func extractFileDetailsFromMetaData(metaDataContent string) (string, string, error) {
 	var fileCid, fileName string
 	lines := strings.Split(metaDataContent, "\n")
 	for _, line := range lines {
@@ -492,63 +563,9 @@ func handleGet(args []string) {
 	}
 
 	if fileCid == "" {
-		fmt.Printf("[World] Error: File CID not found in metadata %s\n", metaDataPath)
-		os.Exit(1)
+		return "", "", fmt.Errorf("file CID not found in metadata")
 	}
-
-	// Download the file from IPFS
-	filePath := filepath.Join(".fw/content", filepath.Base(fileName))
-	fmt.Println("[World] Downloading file from IPFS..." + filePath)
-	err = ipfs.Download(fileCid, filePath)
-	if err != nil {
-		fmt.Printf("[World] Error downloading file from IPFS: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Read the encrypted file data
-	encryptedFileData, err := os.ReadFile(filePath)
-	if err != nil {
-		fmt.Printf("[World] Error reading file %s: %v\n", filePath, err)
-		os.Exit(1)
-	}
-
-	// Decrypt the file data
-	decryptedFileData, err := decryptData(encryptedFileData)
-	if err != nil {
-		fmt.Printf("[World] Error decrypting file %s: %v\n", filePath, err)
-		os.Exit(1)
-	}
-
-	// Decompress the file data
-	decompressedFileData, err := decompressData(decryptedFileData)
-	if err != nil {
-		fmt.Printf("[World] Error decompressing file %s: %v\n", filePath, err)
-		os.Exit(1)
-	}
-
-	// Save the decompressed data to the content folder
-	//contentFilePath := filepath.Join("content", filepath.Base(fileName))
-	err = os.WriteFile(filePath, decompressedFileData, 0644)
-	if err != nil {
-		fmt.Printf("[World] Error saving decompressed file %s: %v\n", filePath, err)
-		os.Exit(1)
-	}
-
-	fmt.Printf("[World] File downloaded, decrypted, and saved to %s\n", filePath)
-}
-
-func encryptFile(file *os.File) ([]byte, error) {
-	fileInfo, err := file.Stat()
-	if err != nil {
-		return nil, err
-	}
-
-	plainData := make([]byte, fileInfo.Size())
-	if _, err := file.Read(plainData); err != nil {
-		return nil, err
-	}
-
-	return encryptData(plainData)
+	return fileCid, fileName, nil
 }
 
 func encryptData(plainData []byte) ([]byte, error) {
@@ -615,4 +632,16 @@ func decompressData(data []byte) ([]byte, error) {
 		return nil, err
 	}
 	return decompressedData.Bytes(), nil
+}
+
+func parseCoordinates(args []string) ([]float64, error) {
+	coords := make([]float64, 9)
+	for i := 0; i < 9; i++ {
+		coord, err := strconv.ParseFloat(args[i], 64)
+		if err != nil {
+			return nil, fmt.Errorf("invalid input %s: %v", args[i], err)
+		}
+		coords[i] = coord
+	}
+	return coords, nil
 }
