@@ -27,6 +27,7 @@ type CommandHandler func(args []string)
 
 type WorldData struct {
 	Name string   `yaml:"name"`
+	GUID string   `yaml:"guid"`
 	CID  []string `yaml:"cid"`
 }
 type HeadData struct {
@@ -48,19 +49,76 @@ func main() {
 	}
 
 	commandHandler := map[string]CommandHandler{
-		"init":         handleInit,        // create directory
-		"switch":       handleSwitch,      // create world
-		"get":          handleGet,         // metacidからファイルを取得
-		"put":          handlePut,         // put world binary data
-		"set-password": handleSetPassword, // set encryption password
-		"cat":          handleCat,         // view encrypted file content
-		"get-world":    handleGetWorldCID, // get world data
+		"init":           handleInit,          // create directory
+		"switch":         handleSwitch,        // create world
+		"get":            handleGet,           // metaCIDからファイルを取得
+		"put":            handlePut,           // put world binary data
+		"set-password":   handleSetPassword,   // set encryption password
+		"cat":            handleCat,           // view encrypted file content
+		"get-world-cid":  handleGetWorldCID,   // get world data
+		"download-world": handleDownloadWorld, // download world data
 	}
 
 	if handler, found := commandHandler[cmd.Name]; found {
 		handler(cmd.Args)
 	} else {
 		fmt.Printf("[World] Unknown command: %s\n", cmd.Name)
+		os.Exit(1)
+	}
+}
+
+func handleDownloadWorld(args []string) {
+	if len(args) < 1 {
+		fmt.Println("[World] Usage: fw download-world <cid>")
+		os.Exit(1)
+	}
+
+	cid := args[0]
+	worldPath := filepath.Join(".fw", "objects", cid)
+	err := ipfs.Download(cid, worldPath)
+	if err != nil {
+		fmt.Printf("[World] Error downloading world data: %v\n", err)
+		os.Exit(1)
+	}
+
+	// 復号化, 解凍
+	err = loadPassword()
+	if err != nil {
+		fmt.Printf("[World] Error loading password: %v\n", err)
+		os.Exit(1)
+	}
+
+	worldData, err := os.ReadFile(worldPath)
+	if err != nil {
+		fmt.Printf("[World] Error reading world data: %v\n", err)
+		os.Exit(1)
+	}
+
+	decryptedData, err := decryptData(worldData)
+	if err != nil {
+		fmt.Printf("[World] Error decrypting world data: %v\n", err)
+		os.Exit(1)
+	}
+
+	decompressedData, err := decompressData(decryptedData)
+	if err != nil {
+		fmt.Printf("[World] Error decompressing world data: %v\n", err)
+		os.Exit(1)
+	}
+
+	var worldYamlData WorldData
+	err = yaml.Unmarshal(decompressedData, &worldYamlData)
+	if err != nil {
+		fmt.Printf("[World] Error parsing world data: %v\n", err)
+		os.Exit(1)
+	}
+
+	newWorldPath := filepath.Join(".fw", "worlds", worldYamlData.GUID)
+
+	// 保存
+	err = os.WriteFile(newWorldPath, decompressedData, 0644)
+	if err != nil {
+		fmt.Printf("[World] Error saving world data: %v\n", err)
 		os.Exit(1)
 	}
 }
@@ -309,7 +367,7 @@ func updateHead(worldName, worldGuid string) error {
 
 func createWorldFile(worldName, worldGuid string) error {
 	worldPath := filepath.Join(".fw", "worlds", worldGuid)
-	worldMeta := fmt.Sprintf("name: %s\ncid: %s\n", worldName, "")
+	worldMeta := fmt.Sprintf("name: %s\nguid: %s\ncid: %s\n", worldName, worldGuid, "")
 	return os.WriteFile(worldPath, []byte(worldMeta), 0644)
 }
 
@@ -549,6 +607,7 @@ func handleCat(args []string) {
 }
 
 func handleGet(args []string) {
+	// metaDataを読み込むのはそこにfile名が書いてあるから
 	if len(args) < 1 {
 		fmt.Println("[World] Usage: fw get <cid>")
 		os.Exit(1)
