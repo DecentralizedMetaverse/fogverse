@@ -30,6 +30,19 @@ type WorldData struct {
 	GUID string   `yaml:"guid"`
 	CID  []string `yaml:"cid"`
 }
+type WorldSingleData struct {
+	CID  string  `yaml:"cid"`
+	File string  `yaml:"file"`
+	X    float64 `yaml:"x"`
+	Y    float64 `yaml:"y"`
+	Z    float64 `yaml:"z"`
+	RX   float64 `yaml:"rx"`
+	RY   float64 `yaml:"ry"`
+	RZ   float64 `yaml:"rz"`
+	SX   float64 `yaml:"sx"`
+	SY   float64 `yaml:"sy"`
+	SZ   float64 `yaml:"sz"`
+}
 type HeadData struct {
 	CurrentWorld string `yaml:"currentWorld"`
 	Guid         string `yaml:"guid"`
@@ -57,6 +70,7 @@ func main() {
 		"cat":            handleCat,           // view encrypted file content
 		"get-world-cid":  handleGetWorldCID,   // get world data
 		"download-world": handleDownloadWorld, // download world data
+		"get-world-data": handleGetWorldData,  // get world data
 	}
 
 	if handler, found := commandHandler[cmd.Name]; found {
@@ -65,6 +79,87 @@ func main() {
 		fmt.Printf("[World] Unknown command: %s\n", cmd.Name)
 		os.Exit(1)
 	}
+}
+
+func handleGetWorldData(args []string) {
+	// headから読み込み
+	headPath := filepath.Join(".fw", "HEAD")
+	headData, err := os.ReadFile(headPath)
+	if err != nil {
+		fmt.Printf("[World] Error reading HEAD: %v\n", err)
+		os.Exit(1)
+	}
+
+	var headYamlData HeadData
+	err = yaml.Unmarshal(headData, &headYamlData)
+	if err != nil {
+		fmt.Printf("[World] Error parsing HEAD: %v\n", err)
+		os.Exit(1)
+	}
+
+	// worldData読み込み
+	worldDataPath := filepath.Join(".fw", "worlds", headYamlData.Guid)
+	worldDataStr, err := os.ReadFile(worldDataPath)
+	if err != nil {
+		fmt.Printf("[World] Error reading world data: %v\n", err)
+		os.Exit(1)
+	}
+
+	var worldYamlData WorldData
+	err = yaml.Unmarshal(worldDataStr, &worldYamlData)
+	if err != nil {
+		fmt.Printf("[World] Error parsing world data: %v\n", err)
+		os.Exit(1)
+	}
+
+	err = loadPassword()
+	if err != nil {
+		fmt.Printf("[World] Error loading password: %v\n", err)
+		os.Exit(1)
+	}
+
+	// metaFileを全て取得
+	worldAllData := make([]WorldSingleData, 0)
+	metaFilePath := ""
+	for _, cid := range worldYamlData.CID {
+		metaFilePath = filepath.Join(".fw", "objects", cid)
+		file, err := os.Open(metaFilePath)
+		byteArray, err := readFile(file)
+		if err != nil {
+			fmt.Printf("[World] Error reading file: %v\n", err)
+			os.Exit(1)
+		}
+
+		decryptedData, err := decryptData(byteArray)
+		if err != nil {
+			fmt.Printf("[World] Error decrypting world data: %v\n", err)
+			os.Exit(1)
+		}
+
+		decompressedData, err := decompressData(decryptedData)
+		if err != nil {
+			fmt.Printf("[World] Error decompressing world data: %v\n", err)
+			os.Exit(1)
+		}
+		var worldSingleData WorldSingleData
+		err = yaml.Unmarshal(decompressedData, &worldSingleData)
+		if err != nil {
+			fmt.Printf("[World] Error parsing world data: %v\n", err)
+			os.Exit(1)
+		}
+		worldAllData = append(worldAllData, worldSingleData)
+	}
+
+	fmt.Println(worldAllData)
+	// .fw/contentにyamlで保存
+	savePath := filepath.Join(".fw", "content", headYamlData.CurrentWorld+".yaml")
+	worldAllDataYaml, err := yaml.Marshal(&worldAllData)
+	if err != nil {
+		fmt.Printf("[World] Error parsing world data: %v\n", err)
+		os.Exit(1)
+
+	}
+	err = os.WriteFile(savePath, worldAllDataYaml, 0644)
 }
 
 func handleDownloadWorld(args []string) {
@@ -513,8 +608,9 @@ func renameFile(oldPath, newPath string) error {
 }
 
 func generateMetaDataContent(filePath, cid string, coords []float64) string {
+	fileName := filepath.Base(filePath)
 	return fmt.Sprintf("file: %s\ncid: %s\nx: %f\ny: %f\nz: %f\nrx: %f\nry: %f\nrz: %f\nsx: %f\nsy: %f\nsz: %f\n",
-		filePath, cid, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7], coords[8])
+		fileName, cid, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7], coords[8])
 }
 
 func encryptAndCompressMetaData(metaDataContent string) ([]byte, error) {
