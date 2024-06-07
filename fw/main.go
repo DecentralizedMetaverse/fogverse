@@ -609,8 +609,8 @@ func renameFile(oldPath, newPath string) error {
 
 func generateMetaDataContent(filePath, cid string, coords []float64) string {
 	fileName := filepath.Base(filePath)
-	return fmt.Sprintf("file: %s\ncid: %s\nx: %f\ny: %f\nz: %f\nrx: %f\nry: %f\nrz: %f\nsx: %f\nsy: %f\nsz: %f\n",
-		fileName, cid, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7], coords[8])
+	return fmt.Sprintf("cid: %s\nfile: %s\nx: %f\ny: %f\nz: %f\nrx: %f\nry: %f\nrz: %f\nsx: %f\nsy: %f\nsz: %f\n",
+		cid, fileName, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7], coords[8])
 }
 
 func encryptAndCompressMetaData(metaDataContent string) ([]byte, error) {
