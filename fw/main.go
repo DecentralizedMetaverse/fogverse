@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"fw/ipfs"
 	"github.com/google/uuid"
+	"gopkg.in/yaml.v2"
 	"io"
 	"os"
 	"path/filepath"
@@ -23,6 +24,11 @@ type Command struct {
 }
 
 type CommandHandler func(args []string)
+
+type WorldData struct {
+	Name string   `yaml:"name"`
+	CID  []string `yaml:"cid"`
+}
 
 var key []byte
 
@@ -38,11 +44,9 @@ func main() {
 	}
 
 	commandHandler := map[string]CommandHandler{
-		"init":         handleInit,   // create directory
-		"create":       handleCreate, // create world
-		"switch":       nil,          // switch world
-		"get":          handleGet,    // get world binary data
-		"get-raw":      nil,
+		"init":         handleInit,        // create directory
+		"switch":       handleSwitch,      // create world
+		"get":          handleGet,         // get world binary data
 		"put":          handlePut,         // put world binary data
 		"set-password": handleSetPassword, // set encryption password
 		"cat":          handleCat,         // view encrypted file content
@@ -110,6 +114,7 @@ func handleInit(args []string) {
 
 	files := map[string]string{
 		".fw/HEAD":        "",
+		".fw/world_list":  "",
 		".fw/config":      "[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = false\n",
 		".fw/description": "Unnamed repository; edit this file 'description' to name the repository.\n",
 	}
@@ -148,7 +153,7 @@ func handleInit(args []string) {
 	}
 }
 
-func handleCreate(args []string) {
+func handleSwitch(args []string) {
 	if len(args) < 1 {
 		fmt.Println("[World] Usage: fw create <world-name>")
 		os.Exit(1)
@@ -159,27 +164,37 @@ func handleCreate(args []string) {
 	fmt.Println("[World] Creating new world...")
 
 	// 既にあるか調べる
-	headPath := filepath.Join(".fw", "HEAD")
+	worldListPath := filepath.Join(".fw", "world_list")
+
 	// file読み込み
-	headData, err := os.ReadFile(headPath)
+	worldListData, err := os.ReadFile(worldListPath)
 	if err != nil {
-		fmt.Printf("[World] Error reading HEAD: %v\n", err)
+		fmt.Printf("[World] Error reading world list: %v\n", err)
 		os.Exit(1)
 	}
 
 	// yamlで読み込む
-	headLines := strings.Split(string(headData), "\n")
-	head := make(map[string]string)
-	for _, line := range headLines {
+	worldList := strings.Split(string(worldListData), "\n")
+	worldDict := make(map[string]string)
+	for _, line := range worldList {
 		if line == "" {
 			continue
 		}
 		kv := strings.Split(line, ": ")
-		head[kv[0]] = kv[1]
+		worldDict[kv[0]] = kv[1]
 	}
 
 	// keyに同じworldNameがあるか
-	_, exists := head[worldName]
+	worldGuid, exists := worldDict[worldName]
+
+	// headにcurrentWorldを設定
+	headPath := filepath.Join(".fw", "HEAD")
+	err = os.WriteFile(headPath, []byte(fmt.Sprintf("currentWorld: %s\nguid: %s\n", worldName, worldGuid)), 0644)
+	if err != nil {
+		fmt.Printf("[World] Error updating HEAD: %v\n", err)
+		return
+	}
+
 	if exists {
 		fmt.Printf("[World] Error: World %s already exists\n", worldName)
 		os.Exit(1)
@@ -193,6 +208,12 @@ func handleCreate(args []string) {
 
 	guidStr := guid.String()
 
+	err = os.WriteFile(headPath, []byte(fmt.Sprintf("currentWorld: %s\nguid: %s\n", worldName, guidStr)), 0644)
+	if err != nil {
+		fmt.Printf("[World] Error updating HEAD: %v\n", err)
+		return
+	}
+
 	// guidを使ってファイルを作成
 	worldPath := filepath.Join(".fw", "worlds", guidStr)
 	worldMeta := fmt.Sprintf("name: %s\ncid: %s\n", worldName, "")
@@ -202,12 +223,13 @@ func handleCreate(args []string) {
 		os.Exit(1)
 	}
 
-	// HEADを更新
-	err = os.WriteFile(headPath, []byte(fmt.Sprintf("%s: %s\n", worldName, guidStr)), 0644)
-	if err != nil {
-		fmt.Printf("[World] Error updating HEAD: %v\n", err)
-		os.Exit(1)
+	// world_listに追加
+	worldDict[worldName] = guidStr
+	var newWorldData []byte
+	for k, v := range worldDict {
+		newWorldData = append(newWorldData, []byte(fmt.Sprintf("%s: %s\n", k, v))...)
 	}
+	err = os.WriteFile(worldListPath, newWorldData, 0644)
 }
 
 func handlePut(args []string) {
@@ -216,8 +238,7 @@ func handlePut(args []string) {
 		os.Exit(1)
 	}
 
-	err := loadPassword()
-	if err != nil {
+	if err := loadPassword(); err != nil {
 		fmt.Printf("[World] Error loading password: %v\n", err)
 		os.Exit(1)
 	}
@@ -227,55 +248,19 @@ func handlePut(args []string) {
 		fmt.Printf("[World] Invalid file path: %v\n", err)
 		os.Exit(1)
 	}
-	x, err := strconv.ParseFloat(args[1], 64)
-	if err != nil {
-		fmt.Printf("[World] Invalid x coordinate: %v\n", err)
-		os.Exit(1)
-	}
-	y, err := strconv.ParseFloat(args[2], 64)
-	if err != nil {
-		fmt.Printf("[World] Invalid y coordinate: %v\n", err)
-		os.Exit(1)
-	}
-	z, err := strconv.ParseFloat(args[3], 64)
-	if err != nil {
-		fmt.Printf("[World] Invalid z coordinate: %v\n", err)
-		os.Exit(1)
-	}
-	rx, err := strconv.ParseFloat(args[4], 64)
-	if err != nil {
-		fmt.Printf("[World] Invalid rx rotation: %v\n", err)
-		os.Exit(1)
-	}
-	ry, err := strconv.ParseFloat(args[5], 64)
-	if err != nil {
-		fmt.Printf("[World] Invalid ry rotation: %v\n", err)
-		os.Exit(1)
-	}
-	rz, err := strconv.ParseFloat(args[6], 64)
-	if err != nil {
-		fmt.Printf("[World] Invalid rz rotation: %v\n", err)
-		os.Exit(1)
-	}
-	sx, err := strconv.ParseFloat(args[7], 64)
-	if err != nil {
-		fmt.Printf("[World] Invalid sx scale: %v\n", err)
-		os.Exit(1)
-	}
-	sy, err := strconv.ParseFloat(args[8], 64)
-	if err != nil {
-		fmt.Printf("[World] Invalid sy scale: %v\n", err)
-		os.Exit(1)
-	}
-	sz, err := strconv.ParseFloat(args[9], 64)
-	if err != nil {
-		fmt.Printf("[World] Invalid sz scale: %v\n", err)
-		os.Exit(1)
+
+	coords := make([]float64, 9)
+	for i := 1; i <= 9; i++ {
+		coords[i-1], err = strconv.ParseFloat(args[i], 64)
+		if err != nil {
+			fmt.Printf("[World] Invalid input %s: %v\n", args[i], err)
+			os.Exit(1)
+		}
 	}
 
-	fmt.Printf("[World] Putting world binary data from %s with coordinates (%f, %f, %f), rotation (%f, %f, %f), scale (%f, %f, %f)\n", filePath, x, y, z, rx, ry, rz, sx, sy, sz)
+	fmt.Printf("[World] Putting world binary data from %s with coordinates (%f, %f, %f), rotation (%f, %f, %f), scale (%f, %f, %f)\n",
+		filePath, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7], coords[8])
 
-	// Open the file
 	file, err := os.Open(filePath)
 	if err != nil {
 		fmt.Printf("[World] Error opening file %s: %v\n", filePath, err)
@@ -283,7 +268,6 @@ func handlePut(args []string) {
 	}
 	defer file.Close()
 
-	// Create GUID
 	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
 		fmt.Printf("[World] Error hashing file: %v\n", err)
@@ -291,97 +275,126 @@ func handlePut(args []string) {
 	}
 	guid := hex.EncodeToString(hash.Sum(nil))
 
-	// Get file content
-	_, err = file.Seek(0, 0)
-	if err != nil {
+	if _, err := file.Seek(0, 0); err != nil {
 		fmt.Printf("[World] Error seeking file: %v\n", err)
 		os.Exit(1)
 	}
+
 	byteArray, err := io.ReadAll(file)
 	if err != nil {
 		fmt.Printf("[World] Error reading file: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Compress file
 	compressedData, err := compressData(byteArray)
 	if err != nil {
 		fmt.Printf("[World] Error compressing file: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Encrypt file
 	encryptedData, err := encryptData(compressedData)
 	if err != nil {
 		fmt.Printf("[World] Error encrypting file: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Create the path to save the object
 	objectPath := filepath.Join(".fw", "objects", guid)
-
-	// Save the file
-	err = os.WriteFile(objectPath, encryptedData, 0644)
-	if err != nil {
+	if err := os.WriteFile(objectPath, encryptedData, 0644); err != nil {
 		fmt.Printf("[World] Error saving file %s: %v\n", objectPath, err)
 		os.Exit(1)
 	}
 
-	// Upload to IPFS
 	cid, err := ipfs.Upload(objectPath)
 	if err != nil {
 		fmt.Printf("[World] Error uploading file to IPFS: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Rename file GUID -> CID
-	err = os.Rename(objectPath, filepath.Join(".fw", "objects", cid))
-	if err != nil {
+	if err := os.Rename(objectPath, filepath.Join(".fw", "objects", cid)); err != nil {
 		fmt.Printf("[World] Error renaming file: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Create and encrypt metadata file
-	metaDataContent := fmt.Sprintf("file: %s\ncid: %s\nx: %f\ny: %f\nz: %f\nrx: %f\nry: %f\nrz: %f\nsx: %f\nsy: %f\nsz: %f\n", filePath, cid, x, y, z, rx, ry, rz, sx, sy, sz)
+	metaDataContent := fmt.Sprintf("file: %s\ncid: %s\nx: %f\ny: %f\nz: %f\nrx: %f\nry: %f\nrz: %f\nsx: %f\nsy: %f\nsz: %f\n",
+		filePath, cid, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7], coords[8])
 
-	// Compress metadata
 	compressedMetaData, err := compressData([]byte(metaDataContent))
 	if err != nil {
 		fmt.Printf("[World] Error compressing metadata: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Encrypt metadata
 	encryptedMetaData, err := encryptData(compressedMetaData)
 	if err != nil {
 		fmt.Printf("[World] Error encrypting metadata: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Save metadata
 	metaDataPath := filepath.Join(".fw", "objects", guid)
-	err = os.WriteFile(metaDataPath, encryptedMetaData, 0644)
-	if err != nil {
+	if err := os.WriteFile(metaDataPath, encryptedMetaData, 0644); err != nil {
 		fmt.Printf("[World] Error creating metadata file %s: %v\n", metaDataPath, err)
 		os.Exit(1)
 	}
 
-	// Upload metadata to IPFS
 	metaCid, err := ipfs.Upload(metaDataPath)
 	if err != nil {
 		fmt.Printf("[World] Error uploading metadata to IPFS: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Rename metadata GUID -> CID
-	err = os.Rename(metaDataPath, filepath.Join(".fw", "objects", metaCid))
-	if err != nil {
+	if err := os.Rename(metaDataPath, filepath.Join(".fw", "objects", metaCid)); err != nil {
 		fmt.Printf("[World] Error renaming metadata file: %v\n", err)
 		os.Exit(1)
 	}
 
 	fmt.Printf("[World] File saved as %s\n", filepath.Join(".fw", "objects", cid))
 	fmt.Printf("[World] Metadata saved as %s\n", filepath.Join(".fw", "objects", metaCid))
+
+	headPath := filepath.Join(".fw", "HEAD")
+	headData, err := os.ReadFile(headPath)
+	if err != nil {
+		fmt.Printf("[World] Error reading HEAD: %v\n", err)
+		os.Exit(1)
+	}
+
+	headLines := strings.Split(string(headData), "\n")
+	var worldGuid string
+	for _, line := range headLines {
+		if strings.HasPrefix(line, "guid: ") {
+			worldGuid = strings.TrimPrefix(line, "guid: ")
+		}
+	}
+
+	worldDataPath := filepath.Join(".fw", "worlds", worldGuid)
+	worldDataStr, err := os.ReadFile(worldDataPath)
+	if err != nil {
+		fmt.Printf("[World] Error reading world data: %v\n", err)
+		os.Exit(1)
+	}
+
+	var worldData WorldData
+	err = yaml.Unmarshal(worldDataStr, &worldData)
+	if err != nil {
+		fmt.Printf("[World] Error parsing world data: %v\n", err)
+		os.Exit(1)
+	}
+
+	worldData.CID = append(worldData.CID, metaCid)
+
+	// 構造体を再度YAMLにマーシャルする
+	newWorldData, err := yaml.Marshal(&worldData)
+	if err != nil {
+		fmt.Printf("[World] Error marshaling world data: %v\n", err)
+		os.Exit(1)
+	}
+
+	// YAMLデータをファイルに書き込む
+	if err := os.WriteFile(worldDataPath, newWorldData, 0644); err != nil {
+		fmt.Printf("[World] Error updating world data: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("[World] World data updated successfully.")
 }
 
 func handleCat(args []string) {
