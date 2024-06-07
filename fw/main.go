@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"fw/ipfs"
+	"github.com/google/uuid"
 	"io"
 	"os"
 	"path/filepath"
@@ -90,13 +91,6 @@ func loadPassword() error {
 
 func handleInit(args []string) {
 
-	// Initialize IPFS
-	err := ipfs.InitIPFS()
-	if err != nil {
-		fmt.Printf("[World] Error initializing IPFS: %v\n", err)
-		os.Exit(1)
-	}
-
 	// If .fw already exists, exit
 	if _, err := os.Stat(".fw"); err == nil {
 		fmt.Println("[World] .fw repository already exists.")
@@ -115,7 +109,7 @@ func handleInit(args []string) {
 	}
 
 	files := map[string]string{
-		".fw/HEAD":        "ref: refs/heads/master\n",
+		".fw/HEAD":        "",
 		".fw/config":      "[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = false\n",
 		".fw/description": "Unnamed repository; edit this file 'description' to name the repository.\n",
 	}
@@ -145,6 +139,13 @@ func handleInit(args []string) {
 			os.Exit(1)
 		}
 	}
+
+	// Initialize IPFS
+	err := ipfs.InitIPFS()
+	if err != nil {
+		fmt.Printf("[World] Error initializing IPFS: %v\n", err)
+		os.Exit(1)
+	}
 }
 
 func handleCreate(args []string) {
@@ -156,21 +157,55 @@ func handleCreate(args []string) {
 	worldName := args[0]
 
 	fmt.Println("[World] Creating new world...")
-	// .fw/worlds/ に新しくfileを作成
-	// file名はguidで生成する
-	// guidはsha256で生成する
-	guid, err := NewUUID()
+
+	// 既にあるか調べる
+	headPath := filepath.Join(".fw", "HEAD")
+	// file読み込み
+	headData, err := os.ReadFile(headPath)
+	if err != nil {
+		fmt.Printf("[World] Error reading HEAD: %v\n", err)
+		os.Exit(1)
+	}
+
+	// yamlで読み込む
+	headLines := strings.Split(string(headData), "\n")
+	head := make(map[string]string)
+	for _, line := range headLines {
+		if line == "" {
+			continue
+		}
+		kv := strings.Split(line, ": ")
+		head[kv[0]] = kv[1]
+	}
+
+	// keyに同じworldNameがあるか
+	_, exists := head[worldName]
+	if exists {
+		fmt.Printf("[World] Error: World %s already exists\n", worldName)
+		os.Exit(1)
+	}
+
+	guid, err := uuid.NewUUID()
 	if err != nil {
 		fmt.Printf("[World] Error generating GUID: %v\n", err)
 		os.Exit(1)
 	}
 
+	guidStr := guid.String()
+
 	// guidを使ってファイルを作成
-	worldPath := filepath.Join(".fw", "worlds", guid)
+	worldPath := filepath.Join(".fw", "worlds", guidStr)
 	worldMeta := fmt.Sprintf("name: %s\ncid: %s\n", worldName, "")
 	err = os.WriteFile(worldPath, []byte(worldMeta), 0644)
 	if err != nil {
 		fmt.Printf("[World] Error creating world file %s: %v\n", worldPath, err)
+		os.Exit(1)
+	}
+
+	// HEADを更新
+	err = os.WriteFile(headPath, []byte(fmt.Sprintf("%s: %s\n", worldName, guidStr)), 0644)
+	if err != nil {
+		fmt.Printf("[World] Error updating HEAD: %v\n", err)
 		os.Exit(1)
 	}
 }
