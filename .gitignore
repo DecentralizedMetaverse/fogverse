@@ -86,3 +86,4 @@ UserSettings/
 IoTRegister/__pycache__
 
 .fw/
+fw/combined_cs_files.txt
