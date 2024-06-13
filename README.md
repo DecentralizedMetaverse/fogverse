@@ -1,6 +1,7 @@
 ## 完全分散型メタバースProject Decentralized Metaverse Project
 
-![image](https://github.com/DecentralizedMetaverse/fogverse/assets/38463346/eddb37ea-889b-48cb-8019-e81faacf8286)
+![image](https://github.com/DecentralizedMetaverse/fogverse/assets/38463346/90f12030-1437-4644-b9ed-52df5b17b12c)
+
 
 
 This project aims to create a decentralized metaverse. 
