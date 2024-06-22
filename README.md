@@ -1,4 +1,8 @@
-## Decentralized Metaverse Project
+## 完全分散型メタバースProject Decentralized Metaverse Project
+
+![image](https://github.com/DecentralizedMetaverse/fogverse/assets/38463346/90f12030-1437-4644-b9ed-52df5b17b12c)
+
+
 
 This project aims to create a decentralized metaverse. 
 
@@ -24,7 +28,7 @@ Please import the following assets before starting with the project:
   2. Press Shift + Click to bring up the component menu.
   3. Choose the desired component to add to the object.
 
-### How It Works
+### MistNet Protocol
 
 The metaverse consists of two layers:
 
