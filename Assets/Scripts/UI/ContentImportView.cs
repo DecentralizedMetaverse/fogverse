@@ -1,5 +1,7 @@
 using System.IO;
+using Cysharp.Threading.Tasks;
 using DC;
+using TC;
 using Teo.AutoReference;
 using TMPro;
 using UnityEngine;
@@ -100,7 +102,7 @@ public class ContentImportView : UIComponent
                 var fileButton = Instantiate(buttonPrefab, content);
                 fileButton.gameObject.SetActive(true);
                 fileButton.Label.text = Path.GetFileName(file);
-                fileButton.Button.onClick.AddListener(() => OnSubmit(fileIndex));
+                fileButton.Button.onClick.AddListener(() => OnSubmit(fileIndex).Forget());
                 i++;
             }
         }
@@ -116,6 +118,7 @@ public class ContentImportView : UIComponent
         {
             currentPath = Directory.GetParent(currentPath)?.FullName;
         }
+
         input.text = currentPath;
         OnDirectoryChanged();
     }
@@ -137,21 +140,23 @@ public class ContentImportView : UIComponent
     /// <summary>
     /// </summary>
     /// <param name="i"></param>
-    private void OnSubmit(int i)
+    private async UniTask OnSubmit(int i)
     {
         // Copy file
         var source = files[i - directories.Length];
         Debug.Log($"[ContentImportView] OnSubmit: {source}");
         // var destination = $"{Constants.ContentPath}/{Path.GetFileName(source)}";
+        var args = new [] { source };
+        await Message.Send<UniTask<string>>("FwAdd", args);
         var destination = string.Format(Constants.ContentPath, Path.GetFileName(source));
-
-        if (!File.Exists(destination))
-        {
-            File.Copy(source, destination);
-        }
+        //
+        // if (!File.Exists(destination))
+        // {
+        //     File.Copy(source, destination);
+        // }
 
         GM.Msg("GenerateObj", destination);
-        GM.Msg("RegisterObject"); // これを実行するタイミングに注意　全MetaFileが書き変わる
+        // GM.Msg("RegisterObject"); // これを実行するタイミングに注意　全MetaFileが書き変わる
     }
 
     public override void Show()
