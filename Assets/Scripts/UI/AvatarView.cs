@@ -1,6 +1,8 @@
 using DC;
 using System.IO;
+using Cysharp.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using TC;
 using Teo.AutoReference;
 using UniGLTF;
 using UniJSON;
@@ -43,14 +45,14 @@ public class AvatarView : UIComponent
             var avatarButton = Instantiate(avatarButtonPrefab, content);
             avatarButton.gameObject.SetActive(true);
             avatarButton.avatarName.text = fileName;
-            avatarButton.button.onClick.AddListener(() => OnClick(filePath));
+            avatarButton.button.onClick.AddListener(() => OnClick(filePath).Forget());
 
             // VRMファイルからサムネイルを取得して表示
-            var thumbnail = LoadVRMThumbnail(filePath);
-            if (thumbnail != null)
-            {
-                avatarButton.avatarImage.sprite = thumbnail;
-            }
+            // var thumbnail = LoadVRMThumbnail(filePath);
+            // if (thumbnail != null)
+            // {
+            //     avatarButton.avatarImage.sprite = thumbnail;
+            // }
         }
     }
 
@@ -60,12 +62,16 @@ public class AvatarView : UIComponent
         animation.Close();
     }
 
-    private void OnClick(string filePath)
+    private async UniTask OnClick(string filePath)
     {
-        var id = GM.db.rtc.id;
-        var objId = GM.db.rtc.syncObjectsByID[id][0];
-        var obj = GM.db.rtc.syncObjects[objId];
-        obj.SetObject(filePath);
+        // var id = GM.db.rtc.id;
+        // var objId = GM.db.rtc.syncObjectsByID[id][0];
+        // var obj = GM.db.rtc.syncObjects[objId];
+        // obj.SetObject(filePath);
+
+        var avatarObj = await Message.Send<UniTask<GameObject>>("VRMModelLoad", filePath);
+        Message.Send("ChangeAvatar", avatarObj);
+        Close();
     }
 
     private void OnOpenFolder()

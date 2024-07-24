@@ -11,8 +11,7 @@ public class AvatarModel : MonoBehaviour
     {        
         GM.Add<string, UniTask<string>>("UploadAvatar", UploadAvatar);
         GM.Add<string, UniTask<GameObject>>("DownloadAvatar", DownloadAvatar);
-        GM.Add<string, GameObject>("LoadAvatar", LoadAvatar);
-    }       
+    }
 
     /// <summary>
     /// Avatar��IPFS��Upload����
@@ -58,18 +57,6 @@ public class AvatarModel : MonoBehaviour
         // Decrypt Avatar
         var data = await GM.Msg<UniTask<byte[]>>("GetDecryptDataWithPassword", encryptAvatarPath, avatarPassword);
         var avatar = GM.Msg<GameObject>("VRMModelLoadFromData", data);
-
-        return avatar;
-    }
-
-    /// <summary>
-    /// Load from local storage 
-    /// </summary>
-    /// <param name="cid"></param>
-    /// <returns></returns>
-    GameObject LoadAvatar(string path)
-    {
-        var avatar = GM.Msg<GameObject>("VRMModelLoad", path);
 
         return avatar;
     }
