@@ -15,6 +15,8 @@ public class PlayerViewSetup : MonoBehaviour
 
     private void OnChangedCameraView(CameraView cameraView)
     {
+        if (face.gameObject == null) return;
+
         switch (cameraView)
         {
             case CameraView.FirstPerson:
