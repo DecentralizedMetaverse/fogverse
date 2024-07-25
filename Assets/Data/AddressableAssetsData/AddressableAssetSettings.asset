@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 3741a3955a8c0074cb39330f076670d6
   m_currentHash:
     serializedVersion: 2
-    Hash: e29ef98acedc20e9e065cf6393aed1d4
+    Hash: 4e454d415b60aefb4b2d946abe1d8de5
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_BundleLocalCatalog: 0
@@ -46,6 +46,7 @@ MonoBehaviour:
   m_GroupAssets:
   - {fileID: 11400000, guid: a2f60f12911031e4d815ebebbe264900, type: 2}
   - {fileID: 11400000, guid: b75952d1296dd8a4dbdd120592feda20, type: 2}
+  - {fileID: 11400000, guid: 9fc6eeeb91e42cf408bfee42d410921f, type: 2}
   m_BuildSettings:
     m_CompileScriptsInVirtualMode: 0
     m_CleanupStreamingAssetsAfterBuilds: 1

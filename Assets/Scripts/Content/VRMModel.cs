@@ -1,54 +1,22 @@
-using DC;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UniGLTF;
+using Cysharp.Threading.Tasks;
+using TC;
 using UnityEngine;
-using VRM;
+using UniVRM10;
 
 public class VRMModel : MonoBehaviour
 {
     void Start()
     {
-        GM.Add<string, GameObject>("VRMModelLoad", (path) => { return Load(path, null); });
-        GM.Add<byte[], GameObject>("VRMModelLoadFromData", (data) => { return Load(null, data); });
+        Message.Subscribe<string, UniTask<GameObject>>("VRMModelLoad", Load);
+        // GM.Add<byte[], GameObject>("VRMModelLoadFromData", (data) => { return Load(null, data); });
     }
 
-    public GameObject Load(string path, byte[] bytes = null)
+    private async UniTask<GameObject> Load(string path)
     {
-        GltfData data = null;
-        try
-        {
-            if (bytes != null)
-            {
-                data = new GlbLowLevelParser(path, bytes).Parse();
-            }
-            else
-            {
-                data = new GlbFileParser(path).Parse();
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"ParseError: {path}");
-            Debug.LogException(ex);
-            return null;
-        }
+        var vrm10Instance = await Vrm10.LoadPathAsync(path);
+        if (vrm10Instance != null) return vrm10Instance.gameObject;
 
-        try
-        {
-            using (data)
-            using (var importer = new VRMImporterContext(new VRMData(data)))
-            {
-                var avatar = importer.Load();
-                avatar.ShowMeshes();
-                return avatar.gameObject;
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.LogException(ex);
-            return null;
-        }
+        Debug.LogError($"[Error] VRMModel Load: {path}");
+        return null;
     }
 }
