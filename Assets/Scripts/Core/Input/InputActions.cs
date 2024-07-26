@@ -1071,6 +1071,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SwitchVR"",
+                    ""type"": ""Button"",
+                    ""id"": ""47e9d3dc-8e0e-4243-b97d-0f22a5b7cef5"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1082,6 +1091,17 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Menu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1e7ec9d0-add3-4277-8387-09a1373366b3"",
+                    ""path"": ""<Keyboard>/f8"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwitchVR"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1121,6 +1141,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         // Common
         m_Common = asset.FindActionMap("Common", throwIfNotFound: true);
         m_Common_Menu = m_Common.FindAction("Menu", throwIfNotFound: true);
+        m_Common_SwitchVR = m_Common.FindAction("SwitchVR", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -1473,11 +1494,13 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Common;
     private List<ICommonActions> m_CommonActionsCallbackInterfaces = new List<ICommonActions>();
     private readonly InputAction m_Common_Menu;
+    private readonly InputAction m_Common_SwitchVR;
     public struct CommonActions
     {
         private @InputActions m_Wrapper;
         public CommonActions(@InputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Menu => m_Wrapper.m_Common_Menu;
+        public InputAction @SwitchVR => m_Wrapper.m_Common_SwitchVR;
         public InputActionMap Get() { return m_Wrapper.m_Common; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1490,6 +1513,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Menu.started += instance.OnMenu;
             @Menu.performed += instance.OnMenu;
             @Menu.canceled += instance.OnMenu;
+            @SwitchVR.started += instance.OnSwitchVR;
+            @SwitchVR.performed += instance.OnSwitchVR;
+            @SwitchVR.canceled += instance.OnSwitchVR;
         }
 
         private void UnregisterCallbacks(ICommonActions instance)
@@ -1497,6 +1523,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Menu.started -= instance.OnMenu;
             @Menu.performed -= instance.OnMenu;
             @Menu.canceled -= instance.OnMenu;
+            @SwitchVR.started -= instance.OnSwitchVR;
+            @SwitchVR.performed -= instance.OnSwitchVR;
+            @SwitchVR.canceled -= instance.OnSwitchVR;
         }
 
         public void RemoveCallbacks(ICommonActions instance)
@@ -1548,5 +1577,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     public interface ICommonActions
     {
         void OnMenu(InputAction.CallbackContext context);
+        void OnSwitchVR(InputAction.CallbackContext context);
     }
 }
