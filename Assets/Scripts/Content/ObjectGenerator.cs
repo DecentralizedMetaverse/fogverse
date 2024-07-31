@@ -152,7 +152,6 @@ public class ObjectGenerator : MonoBehaviour
     /// <returns></returns>
     Transform ObjGltf(string path)
     {
-        var fullPath = Path.GetFullPath(path);
         var obj = Instantiate(prefabGltf);
         SetObjectInfo(path, obj.gameObject);
         obj.SetData(path);
